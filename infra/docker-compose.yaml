@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  ###########################################################################
+  # PostgreSQL Database
+  ###########################################################################
+  postgres:
+    image: postgres:15
+    container_name: secops-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: secops
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  ###########################################################################
+  # Redis Cache (optional for RAG, caching, scheduler)
+  ###########################################################################
+  redis:
+    image: redis:7
+    container_name: secops-redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  ###########################################################################
+  # Backend (FastAPI)
+  ###########################################################################
+  backend:
+    build:
+      context: ..
+      dockerfile: infra/docker/backend.Dockerfile
+    container_name: secops-backend
+    restart: always
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/secops
+      REDIS_URL: redis://redis:6379/0
+      BACKEND_ENV: "production"
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../backend:/app/backend  # optional hot reload for dev
+
+  ###########################################################################
+  # Frontend (Next.js)
+  ###########################################################################
+  frontend:
+    build:
+      context: ..
+      dockerfile: infra/docker/frontend.Dockerfile
+    container_name: secops-frontend
+    restart: always
+    environment:
+      NEXT_PUBLIC_API_URL: "http://localhost:8000"
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../frontend:/app/frontend  # dev hot reload
+
+###########################################################################
+# Volumes
+###########################################################################
+volumes:
+  postgres_data:

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secops-frontend
+  namespace: secops
+  labels:
+    app: secops-frontend
+    tier: frontend
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: secops-frontend
+  template:
+    metadata:
+      labels:
+        app: secops-frontend
+        tier: frontend
+    spec:
+      containers:
+        - name: secops-frontend
+          # TODO: replace with your built image
+          image: YOUR_REGISTRY/secops-frontend:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 3000
+
+          # ENV variables for Next.js runtime
+          env:
+            - name: NEXT_PUBLIC_API_URL
+              value: "http://secops-backend.secops.svc.cluster.local:8000"
+
+            # Optional (for tracking)
+            - name: NEXT_PUBLIC_APP_VERSION
+              value: "0.1.0"
+
+          # Liveness & readiness (Next.js server)
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            timeoutSeconds: 2
+            periodSeconds: 10
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 20
+            timeoutSeconds: 3
+            periodSeconds: 20
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "150m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+      restartPolicy: Always

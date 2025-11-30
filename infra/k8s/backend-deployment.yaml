@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secops-backend
+  namespace: secops
+  labels:
+    app: secops-backend
+    tier: backend
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: secops-backend
+  template:
+    metadata:
+      labels:
+        app: secops-backend
+        tier: backend
+    spec:
+      containers:
+        - name: secops-backend
+          # TODO: replace with your real registry image
+          image: YOUR_REGISTRY/secops-backend:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - name: http
+              containerPort: 8000
+
+          envFrom:
+            # Optional config map (non-sensitive config)
+            - configMapRef:
+                name: secops-backend-config
+            # Optional secrets (DB, JWT, API keys, etc.)
+            - secretRef:
+                name: secops-backend-secrets
+
+          # Health checks – use /health from the FastAPI app
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+
+      # Optional: add tolerations / nodeSelector if needed later
+      restartPolicy: Always

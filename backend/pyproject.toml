@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "secops-backend"
+version = "0.1.0"
+description = "SecOpsAI Backend – Automated maintenance, DevSecOps intelligence, and RAG-based issue detection."
+authors = [
+    { name = "inboxplus-collab", email = "support@secops.ai" }
+]
+license = "MIT"
+requires-python = ">=3.10"
+
+# Dependencies are intentionally *not* listed here because
+# we use requirements.txt for deployment/runtime consistency.
+
+[project.optional-dependencies]
+# For dev only (optional)
+dev = [
+    "black",
+    "ruff",
+    "mypy",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["*"]
+exclude = ["tests*"]
+
+# -----------------------------
+# BLACK (Auto Formatter)
+# -----------------------------
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+exclude = '''
+(
+    /venv
+    | /migrations
+)
+'''
+
+# -----------------------------
+# RUFF (Linter)
+# -----------------------------
+[tool.ruff]
+line-length = 100
+select = ["E", "F", "I"]      # Errors, flake8, import sorting
+exclude = [
+    "venv",
+    "migrations",
+]
+
+# -----------------------------
+# MyPy (Type Checking)
+# -----------------------------
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+warn_unused_ignores = false
+check_untyped_defs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+
+# -----------------------------
+# Pytest Configuration
+# -----------------------------
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-q"
+testpaths = ["tests"]
+pythonpath = ["src"]
