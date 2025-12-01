@@ -23,7 +23,7 @@ from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
 # Routers
-from api.routes import rag, platform, integrations, admin, auth  # type: ignore[attr-defined]
+from api.routes import analysis, rag, platform, integrations, admin, auth  # type: ignore[attr-defined]
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -166,6 +166,7 @@ async def health() -> Dict[str, Any]:
 # IMPORTANT: these assumes your router modules expose `router: APIRouter`
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(analysis.router, prefix="/api", tags=["analysis"])
 app.include_router(rag.router, prefix="/api/rag", tags=["rag"])
 app.include_router(platform.router, prefix="/api/platform", tags=["platform"])
 app.include_router(integrations.router, prefix="/api/integrations", tags=["integrations"])
