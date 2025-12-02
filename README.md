@@ -10,7 +10,7 @@ The RAG stack in this repository is designed to stay provider-agnostic and can b
 - **LlamaIndex** ([run-llama/llama_index](https://github.com/run-llama/llama_index)) for ingestion pipelines, retriever composition, and response synthesizers.
 - **GraphRAG** ([microsoft/graphrag](https://github.com/microsoft/graphrag)) for graph-aware retrieval, semantic neighborhoods, and multi-hop reasoning.
 
-The intent is not to fork these projects, but to use their patterns to keep the `backend/src/rag` components composable and easy to swap between providers.
+The intent is not to fork these projects, but to use their patterns to keep the `backend/src/rag` components composable and easy to swap between providers. See `docs/multi_llm_rag.md` for a deeper mapping between upstream ideas and the current engine.
 
 ## How to plug frameworks into the backend RAG engine
 
