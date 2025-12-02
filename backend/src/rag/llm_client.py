@@ -1,6 +1,8 @@
 import os
 import httpx
 from typing import Optional
+from utils.config import settings
+from utils.errors import LLMError
 
 
 class LLMClient:
