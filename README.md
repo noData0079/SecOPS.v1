@@ -1,5 +1,14 @@
 # SecOPS.v1
 
+SecOPS.v1 is organized into `backend`, `frontend`, and `infra` packages that together provide a security operations workflow. This repository documents external LLM neural network projects used for research or integration inspiration. The README now reflects the resolved merge state and is free of conflict markers.
+
+## LLM Neural Networks
+
+This project references a few open-source LLM implementations and tooling stacks:
+
+- [huggingface/transformers](https://github.com/huggingface/transformers)
+- [meta-llama/llama3](https://github.com/meta-llama/llama3)
+- [karpathy/llm.c](https://github.com/karpathy/llm.c)
 This repository hosts SecOPS.v1. For background on the autonomous evolution engine and LLM agent concepts guiding this work, see the [autonomous evolution engine documentation](docs/autonomous_evolution_engine.md).
 SecOPS.v1 is an experimental security automation platform that layers a multi-LLM Retrieval-Augmented Generation (RAG) engine on top of infrastructure, code, and operational data. The goal is to give SecOps teams a single interface for questions such as vulnerability triage, playbook generation, and environment introspection.
 
