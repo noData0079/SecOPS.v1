@@ -15,6 +15,26 @@ from api.schemas.issues import (
 
 
 class LoggerLike(Protocol):
+    """Minimal logger contract used by checks.
+
+    The protocol mirrors the subset of the stdlib ``logging.Logger`` API that
+    checks rely on. Concrete implementations can be standard loggers, adapters,
+    or test doubles used in unit tests. The default implementations below raise
+    ``NotImplementedError`` so that accidental direct use is surfaced during
+    execution.
+    """
+
+    def info(self, msg: str, *args: Any, **kwargs: Any) -> None:
+        raise NotImplementedError("Logger.info must be implemented by subclasses")
+
+    def warning(self, msg: str, *args: Any, **kwargs: Any) -> None:
+        raise NotImplementedError("Logger.warning must be implemented by subclasses")
+
+    def error(self, msg: str, *args: Any, **kwargs: Any) -> None:
+        raise NotImplementedError("Logger.error must be implemented by subclasses")
+
+    def exception(self, msg: str, *args: Any, **kwargs: Any) -> None:
+        raise NotImplementedError("Logger.exception must be implemented by subclasses")
     """Protocol describing the minimal logging methods used by checks."""
 
     def info(self, msg: str, *args: Any, **kwargs: Any) -> None:
@@ -187,5 +207,6 @@ class BaseCheck(ABC):
 
     @abstractmethod
     async def run(self, context: CheckContext, logger: LoggerLike) -> CheckRunResult:
+        raise NotImplementedError("Checks must implement the run() coroutine")
         """Execute the check with the provided context and logger."""
         raise NotImplementedError("Subclasses must implement run()")
