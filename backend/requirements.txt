@@ -25,6 +25,9 @@ sentry-sdk[fastapi]==2.5.1
 # Auth / JWT (Supabase)
 python-jose[cryptography]==3.3.0
 
+# Billing
+stripe==10.12.0
+
 # Kubernetes integration
 kubernetes==29.0.0
 
