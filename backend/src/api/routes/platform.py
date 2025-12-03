@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, Query
 
 from api.deps import get_current_user
 from backend.src.extensions.k8s_healer.healer import k8s_healer
+from extensions.db_repair import db_repair_agent
 
 logger = logging.getLogger(__name__)
 
@@ -50,4 +51,13 @@ async def k8s_heal(
     # current_user is resolved for auth; unused otherwise
     _ = current_user
     result = await k8s_healer.heal(apply=apply)
+@router.post("/database/repair", summary="Run DB auto-repair checks")
+async def repair_db(autofix: bool = False, current_user: Any = Depends(get_current_user)) -> Dict[str, Any]:
+    """Run database health checks and optionally apply safe fixes."""
+
+    result = await db_repair_agent.run_full_check()
+
+    if autofix:
+        await db_repair_agent.apply_patches(result["patches"])
+
     return result
