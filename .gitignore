@@ -5,3 +5,12 @@ frontend/.next/
 # Python virtual environments
 backend/venv/
 .env
+__pycache__/
+
+
+# Consolidated data assets (keep configs checked in, ignore heavy binaries)
+/data/**/*.pt
+/data/**/*.bin
+/data/**/*.pkl
+/data/**/*.ckpt
+/data/**/*.zip
