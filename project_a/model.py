@@ -1,6 +1,18 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
+from typing import Any, Dict, List
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+CLASSIFIER_CONFIG_PATH = PROJECT_ROOT / "config" / "config.json"
+MODEL_CONFIG_PATH = PROJECT_ROOT / "config" / "model_config.json"
+WEIGHTS_PATH = PROJECT_ROOT / "weights" / "dummy_weights.txt"
+
+
+class SecurityInferenceModel:
+    """Lightweight heuristic model for text classification."""
+import json
 import os
 from typing import Any, Dict, List
 
@@ -67,6 +79,7 @@ class SecurityInferenceModel:
     def _load_keywords(self) -> tuple[List[str], Dict[str, List[str]]]:
         with open(self.config_path, "r", encoding="utf-8") as config_file:
     def __init__(self) -> None:
+        with CLASSIFIER_CONFIG_PATH.open("r", encoding="utf-8") as config_file:
         config_path = CONFIG_DIR / "config.json"
         with config_path.open("r", encoding="utf-8") as config_file:
         with CONFIG_PATH.open("r", encoding="utf-8") as config_file:
@@ -99,6 +112,9 @@ class SecurityInferenceModel:
 
 def predict(text: str) -> Dict[str, str]:
     """Module-level helper mirroring the repository's exported API."""
+
+    model = SecurityInferenceModel()
+    return model.predict(text)
     model = SecurityInferenceModel()
     return model.predict(text)
 
@@ -192,6 +208,16 @@ class SimpleImageModel:
 class ProjectAModel:
     """Demo model that simulates an AI inference pipeline."""
 
+    def __init__(self, config: Dict[str, Any] | None = None) -> None:
+        self.config = config or self._load_config()
+        self.weights_checksum = self._load_weights_checksum()
+
+    def _load_config(self) -> Dict[str, Any]:
+        with MODEL_CONFIG_PATH.open("r", encoding="utf-8") as config_file:
+            return json.load(config_file)
+
+    def _load_weights_checksum(self) -> int:
+        with WEIGHTS_PATH.open("r", encoding="utf-8") as weights_file:
     def __init__(self) -> None:
         self.config_path = CONFIG_DIR / "model_config.json"
         self.weights_path = WEIGHTS_DIR / "dummy_weights.txt"
@@ -276,6 +302,20 @@ class ProjectAModel:
         return "benign"
 
     def predict(self, text: str) -> Dict[str, Any]:
+        tokens = text.strip().split()
+        prompt_template = self.config.get("prompt_template", "{text}")
+        prompt = prompt_template.replace("{text}", text.strip())
+        confidence = min(
+            1.0,
+            self.config.get("confidence_base", 0.5) + len(tokens) * 0.01,
+        )
+        return {
+            "model": self.config.get("model_name", "project_a"),
+            "provider": self.config.get("provider", "unknown"),
+            "version": self.config.get("version", "unknown"),
+            "weights_checksum": self.weights_checksum,
+            "prompt": prompt,
+            "tokens": tokens,
         normalized = text.strip().lower()
         tokens = normalized.split()
         label = self._classify(normalized)
