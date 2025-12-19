@@ -56,6 +56,12 @@ class ProjectAInference:
         return json.load(fp)
 
 
+class ProjectAModelWrapper:
+    """Wrapper that keeps configuration loading centralized."""
+
+    def __init__(self) -> None:
+        self.config = load_model_config()
+        self.model = ProjectAModel(self.config)
 def _get_model() -> SimpleImageModel:
     global _model
     if _model is None:
@@ -76,6 +82,9 @@ class ProjectAModel:
 
 
 def predict(text: str) -> Dict[str, Any]:
+    """Public inference entrypoint for Project A."""
+
+    return ProjectAModelWrapper().predict(text)
     """Module-level convenience wrapper."""
 
     return ProjectAInference().predict(text)
@@ -102,6 +111,7 @@ __all__ = ["ProjectAInference", "ProjectAModel", "load_model_config", "predict"]
 def predict(text: str) -> Dict[str, Any]:
     """Proxy prediction through a Project A model instance."""
 
+__all__ = ["ProjectAModelWrapper", "ProjectAModel", "predict", "load_model_config"]
 def predict(image_array: np.ndarray) -> Dict[str, Any]:
     """Proxy prediction through a lazily initialized model instance."""
     model = _get_model()
