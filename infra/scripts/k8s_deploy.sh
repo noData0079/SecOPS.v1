@@ -3,13 +3,13 @@ set -euo pipefail
 
 usage() {
   cat <<'USAGE'
-Apply Kubernetes manifests for the SecOps AI stack.
+Apply Kubernetes manifests for the T79 AI stack.
 
 Usage:
   ./infra/scripts/k8s_deploy.sh [--namespace NAME] [--context CONTEXT] [--dry-run]
 
 Options:
-  --namespace, -n   Kubernetes namespace to use (default: secops)
+  --namespace, -n   Kubernetes namespace to use (default: t79)
   --context, -c     kubectl context to target (optional)
   --dry-run         Use 'kubectl diff' instead of 'apply' to preview changes
   --help, -h        Show this help message
@@ -21,7 +21,7 @@ USAGE
 
 K8S_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/k8s"
 KUBECTL_BIN="${KUBECTL:-kubectl}"
-NAMESPACE="secops"
+NAMESPACE="t79"
 CONTEXT=""
 DRY_RUN=0
 

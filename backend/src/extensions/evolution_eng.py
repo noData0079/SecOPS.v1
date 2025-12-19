@@ -79,7 +79,7 @@ class ThompsonBandit:
 
 class EvolutionEngine:
     """
-    High-level "auto-evolution" engine for SecOps AI.
+    High-level "auto-evolution" engine for T79 AI.
 
     Responsibilities:
       - Track events (FeatureEvents) from the platform.

@@ -136,7 +136,7 @@ Output ONLY the updated YAML, no explanation, no markdown, no backticks.
             workflow_path,
             fixed_yaml,
             sha,
-            message=f"[SecOpsAI] Auto-fix GitHub Actions workflow: {workflow_path}",
+            message=f"[T79AI] Auto-fix GitHub Actions workflow: {workflow_path}",
         )
 
         return {

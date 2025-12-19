@@ -3,9 +3,9 @@
  * (https://github.com/openai/apps-sdk-ui).
  *
  * The library ships React components for conversations, run logs, and
- * streaming token updates. This module keeps the SecOps console agnostic:
+ * streaming token updates. This module keeps the T79 console agnostic:
  *  - describes the components we expect to consume,
- *  - provides mapping helpers from SecOps issue/check data to UI-friendly
+ *  - provides mapping helpers from T79 issue/check data to UI-friendly
  *    structures,
  *  - documents how to progressively enhance the console without creating a
  *    hard dependency on the SDK yet.
@@ -22,7 +22,7 @@ export const recommendedAppsSdkComponents: AppsSdkUiComponent[] = [
   {
     name: "ChatPanel",
     description:
-      "Streaming conversation surface for operator <> agent collaboration, ideal for SecOps runbooks.",
+      "Streaming conversation surface for operator <> agent collaboration, ideal for T79 runbooks.",
     requiredProps: ["messages", "onSend"],
     optionalProps: ["status", "actions", "avatar"],
   },
@@ -53,7 +53,7 @@ export function buildAppsSdkBlueprint(): AppsSdkUiBlueprint {
     versionHint: "^0.2.x",
     components: recommendedAppsSdkComponents,
     note:
-      "Install the package, wrap SecOps data into the props above, and render components on the console pages.",
+      "Install the package, wrap T79 data into the props above, and render components on the console pages.",
   };
 }
 
@@ -75,7 +75,7 @@ export function mapIssueToChatMessage(issue: IssueLike) {
 
 export function mapIssuesToRunSummary(issues: IssueLike[]) {
   return {
-    title: "Latest SecOps Findings",
+    title: "Latest T79 Findings",
     metadata: issues.map((issue) => ({
       label: issue.title,
       value: issue.severity,

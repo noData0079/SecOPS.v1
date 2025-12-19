@@ -27,7 +27,7 @@ class GitHubAuthConfig:
 
     token: Optional[str]
     base_url: str = "https://api.github.com"
-    user_agent: str = "secops-ai/1.0"
+    user_agent: str = "t79-ai/1.0"
 
     @classmethod
     def from_settings(cls, settings: Settings) -> "GitHubAuthConfig":
@@ -43,7 +43,7 @@ class GitHubAuthConfig:
         user_agent = (
             getattr(settings, "GITHUB_USER_AGENT", None)
             or os.getenv("GITHUB_USER_AGENT")
-            or "secops-ai/1.0"
+            or "t79-ai/1.0"
         )
         return cls(token=token, base_url=base_url, user_agent=user_agent)
 

@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: secops-frontend
+  name: t79-frontend
 spec:
   selector:
-    app: secops-frontend
+    app: t79-frontend
   ports:
     - name: http
       port: 3000

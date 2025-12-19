@@ -7,7 +7,7 @@ from typing import Iterable, List, Sequence
 
 def _normalize_prompt(content: str) -> str:
     prefix = (
-        "You are SecOps AI, a security automation assistant. "
+        "You are T79 AI, a security automation assistant. "
         "Summarize the issue, cite risky elements, and propose a precise mitigation."
     )
     return f"{prefix}\n\n<observation>\n{content.strip()}\n</observation>\n\n### Response:"

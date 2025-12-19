@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: secops-backend
-  namespace: secops
+  name: t79-backend
+  namespace: t79
   labels:
-    app: secops-backend
+    app: t79-backend
     tier: backend
 spec:
   replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: secops-backend
+      app: t79-backend
   template:
     metadata:
       labels:
-        app: secops-backend
+        app: t79-backend
         tier: backend
     spec:
       containers:
-        - name: secops-backend
+        - name: t79-backend
           # Image built from infra/docker/backend.Dockerfile
-          image: secops-backend:latest
+          image: t79-backend:latest
           imagePullPolicy: IfNotPresent
 
           ports:
@@ -31,10 +31,10 @@ spec:
           envFrom:
             # Optional config map (non-sensitive config)
             - configMapRef:
-                name: secops-backend-config
+                name: t79-backend-config
             # Optional secrets (DB, JWT, API keys, etc.)
             - secretRef:
-                name: secops-backend-secrets
+                name: t79-backend-secrets
 
           # Health checks – use /health from the FastAPI app
           readinessProbe:

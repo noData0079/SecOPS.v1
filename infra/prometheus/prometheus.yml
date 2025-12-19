@@ -2,6 +2,6 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: "secops-backend"
+  - job_name: "t79-backend"
     static_configs:
       - targets: ["backend:8000"]

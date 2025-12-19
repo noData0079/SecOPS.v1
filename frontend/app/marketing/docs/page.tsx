@@ -6,13 +6,13 @@ export default function Docs() {
       <DocsSidebar />
       <main className="p-20 text-gray-200 max-w-3xl">
         <h1 className="text-6xl font-bold mb-6">Documentation</h1>
-        <p className="text-xl">Learn how to install, configure, and integrate SecOpsAI.</p>
+        <p className="text-xl">Learn how to install, configure, and integrate T79AI.</p>
 
         <h2 id="installation" className="text-3xl mt-12 font-semibold">
           1. Installation
         </h2>
         <pre className="bg-gray-900 p-6 mt-4 rounded-lg">
-          curl -sL https://secops.ai/install | bash
+          curl -sL https://t79.ai/install | bash
         </pre>
 
         <h2 id="api" className="text-3xl mt-12 font-semibold">

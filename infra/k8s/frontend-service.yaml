@@ -1,15 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: secops-frontend
-  namespace: secops
+  name: t79-frontend
+  namespace: t79
   labels:
-    app: secops-frontend
+    app: t79-frontend
     tier: frontend
 spec:
   type: ClusterIP
   selector:
-    app: secops-frontend
+    app: t79-frontend
   ports:
     - name: http
       port: 3000         # Cluster-service port
