@@ -2,16 +2,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: secops-redis
+  name: t79-redis
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: secops-redis
+      app: t79-redis
   template:
     metadata:
       labels:
-        app: secops-redis
+        app: t79-redis
     spec:
       containers:
         - name: redis
@@ -28,10 +28,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: secops-redis
+  name: t79-redis
 spec:
   selector:
-    app: secops-redis
+    app: t79-redis
   ports:
     - name: redis
       port: 6379

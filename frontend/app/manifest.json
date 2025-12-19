@@ -1,7 +1,7 @@
 {
-  "name": "SecOpsAI",
-  "short_name": "SecOpsAI",
-  "description": "Autonomous DevSecOps intelligence for issues, checks, and cost insights.",
+  "name": "T79AI",
+  "short_name": "T79AI",
+  "description": "Autonomous DevT79 intelligence for issues, checks, and cost insights.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#020617",

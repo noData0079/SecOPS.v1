@@ -11,7 +11,7 @@ export default function SystemStatusPage() {
         <div>
           <h1 className="text-3xl font-bold">System Health</h1>
           <p className="text-slate-300 mt-2 max-w-3xl">
-            Track uptime, license usage, and billing status across the SecOpsAI control plane.
+            Track uptime, license usage, and billing status across the T79AI control plane.
           </p>
         </div>
 

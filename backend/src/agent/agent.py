@@ -12,9 +12,9 @@ except ImportError:  # pragma: no cover
     from collectors import collect_logs, collect_system_info
     from auto_fix import auto_patch
 
-SERVER = os.getenv("SECOPSAI_SERVER", "https://api.secops.ai")
+SERVER = os.getenv("T79AI_SERVER", "https://api.t79.ai")
 CONFIG_PATH = os.getenv(
-    "SECOPSAI_CONFIG",
+    "T79AI_CONFIG",
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "agent.conf"),
 )
 
@@ -59,7 +59,7 @@ def register() -> str:
 
 
 def load_node_id() -> str:
-    env_node = os.getenv("SECOPSAI_NODE_ID")
+    env_node = os.getenv("T79AI_NODE_ID")
     if env_node:
         return env_node
 
@@ -101,7 +101,7 @@ def run() -> None:
                 if cmd.get("type") == "AUTO_FIX":
                     auto_patch(cmd.get("file_path"), cmd.get("patch"))
         except Exception as exc:  # pragma: no cover - keep agent resilient
-            print(f"[SecOpsAI Agent] Error: {exc}")
+            print(f"[T79AI Agent] Error: {exc}")
         time.sleep(5)
 
 

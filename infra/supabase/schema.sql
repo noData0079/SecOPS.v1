@@ -1,6 +1,6 @@
 -- infra/supabase/schema.sql
 --
--- SecOpsAI – Supabase PostgreSQL schema
+-- T79AI – Supabase PostgreSQL schema
 --
 -- This is the minimal schema required for the MVP:
 --   - issues: core issues table used by the console

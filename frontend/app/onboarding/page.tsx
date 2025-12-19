@@ -27,7 +27,7 @@ export default function OnboardingPage() {
       <div className="max-w-4xl mx-auto space-y-10">
         <div>
           <p className="text-sm text-emerald-300 uppercase tracking-widest">Onboarding</p>
-          <h1 className="text-4xl font-bold">Deploy SecOpsAI in minutes</h1>
+          <h1 className="text-4xl font-bold">Deploy T79AI in minutes</h1>
           <p className="text-slate-300 mt-3 max-w-3xl">
             Guided setup to connect GitHub, Kubernetes, and databases. Each step calls the backend APIs and updates your org profile.
           </p>

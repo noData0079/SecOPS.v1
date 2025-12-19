@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ###############################################################################
-# SecOps AI — Build All Docker Images
+# T79 AI — Build All Docker Images
 #
 # Builds:
 #   - Backend image (FastAPI)
@@ -14,12 +14,12 @@ set -euo pipefail
 #   REGISTRY=ghcr.io/your-org ./infra/scripts/build_all.sh v0.1.0
 #
 # If REGISTRY is set, images will be tagged as:
-#   $REGISTRY/secops-backend:<tag>
-#   $REGISTRY/secops-frontend:<tag>
+#   $REGISTRY/t79-backend:<tag>
+#   $REGISTRY/t79-frontend:<tag>
 #
 # Otherwise, they will be tagged locally as:
-#   secops-backend:<tag>
-#   secops-frontend:<tag>
+#   t79-backend:<tag>
+#   t79-frontend:<tag>
 ###############################################################################
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -31,15 +31,15 @@ BACKEND_DOCKERFILE="$ROOT_DIR/infra/docker/backend.Dockerfile"
 FRONTEND_DOCKERFILE="$ROOT_DIR/infra/docker/frontend.Dockerfile"
 
 if [[ -n "$REGISTRY" ]]; then
-  BACKEND_IMAGE="${REGISTRY%/}/secops-backend:${TAG}"
-  FRONTEND_IMAGE="${REGISTRY%/}/secops-frontend:${TAG}"
+  BACKEND_IMAGE="${REGISTRY%/}/t79-backend:${TAG}"
+  FRONTEND_IMAGE="${REGISTRY%/}/t79-frontend:${TAG}"
 else
-  BACKEND_IMAGE="secops-backend:${TAG}"
-  FRONTEND_IMAGE="secops-frontend:${TAG}"
+  BACKEND_IMAGE="t79-backend:${TAG}"
+  FRONTEND_IMAGE="t79-frontend:${TAG}"
 fi
 
 echo "============================================"
-echo "   SecOps AI — Build All Docker Images"
+echo "   T79 AI — Build All Docker Images"
 echo "============================================"
 echo "Root directory:     $ROOT_DIR"
 echo "Backend Dockerfile: $BACKEND_DOCKERFILE"

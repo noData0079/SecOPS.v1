@@ -178,7 +178,7 @@ async def list_users() -> AdminUserListResponse:
     sample_users = [
         AdminUser(
             id="user-1",
-            email="founder@secops.ai",
+            email="founder@t79.ai",
             role="admin",
             tier="enterprise",
             status="active",
@@ -187,7 +187,7 @@ async def list_users() -> AdminUserListResponse:
         ),
         AdminUser(
             id="user-2",
-            email="engineer@secops.ai",
+            email="engineer@t79.ai",
             role="member",
             tier="pro",
             status="active",
@@ -196,9 +196,9 @@ async def list_users() -> AdminUserListResponse:
         ),
         AdminUser(
             id="user-3",
-            email="guest@secops.ai",
+            email="guest@t79.ai",
             role="viewer",
-            tier=BillingDB.get_status("guest@secops.ai").get("tier", "free"),
+            tier=BillingDB.get_status("guest@t79.ai").get("tier", "free"),
             status="invited",
             mfa_enabled=False,
             last_seen=None,
@@ -225,7 +225,7 @@ async def get_audit_log(limit: int = Query(20, ge=1, le=100)) -> AdminAuditLogRe
             action="policy.update" if i % 2 == 0 else "scan.run",
             target=f"service-{i}",
             created_at=(now - timedelta(minutes=i * 5)).isoformat(),
-            metadata={"severity": "info", "source": "SecOpsAI"},
+            metadata={"severity": "info", "source": "T79AI"},
         )
         for i in range(limit)
     ]
@@ -245,7 +245,7 @@ async def get_agent_activity(limit: int = Query(15, ge=1, le=50)) -> AdminAgentA
     events = [
         AdminAgentActivity(
             id=f"agent-{i}",
-            agent="secops-auto-fix",
+            agent="t79-auto-fix",
             event="patch_applied" if i % 3 == 0 else "scan_completed",
             status="succeeded" if i % 4 != 0 else "pending",
             created_at=(now - timedelta(minutes=i * 3)).isoformat(),
@@ -265,7 +265,7 @@ async def get_agent_activity(limit: int = Query(15, ge=1, le=50)) -> AdminAgentA
 async def get_system_status() -> AdminSystemStatusResponse:
     """Expose holistic system state for the admin dashboard."""
 
-    billing_snapshot = BillingDB.get_status("admin@secops.ai")
+    billing_snapshot = BillingDB.get_status("admin@t79.ai")
     status = AdminSystemStatus(
         services={
             "api": "healthy",

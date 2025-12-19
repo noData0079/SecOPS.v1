@@ -2,16 +2,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: secops-grafana
+  name: t79-grafana
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: secops-grafana
+      app: t79-grafana
   template:
     metadata:
       labels:
-        app: secops-grafana
+        app: t79-grafana
     spec:
       containers:
         - name: grafana
@@ -38,10 +38,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: secops-grafana
+  name: t79-grafana
 spec:
   selector:
-    app: secops-grafana
+    app: t79-grafana
   ports:
     - name: http
       port: 3000

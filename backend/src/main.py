@@ -74,9 +74,9 @@ else:
 # ---------------------------------------------------------------------------
 
 app = FastAPI(
-    title="SecOpsAI Backend",
+    title="T79AI Backend",
     version="0.1.0",
-    description="SecOpsAI – Autonomous DevSecOps intelligence backend API.",
+    description="T79AI – Autonomous DevT79 intelligence backend API.",
 )
 
 # ---------------------------------------------------------------------------
@@ -98,31 +98,31 @@ app.add_middleware(
 # ---------------------------------------------------------------------------
 
 REQUEST_COUNT = Counter(
-    "secops_requests_total",
+    "t79_requests_total",
     "Total number of HTTP requests",
     ["method", "endpoint", "http_status"],
 )
 
 REQUEST_LATENCY = Histogram(
-    "secops_request_latency_seconds",
+    "t79_request_latency_seconds",
     "Request latency (seconds)",
     ["endpoint"],
 )
 
 ERROR_COUNT = Counter(
-    "secops_errors_total",
+    "t79_errors_total",
     "Total number of exceptions",
     ["endpoint", "error_type"],
 )
 
 JOB_DURATION = Histogram(
-    "secops_job_duration_seconds",
+    "t79_job_duration_seconds",
     "Duration of background/scheduled jobs",
     ["job_name"],
 )
 
 ACTIVE_JOBS = Gauge(
-    "secops_active_jobs",
+    "t79_active_jobs",
     "Number of currently running background jobs",
 )
 
@@ -170,7 +170,7 @@ async def health() -> Dict[str, Any]:
     """
     Simple health endpoint used by load balancers / uptime checks.
     """
-    return {"status": "ok", "service": "secops-backend"}
+    return {"status": "ok", "service": "t79-backend"}
 
 
 # ---------------------------------------------------------------------------
@@ -214,7 +214,7 @@ except Exception:  # noqa: BLE001
 
 @app.on_event("startup")
 async def on_startup() -> None:
-    logger.info("SecOpsAI backend starting up")
+    logger.info("T79AI backend starting up")
 
     config_issues = validate_runtime_config()
     for issue in config_issues:
@@ -232,7 +232,7 @@ async def on_startup() -> None:
 
 @app.on_event("shutdown")
 async def on_shutdown() -> None:
-    logger.info("SecOpsAI backend shutting down")
+    logger.info("T79AI backend shutting down")
     if callable(shutdown_scheduler):
         try:
             shutdown_scheduler()

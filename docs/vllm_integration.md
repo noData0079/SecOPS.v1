@@ -1,12 +1,12 @@
 # vLLM Integration Guide
 
-This repository can pair the SecOPS RAG/agent stack with [vLLM](https://github.com/vllm-project/vllm) to accelerate inference and reduce GPU memory pressure. vLLM's PagedAttention kernel and continuous batching make it well suited for multi-tenant workloads where the backend receives many concurrent chat or scoring requests.
+This repository can pair the T79 RAG/agent stack with [vLLM](https://github.com/vllm-project/vllm) to accelerate inference and reduce GPU memory pressure. vLLM's PagedAttention kernel and continuous batching make it well suited for multi-tenant workloads where the backend receives many concurrent chat or scoring requests.
 
-## Why vLLM for SecOPS
+## Why vLLM for T79
 - **High throughput:** PagedAttention and continuous batching allow the engine to reuse KV cache blocks efficiently, delivering strong tokens-per-second rates even as the queue grows.
 - **Memory efficiency:** The paged KV cache minimizes fragmentation and helps large-context prompts fit on commodity GPUs.
 - **OpenAI-compatible serving:** The `vllm serve` / `vllm openai` entrypoints expose OpenAI-style chat/completions endpoints, so the backend can talk to vLLM with the existing OpenAI client wrapper.
-- **Plugin support:** vLLM supports tensor parallelism, quantized weights, and LoRA adapters, letting SecOPS serve fine-tuned artifacts without changing application code.
+- **Plugin support:** vLLM supports tensor parallelism, quantized weights, and LoRA adapters, letting T79 serve fine-tuned artifacts without changing application code.
 
 ## Running a vLLM endpoint
 The upstream Docker image ships with an OpenAI-compatible server. A minimal single-GPU launch looks like:
@@ -29,7 +29,7 @@ Key flags:
 - `--max-model-len`: context length; keep aligned with the backend prompt windows.
 - `--enforce-eager`: keeps kernels in eager mode for easier debugging (remove for peak throughput).
 
-## Wiring the SecOPS backend to vLLM
+## Wiring the T79 backend to vLLM
 1. Set the backend to use the OpenAI transport that points at the vLLM server:
    - `OPENAI_API_BASE=http://localhost:8001/v1`
    - `OPENAI_API_KEY=dummy` (vLLM does not enforce keys by default; keep consistent with backend expectations).
@@ -42,11 +42,11 @@ Key flags:
 - **Autoscaling:** Pair the Deployment with an HPA that scales on GPU or request metrics; continuous batching keeps latency stable as replicas increase.
 
 ## Fine-tuning and adapters
-- Train LoRA adapters using your preferred framework (e.g., PEFT) and mount them into the vLLM container with `--lora-path /models/lora-secops`. The serving layer can then hot-swap adapters without redeploying the backend.
+- Train LoRA adapters using your preferred framework (e.g., PEFT) and mount them into the vLLM container with `--lora-path /models/lora-t79`. The serving layer can then hot-swap adapters without redeploying the backend.
 - For full-model fine-tunes, export the checkpoint to a Hugging Face format that vLLM understands and update the `--model` path.
 - Keep prompt templates and guardrails in `docs/llm-finetuning-and-agents.md` synchronized with any adapter-specific behaviors.
 
 ## Observability and safety
-- Enable request/response logging at the vLLM layer to feed SecOPS audit trails.
+- Enable request/response logging at the vLLM layer to feed T79 audit trails.
 - Use low-level metrics (KV cache usage, batch queue depth, tokens/sec) to size GPUs and trigger autoscaling.
 - Combine vLLM's streaming responses with the frontend's event-driven UI to give analysts immediate feedback during long runs.

@@ -10,7 +10,7 @@ Capabilities:
 
 Relies on:
 - GITHUB_TOKEN (PAT or fine-grained token)
-- TARGET_REPO (e.g. "inboxplus-collab/SecOPS.v1")
+- TARGET_REPO (e.g. "inboxplus-collab/t79")
 """
 
 from __future__ import annotations

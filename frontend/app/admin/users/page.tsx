@@ -1,7 +1,7 @@
 const users = [
-  { email: "founder@secops.ai", role: "admin", tier: "enterprise", status: "Active", mfa: true },
-  { email: "engineer@secops.ai", role: "member", tier: "pro", status: "Active", mfa: false },
-  { email: "guest@secops.ai", role: "viewer", tier: "free", status: "Invited", mfa: false },
+  { email: "founder@t79.ai", role: "admin", tier: "enterprise", status: "Active", mfa: true },
+  { email: "engineer@t79.ai", role: "member", tier: "pro", status: "Active", mfa: false },
+  { email: "guest@t79.ai", role: "viewer", tier: "free", status: "Invited", mfa: false },
 ];
 
 export default function AdminUsersPage() {
