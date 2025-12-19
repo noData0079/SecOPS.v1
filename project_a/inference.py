@@ -10,6 +10,10 @@ from .model import ProjectAModel
 
 PROJECT_ROOT = os.path.dirname(__file__)
 CONFIG_PATH = os.path.join(PROJECT_ROOT, "config", "model_config.json")
+from .model import ProjectAModel, predict
+
+_PROJECT_ROOT = Path(__file__).resolve().parent
+_CONFIG_PATH = _PROJECT_ROOT / "config" / "model_config.json"
 
 
 def load_model_config() -> Dict[str, Any]:
@@ -24,6 +28,13 @@ def load_model_config() -> Dict[str, Any]:
 
 class ProjectAInference:
     """Lightweight proxy that exposes Project A predictions."""
+    with _CONFIG_PATH.open("r", encoding="utf-8") as fp:
+        return json.load(fp)
+
+
+__all__ = ["ProjectAModel", "load_model_config", "predict"]
+class ProjectAModel:
+    """Lightweight placeholder for Project A's inference engine."""
 
     def __init__(self) -> None:
         self.model = ProjectAModel()
@@ -39,3 +50,14 @@ def predict(text: str) -> Dict[str, Any]:
 
 
 __all__ = ["ProjectAInference", "ProjectAModel", "load_model_config", "predict"]
+        cleaned = text.strip()
+        prompt = self.config.get("prompt_template", "{text}").replace("{text}", cleaned)
+        return {
+            "model": self.config.get("model_name", "unknown-model"),
+            "provider": self.config.get("provider", "unknown-provider"),
+            "prompt": prompt,
+            "tokens_processed": max(1, len(cleaned.split())),
+        }
+
+
+__all__ = ["ProjectAModel", "load_model_config"]
