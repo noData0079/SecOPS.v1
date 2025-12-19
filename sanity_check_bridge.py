@@ -11,6 +11,9 @@ from bridge_logic import ProjectABridge
 
 
 def main() -> None:
+    """Quick sanity check for the Project A <-> Project B bridge."""
+    try:
+        bridge = ProjectABridge()
     dummy_text = "This is a dummy Project B request"
     encoded_payload = base64.b64encode(dummy_text.encode("utf-8")).decode("utf-8")
 
@@ -46,6 +49,9 @@ def main() -> None:
     except Exception as exc:  # pragma: no cover - surfaced during sanity check
         print(f"Unexpected error during sanity check: {exc}")
         raise
+
+    sample_payload = base64.b64encode(b"This is a dummy Project B request").decode("utf-8")
+    response = bridge.execute(sample_payload)
 
     print("Bridge response:")
     pprint(response)
