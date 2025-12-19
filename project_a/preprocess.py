@@ -1,33 +1,26 @@
-"""Input preprocessing helpers for Project A."""
+"""Preprocessing utilities for the unified t79 stack."""
 
 from __future__ import annotations
 
 import base64
 import io
 import json
-import os
+from pathlib import Path
 from typing import Tuple
 
 import numpy as np
 from PIL import Image
 
-PROJECT_ROOT = os.path.dirname(__file__)
-CONFIG_PATH = os.path.join(PROJECT_ROOT, "config", "model_config.json")
+REPO_ROOT = Path(__file__).resolve().parents[1]
+DATA_ROOT = REPO_ROOT / "data" / "t79"
+MODEL_CONFIG_PATH = DATA_ROOT / "model_config.json"
 
 
 def load_config() -> dict:
-    with open(CONFIG_PATH, "r", encoding="utf-8") as config_file:
-        return json.load(config_file)
-BASE_DIR = os.path.dirname(__file__)
-CONFIG_PATH = os.path.join(BASE_DIR, "config", "model_config.json")
-
-
-def load_config() -> dict:
-    if not os.path.exists(CONFIG_PATH):
+    if not MODEL_CONFIG_PATH.exists():
         return {}
-
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+    with MODEL_CONFIG_PATH.open("r", encoding="utf-8") as config_file:
+        return json.load(config_file)
 
 
 def _normalize_image(
@@ -60,8 +53,3 @@ def preprocess_image(b64_string: str) -> np.ndarray:
 
 
 __all__ = ["preprocess_image", "decode_base64_image", "load_config"]
-__all__ = [
-    "decode_base64_image",
-    "load_config",
-    "preprocess_image",
-]

@@ -1,23 +1,23 @@
-# Consolidated dependencies for Project A (model) and Project B (FastAPI app)
-# Unified requirements for Project A (AI model) and Project B (FastAPI app).
+# Consolidated dependencies for the unified t79 stack (model + FastAPI app)
+# Unified requirements for the t79 AI components and API layer.
 # GPU users should install the CUDA build of torch/torchvision that matches their runtime
 # (e.g., torch==2.3.1+cu121 torchvision==0.18.1+cu121 from https://download.pytorch.org/whl/cu121).
-# Unified dependency set for Project A (AI model) and Project B (FastAPI app).
+# Unified dependency set for the t79 AI model and API.
 # For GPU acceleration, install the CUDA-specific torch wheel (e.g., torch==2.3.1+cu121).
-# Consolidated requirements for Project A (AI model) and Project B (FastAPI app)
+# Consolidated requirements for the t79 AI model and API
 # Install a CUDA-enabled build of torch/torchvision if GPU acceleration is desired:
 #   pip install torch==2.3.1+cu121 torchvision==0.18.1+cu121 --extra-index-url https://download.pytorch.org/whl/cu121
-# Unified dependency set for Project A (model) and Project B (FastAPI app)
+# Unified dependency set for the t79 model and orchestration layers
 # For GPU acceleration install torch/torchvision with the matching CUDA wheel, e.g.:
 #   pip install torch==2.3.1+cu121 torchvision==0.18.1+cu121 \
 #       --extra-index-url https://download.pytorch.org/whl/cu121
-# Unified dependency set for Project A (AI model) and Project B (FastAPI app)
+# Unified dependency set for the t79 AI model and FastAPI app
 # GPU users should install the matching CUDA build of torch/torchvision from
-# Unified requirements for Project A (vLLM-based model) and Project B (FastAPI app).
+# Unified requirements for the t79 stack (vLLM-based model + FastAPI app).
 # GPU users: install the matching CUDA build of torch/torchvision from
 # https://download.pytorch.org/whl/torch/ before installing the remaining packages.
 
-# Project B: FastAPI backend and orchestration
+# FastAPI backend and orchestration
 fastapi==0.111.0
 uvicorn[standard]==0.30.1
 pydantic==2.7.1

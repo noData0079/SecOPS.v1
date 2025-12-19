@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 from pathlib import Path
 from typing import Dict, Iterable, List, Sequence
@@ -6,25 +8,23 @@ from .dataset_builder import build_dataset
 from .trainer import FineTuneEngine
 
 
+DATA_ROOT = Path(__file__).resolve().parents[2] / "data"
+SEED_DATASET = DATA_ROOT / "fine_tune" / "security_hardening.jsonl"
+
+
 class FineTuneJobScheduler:
     """Coordinates dataset creation and fine-tuning job submission."""
 
     def __init__(
         self,
-        workspace: str = "data/fine_tune",
+        workspace: str | Path | None = None,
         seed_datasets: Sequence[str] | None = None,
     ) -> None:
-        self.workspace = Path(workspace)
+        self.workspace = Path(workspace) if workspace is not None else DATA_ROOT / "fine_tune"
         self.workspace.mkdir(parents=True, exist_ok=True)
 
         if seed_datasets is None:
-            builtin_seed = (
-                Path(__file__).resolve().parents[2]
-                / "data"
-                / "fine_tune"
-                / "security_hardening.jsonl"
-            )
-            self.seed_datasets = [builtin_seed]
+            self.seed_datasets = [SEED_DATASET]
         else:
             self.seed_datasets = [Path(p) for p in seed_datasets]
 
