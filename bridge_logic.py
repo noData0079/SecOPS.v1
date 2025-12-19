@@ -38,6 +38,10 @@ from typing import Any, Dict, Optional, Union
 from threading import Lock
 from typing import Any, Dict, Optional, Union
 
+# Dynamically expose Project A (./project_a) so its imports resolve without altering upstream code.
+PROJECT_A_PATH = Path(__file__).resolve().parent / "project_a"
+if str(PROJECT_A_PATH) not in sys.path:
+    sys.path.insert(0, str(PROJECT_A_PATH))
 # Ensure Project A remains importable after being nested under ./project_a
 PROJECT_A_PATH = os.path.join(os.path.dirname(__file__), "project_a")
 if PROJECT_A_PATH not in sys.path:
@@ -49,6 +53,11 @@ ProjectBPayload = Union[str, bytes, Dict[str, Any]]
 
 
 class ProjectABridge:
+    """Adapter that translates Project B payloads into Project A inputs.
+
+    - Injects ``./project_a`` on ``sys.path`` at runtime.
+    - Converts Project B base64/text payloads into the string format Project A expects.
+    - Holds a singleton Project A model instance to avoid repeated allocations.
     """Adapter class that translates Project B payloads for Project A.
 
     Responsibilities:
@@ -95,9 +104,10 @@ class AIBridge:
                     cls._instance._model: Optional[ProjectAModel] = None
         return cls._instance
 
-    def __init__(self) -> None:
+    def _get_model(self) -> ProjectAModel:
         if self._model is None:
             self._model = ProjectAModel()
+        return self._model
 
     def _decode_payload(self, payload: ProjectBPayload) -> str:
         """Normalize Project B payloads into the text Project A expects."""
@@ -127,6 +137,19 @@ class AIBridge:
             return payload
 
         if isinstance(payload, dict):
+            candidate = payload.get("data") or payload.get("text") or payload.get("payload")
+            if isinstance(candidate, (str, bytes)):
+                return self._transform_input(candidate)
+            raise ValueError("Unsupported dictionary payload structure for Project B input")
+
+        raise TypeError(f"Unsupported payload type: {type(payload)!r}")
+
+    def execute(self, project_b_payload: ProjectBPayload) -> Dict[str, Any]:
+        text_input = self._transform_input(project_b_payload)
+        result = self._get_model().predict(text_input)
+        return {"status": "success", "input": text_input, "prediction": result}
+
+
             for key in ("image", "data", "payload", "body"):
                 candidate = payload.get(key)
                 if isinstance(candidate, bytes):

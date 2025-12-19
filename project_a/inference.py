@@ -6,6 +6,10 @@ import json
 import os
 from typing import Any, Dict
 
+from .model import SecurityInferenceModel
+
+PROJECT_ROOT = Path(__file__).resolve().parent
+CONFIG_PATH = PROJECT_ROOT / "config" / "model_config.json"
 import numpy as np
 
 from .model import SimpleImageModel
@@ -26,6 +30,7 @@ _model: SimpleImageModel | None = None
 
 def load_model_config() -> Dict[str, Any]:
     """Load the model configuration relative to this module."""
+    with CONFIG_PATH.open("r", encoding="utf-8") as fp:
 
     with open(MODEL_CONFIG_PATH, "r", encoding="utf-8") as fp:
     if not os.path.exists(CONFIG_PATH):
@@ -52,6 +57,7 @@ class ProjectAModel:
 
     def __init__(self) -> None:
         self.config = load_model_config()
+        self.classifier = SecurityInferenceModel()
         self.model = SecurityInferenceModel()
         self.model = ProjectAModel()
 
@@ -69,11 +75,14 @@ __all__ = ["ProjectAInference", "ProjectAModel", "load_model_config", "predict"]
         cleaned = text.strip()
         base_prediction = self.model.predict(cleaned)
         prompt = self.config.get("prompt_template", "{text}").replace("{text}", cleaned)
+        classification = self.classifier.predict(cleaned)
         confidence = min(1.0, self.config.get("confidence_base", 0.5) + len(cleaned.split()) * 0.01)
         return {
             "model": self.config.get("model_name", "unknown-model"),
             "provider": self.config.get("provider", "unknown-provider"),
+            "version": self.config.get("version", "unknown"),
             "prompt": prompt,
+            "classification": classification,
             "tokens_processed": max(1, len(cleaned.split())),
             "confidence": round(confidence, 3),
             **base_prediction,
@@ -98,6 +107,10 @@ class ProjectAModel:
     def predict(self, image_array: np.ndarray) -> Dict[str, Any]:
         return self._model.predict(image_array)
 
+def predict(text: str) -> Dict[str, Any]:
+    """Public inference entrypoint for Project A."""
+    model = ProjectAModel()
+    return model.predict(text)
     model = ProjectAModel()
     return model.predict(text)
 __all__ = ["ProjectAModel", "load_model_config"]

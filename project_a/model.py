@@ -80,6 +80,15 @@ class SecurityInferenceModel:
                         "weights_checksum": self.weights_checksum,
                     }
 
+        return {"label": "benign", "reason": "No known threat indicators detected"}
+
+
+def predict(text: str) -> Dict[str, str]:
+    """Module-level helper mirroring the repository's exported API."""
+    model = SecurityInferenceModel()
+    return model.predict(text)
+
+
 from __future__ import annotations
 
 class ProjectATensorflowModel:
