@@ -6,7 +6,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
     <div className="bg-black text-white min-h-screen font-sans">
       <header className="p-6 flex justify-between items-center border-b border-gray-800">
         <Link href="/" className="text-3xl font-bold">
-          SecOpsAI
+          T79AI
         </Link>
         <nav className="space-x-6 text-lg flex items-center">
           <Link href="/marketing/features">Features</Link>
@@ -21,7 +21,7 @@ export default function MarketingLayout({ children }: { children: ReactNode }) {
       </header>
       <main>{children}</main>
       <footer className="text-center py-10 border-t border-gray-800 text-gray-400">
-        © 2025 SecOpsAI. All rights reserved.
+        © 2025 T79AI. All rights reserved.
       </footer>
     </div>
   );

@@ -41,5 +41,5 @@ def test_build_llama_models_dataset(tmp_path):
     entries = [json.loads(row) for row in rows]
     sources = {entry["meta"]["source"] for entry in entries}
     assert sources == {"README.md", "notes.txt"}
-    assert all("SecOps AI" in entry["prompt"] for entry in entries)
+    assert all("T79 AI" in entry["prompt"] for entry in entries)
     assert all(entry["meta"]["tags"] == ["llama-models", "test"] for entry in entries)

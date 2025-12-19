@@ -1,4 +1,4 @@
-"""Fine-tuning orchestration for SecOpsAI."""
+"""Fine-tuning orchestration for T79AI."""
 
 from .dataset_builder import build_dataset  # noqa: F401
 from .job_scheduler import FineTuneJobScheduler  # noqa: F401

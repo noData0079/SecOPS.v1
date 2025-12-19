@@ -4,20 +4,20 @@ from fastapi import HTTPException
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 
-class SecOpsError(HTTPException):
+class T79Error(HTTPException):
     def __init__(self, message: str, status_code: int = 400):
         super().__init__(status_code=status_code, detail=message)
 
 
-class IntegrationError(SecOpsError):
+class IntegrationError(T79Error):
     pass
 
 
-class LLMError(SecOpsError):
+class LLMError(T79Error):
     pass
 
 
-class AnalyzerError(SecOpsError):
+class AnalyzerError(T79Error):
     pass
 
 

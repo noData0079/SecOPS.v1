@@ -1,6 +1,6 @@
-# SecOps AI – Frontend (Next.js 14)
+# T79 AI – Frontend (Next.js 14)
 
-This is the frontend for **SecOps AI**, a platform that provides automated
+This is the frontend for **T79 AI**, a platform that provides automated
 security scanning, dependency auditing, CI/CD hardening, and AI-powered
 remediation suggestions.
 

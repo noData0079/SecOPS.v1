@@ -47,7 +47,7 @@ export default function Features() {
     <div className="bg-slate-950 text-white min-h-screen p-20">
       <h1 className="text-5xl font-extrabold">Capabilities built for security-led teams</h1>
       <p className="text-lg text-slate-300 mt-4 max-w-3xl">
-        SecOpsAI pairs multi-model LLM reasoning with production telemetry to predict, prevent, and repair
+        T79AI pairs multi-model LLM reasoning with production telemetry to predict, prevent, and repair
         incidents before they impact customers.
       </p>
 

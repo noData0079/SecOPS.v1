@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: secops-prometheus-config
+  name: t79-prometheus-config
 data:
   prometheus.yml: |
     global:
@@ -13,21 +13,21 @@ data:
           - targets: ['localhost:9090']
       - job_name: 'backend'
         static_configs:
-          - targets: ['secops-backend:8000']
+          - targets: ['t79-backend:8000']
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: secops-prometheus
+  name: t79-prometheus
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: secops-prometheus
+      app: t79-prometheus
   template:
     metadata:
       labels:
-        app: secops-prometheus
+        app: t79-prometheus
     spec:
       containers:
         - name: prometheus
@@ -42,15 +42,15 @@ spec:
       volumes:
         - name: prometheus-config
           configMap:
-            name: secops-prometheus-config
+            name: t79-prometheus-config
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: secops-prometheus
+  name: t79-prometheus
 spec:
   selector:
-    app: secops-prometheus
+    app: t79-prometheus
   ports:
     - name: http
       port: 9090

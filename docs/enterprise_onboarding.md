@@ -1,8 +1,8 @@
-# SecOpsAI Enterprise Onboarding Guide
+# T79AI Enterprise Onboarding Guide
 
 ## 1️⃣ Overview
 
-SecOpsAI installs into customer environments to provide:
+T79AI installs into customer environments to provide:
 - Continuous vulnerability detection
 - AI-guided remediation
 - Autonomous infrastructure healing
@@ -43,7 +43,7 @@ https://yourdomain.com
 ### B. Kubernetes (Helm Chart)
 
 ```bash
-helm install secopsai ./helm/secopsai
+helm install t79ai ./helm/t79ai
 ```
 
 ## 4️⃣ Registering Servers / Agents
@@ -51,7 +51,7 @@ helm install secopsai ./helm/secopsai
 One-line installer:
 
 ```bash
-curl -sL https://api.secops.ai/install | bash
+curl -sL https://api.t79.ai/install | bash
 ```
 
 Agents will appear under:
@@ -74,7 +74,7 @@ Provide kubeconfig file
 
 Paste database credentials
 
-SecOpsAI does:
+T79AI does:
 - schema inspection
 - data flow risk analysis
 - automatic repair suggestions

@@ -2,11 +2,11 @@ export default function Home() {
   return (
     <div className="bg-black text-white min-h-screen p-20">
       <h1 className="text-6xl font-extrabold bg-gradient-to-r from-cyan-400 to-blue-600 bg-clip-text text-transparent">
-        SecOpsAI
+        T79AI
       </h1>
 
       <p className="text-xl mt-6 max-w-2xl">
-        The world’s first Autonomous DevSecOps Intelligence Engine.
+        The world’s first Autonomous DevT79 Intelligence Engine.
         Instantly analyze infrastructure, detect vulnerabilities, and apply AI-powered fixes.
       </p>
 

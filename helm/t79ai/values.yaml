@@ -1,11 +1,11 @@
-domain: "secops.yourcompany.com"
+domain: "t79.yourcompany.com"
 
 backend:
-  image: secopsai/backend:latest
+  image: t79ai/backend:latest
   replicas: 3
 
 frontend:
-  image: secopsai/frontend:latest
+  image: t79ai/frontend:latest
   replicas: 2
 
 postgres:

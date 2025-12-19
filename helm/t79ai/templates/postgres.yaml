@@ -1,28 +1,28 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: secops-postgres
+  name: t79-postgres
 spec:
   ports:
     - port: 5432
       targetPort: 5432
   selector:
-    app: secops-postgres
+    app: t79-postgres
 ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: secops-postgres
+  name: t79-postgres
 spec:
-  serviceName: secops-postgres
+  serviceName: t79-postgres
   replicas: 1
   selector:
     matchLabels:
-      app: secops-postgres
+      app: t79-postgres
   template:
     metadata:
       labels:
-        app: secops-postgres
+        app: t79-postgres
     spec:
       containers:
         - name: postgres
@@ -33,10 +33,10 @@ spec:
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: secops-secrets
+                  name: t79-secrets
                   key: POSTGRES_PASSWORD
             - name: POSTGRES_DB
-              value: secopsai
+              value: t79ai
           volumeMounts:
             - name: postgres-data
               mountPath: /var/lib/postgresql/data

@@ -3,7 +3,7 @@ Optional integration helpers for Agent0 (https://github.com/aiming-lab/Agent0).
 
 The real Agent0 project provides an agent runtime that can chain tools and
 memories together. This adapter keeps the interface lightweight so that the
-SecOps AI backend can:
+T79 AI backend can:
   - declare the skills/tools it wants an agent to use,
   - build a short action plan from those skills,
   - capture telemetry about how each step performed.
@@ -52,7 +52,7 @@ class Agent0Plan:
     Minimal action plan describing how the agent will achieve a goal.
 
     This mirrors Agent0's notion of a "plan" but stays framework agnostic so
-    that SecOps-specific context (checks, issues, policy suggestions) can be
+    that T79-specific context (checks, issues, policy suggestions) can be
     embedded directly.
     """
 

@@ -60,7 +60,7 @@ export default function MobileNav({ items }: MobileNavProps) {
         <div className="p-6 flex flex-col h-full space-y-6">
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-              SecOps Menu
+              T79 Menu
             </h2>
             <p className="text-xs text-slate-500">Navigation</p>
           </div>
@@ -78,7 +78,7 @@ export default function MobileNav({ items }: MobileNavProps) {
           </nav>
 
           <div className="text-xs text-slate-500 border-t pt-4 mt-auto">
-            SecOpsAI v1.0.0  
+            T79AI v1.0.0  
             <br />
             <span className="text-slate-400">MVP Preview</span>
           </div>

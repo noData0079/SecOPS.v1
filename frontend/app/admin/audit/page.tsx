@@ -1,6 +1,6 @@
 const auditLogs = Array.from({ length: 12 }).map((_, idx) => ({
   id: `audit-${idx + 1}`,
-  actor: idx % 2 === 0 ? "system" : "founder@secops.ai",
+  actor: idx % 2 === 0 ? "system" : "founder@t79.ai",
   action: idx % 2 === 0 ? "policy.update" : "scan.run",
   target: `service-${idx + 1}`,
   createdAt: new Date(Date.now() - idx * 5 * 60 * 1000).toISOString(),

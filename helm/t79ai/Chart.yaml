@@ -1,0 +1,5 @@
+apiVersion: v2
+name: t79ai
+description: T79AI Enterprise Autonomous DevT79 Platform
+type: application
+version: 1.0.0

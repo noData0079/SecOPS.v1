@@ -8,7 +8,7 @@ export default function Contact() {
           We respond within one business day.
         </p>
         <div className="mt-10 space-y-4 text-gray-300">
-          <p><strong>Email:</strong> enterprise@secops.ai</p>
+          <p><strong>Email:</strong> enterprise@t79.ai</p>
           <p><strong>Phone:</strong> +1 (415) 555-0123</p>
           <p><strong>Office:</strong> 500 Market St, Suite 2100, San Francisco, CA</p>
         </div>
@@ -55,7 +55,7 @@ export default function Contact() {
         </button>
       </form>
     <div className="bg-slate-950 text-white min-h-screen p-20">
-      <h1 className="text-5xl font-extrabold">Talk with SecOpsAI</h1>
+      <h1 className="text-5xl font-extrabold">Talk with T79AI</h1>
       <p className="text-lg text-slate-300 mt-4 max-w-2xl">
         Tell us about your environment and security objectives. We’ll assemble a tailored pilot that
         integrates with your cloud, CI/CD, and identity stack.

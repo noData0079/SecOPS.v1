@@ -1,6 +1,6 @@
 # RAG and Agentic Integration Blueprint
 
-This document outlines how to extend SecOps AI with multi-LLM retrieval-augmented generation (RAG) and agentic workflow frameworks while keeping the existing data contracts intact. The goal is to reuse current embeddings, metadata, and orchestration code without introducing breaking changes.
+This document outlines how to extend T79 AI with multi-LLM retrieval-augmented generation (RAG) and agentic workflow frameworks while keeping the existing data contracts intact. The goal is to reuse current embeddings, metadata, and orchestration code without introducing breaking changes.
 
 ## Principles for compatibility
 - **Preserve data schemas:** Keep existing vector store schemas, metadata keys, and retrieval interfaces stable. Add adapters instead of changing schemas when integrating new frameworks.

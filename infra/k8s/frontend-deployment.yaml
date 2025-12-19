@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: secops-frontend
-  namespace: secops
+  name: t79-frontend
+  namespace: t79
   labels:
-    app: secops-frontend
+    app: t79-frontend
     tier: frontend
 spec:
   replicas: 1
   revisionHistoryLimit: 3
   selector:
     matchLabels:
-      app: secops-frontend
+      app: t79-frontend
   template:
     metadata:
       labels:
-        app: secops-frontend
+        app: t79-frontend
         tier: frontend
     spec:
       containers:
-        - name: secops-frontend
+        - name: t79-frontend
           # Image built from infra/docker/frontend.Dockerfile
-          image: secops-frontend:latest
+          image: t79-frontend:latest
           imagePullPolicy: IfNotPresent
 
           ports:
@@ -31,7 +31,7 @@ spec:
           # ENV variables for Next.js runtime
           env:
             - name: NEXT_PUBLIC_API_URL
-              value: "http://secops-backend.secops.svc.cluster.local:8000"
+              value: "http://t79-backend.t79.svc.cluster.local:8000"
 
             # Optional (for tracking)
             - name: NEXT_PUBLIC_APP_VERSION

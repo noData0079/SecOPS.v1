@@ -16,12 +16,12 @@ class RAGSynthesizer:
         context = "\n\n".join([f"[{i+1}] {c.text}" for i, c in enumerate(chunks)])
 
         prompt = f"""
-You are SecOpsAI — an autonomous DevSecOps assistant.
+You are T79AI — an autonomous DevT79 assistant.
 
 USER QUESTION:
 {query.query}
         prompt = f"""
-You are SecOpsAI — an autonomous DevSecOps assistant.
+You are T79AI — an autonomous DevT79 assistant.
 
 USER QUESTION:
 {query.query}
@@ -33,7 +33,7 @@ TASK:
 - Answer the user's question accurately.
 - Use ONLY provided context.
 - Include step-by-step reasoning.
-- Provide actionable DevSecOps recommendations.
+- Provide actionable DevT79 recommendations.
 - Explain security risks if relevant.
 
 FORMAT:
@@ -45,7 +45,7 @@ Answer only, no system text.
 
 synthesizer = RAGSynthesizer()
 class RAGSynthesizer:
-    """Turn retrieved knowledge into a SecOps-focused answer."""
+    """Turn retrieved knowledge into a T79-focused answer."""
 
 CONTEXT (retrieved from customer systems, logs, errors, scans):
 {context}
@@ -54,7 +54,7 @@ TASK:
 - Answer the user's question accurately.
 - Use ONLY provided context.
 - Include step-by-step reasoning.
-- Provide actionable DevSecOps recommendations.
+- Provide actionable DevT79 recommendations.
 - Explain security risks if relevant.
 
 FORMAT:
