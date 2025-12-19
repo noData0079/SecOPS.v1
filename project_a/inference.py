@@ -6,6 +6,9 @@ import json
 import os
 from typing import Any, Dict
 
+import numpy as np
+
+from .model import SimpleImageModel
 from .model import SecurityInferenceModel
 
 PROJECT_ROOT = os.path.dirname(__file__)
@@ -18,6 +21,7 @@ from .model import ProjectAModel, predict
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
 _CONFIG_PATH = _PROJECT_ROOT / "config" / "model_config.json"
+_model: SimpleImageModel | None = None
 
 
 def load_model_config() -> Dict[str, Any]:
@@ -37,6 +41,11 @@ class ProjectAInference:
         return json.load(fp)
 
 
+def _get_model() -> SimpleImageModel:
+    global _model
+    if _model is None:
+        _model = SimpleImageModel()
+    return _model
 __all__ = ["ProjectAModel", "load_model_config", "predict"]
 class ProjectAModel:
     """Lightweight placeholder for Project A's inference engine."""
@@ -73,6 +82,21 @@ __all__ = ["ProjectAInference", "ProjectAModel", "load_model_config", "predict"]
 
 def predict(text: str) -> Dict[str, Any]:
     """Proxy prediction through a Project A model instance."""
+
+def predict(image_array: np.ndarray) -> Dict[str, Any]:
+    """Proxy prediction through a lazily initialized model instance."""
+    model = _get_model()
+    return model.predict(image_array)
+
+
+class ProjectAModel:
+    """Alias wrapper for compatibility with upstream imports."""
+
+    def __init__(self) -> None:
+        self._model = _get_model()
+
+    def predict(self, image_array: np.ndarray) -> Dict[str, Any]:
+        return self._model.predict(image_array)
 
     model = ProjectAModel()
     return model.predict(text)
