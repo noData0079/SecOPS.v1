@@ -16,6 +16,14 @@ def main() -> None:
 
     try:
         bridge = ProjectABridge()
+        dummy_payload = generate_dummy_base64()
+        response = bridge.execute(dummy_payload)
+        print("Bridge response:")
+        pprint(response)
+    except ModuleNotFoundError as exc:  # pragma: no cover - explicit debug aid
+        print(f"Module import failed: {exc}")
+    except Exception as exc:  # pragma: no cover - surfaced during sanity check
+        print(f"Unexpected error during sanity check: {exc}")
         response = bridge.execute(encoded_payload)
     except ModuleNotFoundError as exc:  # pragma: no cover - explicit debugging aid
         print(f"Module import failed inside the bridge: {exc}")
@@ -45,3 +53,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
