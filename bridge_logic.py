@@ -14,6 +14,7 @@ if str(PROJECT_A_PATH) not in sys.path:
     sys.path.insert(0, str(PROJECT_A_PATH))
 
 from project_a import ProjectAModel  # type: ignore  # noqa: E402
+from project_a.model import SecurityInferenceModel  # noqa: E402
 
 ProjectBPayload = Union[str, bytes, Dict[str, Any]]
 
@@ -43,6 +44,10 @@ class AIBridge:
     def _normalize_payload(self, payload: ProjectBPayload) -> str:
         """Convert Project B inputs into the raw text expected by Project A."""
 
+            self._model = SecurityInferenceModel()
+
+    def _transform_input(self, payload: ProjectBPayload) -> str:
+        """Accept Project B data formats and convert to Project A's expected string."""
         if isinstance(payload, bytes):
             payload = payload.decode("utf-8")
 
@@ -70,3 +75,14 @@ class AIBridge:
 
 
 __all__ = ["AIBridge"]
+    def execute(self, project_b_payload: ProjectBPayload) -> Dict[str, Any]:
+        text_input = self._transform_input(project_b_payload)
+        result = self._model.predict(text_input)
+        return {
+            "status": "success",
+            "input": text_input,
+            "prediction": result,
+        }
+
+
+__all__ = ["ProjectABridge"]

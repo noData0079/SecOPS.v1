@@ -20,3 +20,21 @@ def load_model_config() -> Dict[str, Any]:
 
 
 __all__ = ["ProjectAModel", "load_model_config", "predict"]
+class ProjectAModel:
+    """Lightweight placeholder for Project A's inference engine."""
+
+    def __init__(self) -> None:
+        self.config = load_model_config()
+
+    def predict(self, text: str) -> Dict[str, Any]:
+        cleaned = text.strip()
+        prompt = self.config.get("prompt_template", "{text}").replace("{text}", cleaned)
+        return {
+            "model": self.config.get("model_name", "unknown-model"),
+            "provider": self.config.get("provider", "unknown-provider"),
+            "prompt": prompt,
+            "tokens_processed": max(1, len(cleaned.split())),
+        }
+
+
+__all__ = ["ProjectAModel", "load_model_config"]

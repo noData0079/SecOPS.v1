@@ -1,6 +1,9 @@
 # Unified dependency set for Project A (AI model) and Project B (FastAPI app)
 # For GPU acceleration, install the CUDA variant of torch (e.g., torch==2.3.1+cu121)
 # from https://download.pytorch.org/whl/torch/ before installing the rest.
+# Consolidated dependency set for Project A (AI model) and Project B (FastAPI app).
+# GPU users should install a matching CUDA build of torch (e.g., torch==2.3.1+cu121)
+# from https://download.pytorch.org/whl/torch/ before installing the remaining packages.
 
 # Project B: FastAPI backend and orchestration
 fastapi==0.111.0
@@ -28,6 +31,17 @@ transformers==4.44.2
 datasets==2.21.0
 accelerate==0.33.0
 vllm==0.5.4.post1
+
+
+# LLM / model stack shared across projects
+transformers==4.44.2
+datasets==2.21.0
+accelerate==0.33.0
+vllm==0.5.4.post1
+
+torch==2.3.1
+numpy==1.26.4
+Pillow==10.4.0
 
 # Testing
 pytest==8.2.0
