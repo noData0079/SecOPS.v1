@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
+import os
 from typing import Any, Dict
 
+from .model import ProjectAModel
+
+PROJECT_ROOT = os.path.dirname(__file__)
+CONFIG_PATH = os.path.join(PROJECT_ROOT, "config", "model_config.json")
 from .model import ProjectAModel, predict
 
 _PROJECT_ROOT = Path(__file__).resolve().parent
@@ -15,6 +19,15 @@ _CONFIG_PATH = _PROJECT_ROOT / "config" / "model_config.json"
 def load_model_config() -> Dict[str, Any]:
     """Load the model configuration relative to this module."""
 
+    if not os.path.exists(CONFIG_PATH):
+        return {}
+
+    with open(CONFIG_PATH, "r", encoding="utf-8") as fp:
+        return json.load(fp)
+
+
+class ProjectAInference:
+    """Lightweight proxy that exposes Project A predictions."""
     with _CONFIG_PATH.open("r", encoding="utf-8") as fp:
         return json.load(fp)
 
@@ -24,9 +37,19 @@ class ProjectAModel:
     """Lightweight placeholder for Project A's inference engine."""
 
     def __init__(self) -> None:
-        self.config = load_model_config()
+        self.model = ProjectAModel()
 
     def predict(self, text: str) -> Dict[str, Any]:
+        return self.model.predict(text)
+
+
+def predict(text: str) -> Dict[str, Any]:
+    """Module-level convenience wrapper."""
+
+    return ProjectAInference().predict(text)
+
+
+__all__ = ["ProjectAInference", "ProjectAModel", "load_model_config", "predict"]
         cleaned = text.strip()
         prompt = self.config.get("prompt_template", "{text}").replace("{text}", cleaned)
         return {

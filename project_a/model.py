@@ -1,3 +1,4 @@
+"""Project A demo model with path-safe configuration loading."""
 """Project A model implementation with path-safe resource loading."""
 from __future__ import annotations
 
@@ -30,6 +31,38 @@ class SecurityInferenceModel:
 from __future__ import annotations
 
 import json
+import os
+from typing import Any, Dict, List
+
+PROJECT_A_ROOT = os.path.dirname(__file__)
+CONFIG_PATH = os.path.join(PROJECT_A_ROOT, "config", "model_config.json")
+WEIGHTS_PATH = os.path.join(PROJECT_A_ROOT, "weights", "dummy_weights.txt")
+
+
+def _load_json(path: str, fallback: Dict[str, Any]) -> Dict[str, Any]:
+    if not os.path.exists(path):
+        return fallback
+
+    with open(path, "r", encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+class ProjectAModel:
+    """Demo model that simulates an AI inference pipeline."""
+
+    def __init__(self) -> None:
+        self.config = _load_json(
+            CONFIG_PATH,
+            {"model_name": "project_a", "version": "unknown", "confidence_base": 0.5},
+        )
+        self.weights_checksum = self._load_weights_checksum()
+
+    def _load_weights_checksum(self) -> int:
+        if not os.path.exists(WEIGHTS_PATH):
+            return 0
+
+        with open(WEIGHTS_PATH, "r", encoding="utf-8") as weights_file:
+            return sum(ord(char) for char in weights_file.read())
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -82,6 +115,13 @@ def predict(text: str) -> Dict[str, str]:
     return model.predict(text)
 
 
+def load_model() -> ProjectAModel:
+    """Factory helper for compatibility with older imports."""
+
+    return ProjectAModel()
+
+
+__all__ = ["ProjectAModel", "predict", "load_model"]
     return ProjectAModel().predict(text)
 
 

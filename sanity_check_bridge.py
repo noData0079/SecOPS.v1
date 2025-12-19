@@ -11,6 +11,7 @@ from bridge_logic import ProjectABridge
 def main() -> None:
     bridge = ProjectABridge()
 
+    # Simulate Project B sending a base64-encoded text payload
     sample_payload = base64.b64encode(b"This is a dummy Project B request").decode("utf-8")
 
     try:
