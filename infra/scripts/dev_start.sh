@@ -58,7 +58,7 @@ start_frontend() {
 
 main() {
   echo "============================================"
-  echo "   SecOps AI — Development Environment"
+  echo "   T79 AI — Development Environment"
   echo "============================================"
   echo "Root directory:      $ROOT_DIR"
   echo "Backend directory:   $BACKEND_DIR"

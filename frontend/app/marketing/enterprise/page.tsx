@@ -5,7 +5,7 @@ export default function Enterprise() {
     <div className="px-20 py-20">
       <h1 className="text-6xl font-bold">Enterprise</h1>
       <p className="mt-10 text-2xl text-gray-300 max-w-3xl">
-        SecOpsAI is built for global-scale companies requiring high availability,
+        T79AI is built for global-scale companies requiring high availability,
         custom compliance, on-premise deployment, and private LLM execution.
       </p>
 
@@ -32,7 +32,7 @@ export default function Enterprise() {
     <div className="bg-slate-950 text-white min-h-screen p-20">
       <h1 className="text-5xl font-extrabold">Built for regulated enterprises</h1>
       <p className="text-lg text-slate-300 mt-4 max-w-3xl">
-        Deploy SecOpsAI into isolated environments with full control over data, identity, and operational
+        Deploy T79AI into isolated environments with full control over data, identity, and operational
         governance. Pair AI autonomy with the auditability and compliance posture your board expects.
       </p>
 

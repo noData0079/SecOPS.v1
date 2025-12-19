@@ -131,7 +131,7 @@ class CheckRunResult:
 
 
 class BaseCheck(ABC):
-    """Base class for all SecOpsAI checks."""
+    """Base class for all T79AI checks."""
 
     id: str
     name: str

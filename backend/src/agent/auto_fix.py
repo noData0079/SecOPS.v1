@@ -3,7 +3,7 @@ import shutil
 from typing import Optional
 
 
-BACKUP_SUFFIX = ".secopsai.bak"
+BACKUP_SUFFIX = ".t79ai.bak"
 
 
 def auto_patch(file_path: Optional[str], patch_content: Optional[str]) -> None:
@@ -20,4 +20,4 @@ def auto_patch(file_path: Optional[str], patch_content: Optional[str]) -> None:
     with open(file_path, "w", encoding="utf-8") as target:
         target.write(patch_content)
 
-    print(f"[SecOpsAI Agent] Applied patch to {file_path} (backup at {backup_path})")
+    print(f"[T79AI Agent] Applied patch to {file_path} (backup at {backup_path})")

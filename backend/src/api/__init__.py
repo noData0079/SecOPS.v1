@@ -1,2 +1,2 @@
 """Package initializer."""
-"""API package for SecOpsAI backend."""
+"""API package for T79AI backend."""

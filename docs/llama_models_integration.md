@@ -2,7 +2,7 @@
 
 The `fine_tune` package now includes helpers to convert the upstream
 [`inboxplus-collab/llama-models`](https://github.com/inboxplus-collab/llama-models)
-repository into a JSONL dataset that matches the SecOpsAI instruction format.
+repository into a JSONL dataset that matches the T79AI instruction format.
 
 ## Preparing the repository
 - **Offline environments:** manually clone the repository and point the ingestor
@@ -28,7 +28,7 @@ print(f"Dataset written to {dataset_path}")
 ```
 
 The ingestor walks the repository for Markdown, text, JSON, or YAML files and
-wraps them with the SecOpsAI instruction prompt defined in `dataset_builder`.
+wraps them with the T79AI instruction prompt defined in `dataset_builder`.
 Each entry includes metadata tags so the trainer can filter or bucket examples
 as needed.
 

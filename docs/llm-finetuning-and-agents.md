@@ -1,8 +1,8 @@
 # LLM Fine-Tuning and Agent Playbook
 
-This playbook links SecOps AI to leading open-source LLM training and agent frameworks. It focuses on reproducible fine-tuning, autonomous evolution loops, and self-improving alignment that avoid conflicts with existing data and configuration.
+This playbook links T79 AI to leading open-source LLM training and agent frameworks. It focuses on reproducible fine-tuning, autonomous evolution loops, and self-improving alignment that avoid conflicts with existing data and configuration.
 
-## Goals for SecOps AI
+## Goals for T79 AI
 - **Tight backend integration:** Expose tuned models behind FastAPI without breaking existing routes or embeddings.
 - **Reproducibility:** Use versioned configs, seeds, and dataset manifests; never mutate the raw security datasets in place.
 - **Safety and alignment:** Apply preference data (self-generated or curated) plus guardrails before exposing new models to the frontend.
@@ -11,7 +11,7 @@ This playbook links SecOps AI to leading open-source LLM training and agent fram
 ## Recommended frameworks
 | Capability | Framework | How it fits | Conflict-avoidance tips |
 | --- | --- | --- | --- |
-| Fast instruction/adapter fine-tuning with low VRAM | [Unsloth](https://github.com/unslothai/unsloth) | One-click LoRA/QLoRA runs; great for quick SecOps remediation experts. | Pin model + tokenizer versions; store LoRA deltas separately and register them in a new model card instead of overwriting base weights. |
+| Fast instruction/adapter fine-tuning with low VRAM | [Unsloth](https://github.com/unslothai/unsloth) | One-click LoRA/QLoRA runs; great for quick T79 remediation experts. | Pin model + tokenizer versions; store LoRA deltas separately and register them in a new model card instead of overwriting base weights. |
 | Lightweight GPT-like pretraining | [nanoGPT](https://github.com/karpathy/nanoGPT) | Small-scale pretraining on synthetic/obfuscated security logs. | Keep a dedicated `data/nanogpt/` split; never mix with production embeddings. |
 | Instruction tuning + RLHF/ORPO | [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory) | Unified pipelines for SFT, DPO, ORPO, PPO; works with Hugging Face. | Track dataset versions via JSON manifest; export trained checkpoints to `models/llama-factory/<run-id>/` and load via env vars. |
 | Educational/custom components | [LLMs-from-scratch](https://github.com/rasbt/LLMs-from-scratch) | Reference implementations for bespoke blocks (e.g., custom attention or gating). | Use as a sandbox; keep experimental modules in `experiments/` and behind feature flags before merging into backend serving. |
@@ -63,4 +63,4 @@ An agent = perception + reasoning (LLM) + memory + action. Recommended blueprint
 - **Serving:** Backend loads adapters via Hugging Face `peft` when env vars point to a run-id; fallback to the current base model otherwise.
 - **Agent runs:** Persist traces and use them to bootstrap preference data for future alignment cycles.
 
-Use this playbook as the canonical integration guide so that new fine-tuning or agent work complements existing SecOps capabilities without configuration or data conflicts.
+Use this playbook as the canonical integration guide so that new fine-tuning or agent work complements existing T79 capabilities without configuration or data conflicts.

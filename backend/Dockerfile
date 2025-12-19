@@ -28,7 +28,7 @@ RUN pip install --upgrade pip && \
 FROM python:3.10-slim
 
 # Create user for security
-RUN useradd -m secopsuser
+RUN useradd -m t79user
 
 WORKDIR /app
 
@@ -58,7 +58,7 @@ ENV ENV=production \
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD curl -f http://localhost:8000/health || exit 1
 
 # Switch to non-root user
-USER secopsuser
+USER t79user
 
 # Production server command
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]

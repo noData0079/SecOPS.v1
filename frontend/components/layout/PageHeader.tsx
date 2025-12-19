@@ -7,7 +7,7 @@ type PageHeaderProps = {
   description?: string;
   // Put buttons / filters / tags on the right side
   actions?: React.ReactNode;
-  // Optional small label above title (e.g. "SecOps · Console")
+  // Optional small label above title (e.g. "T79 · Console")
   eyebrow?: string;
 };
 

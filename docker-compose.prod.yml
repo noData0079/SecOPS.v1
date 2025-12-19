@@ -21,7 +21,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
 
   backend:
-    image: secopsai/backend:latest
+    image: t79ai/backend:latest
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -41,7 +41,7 @@ services:
       - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
 
   frontend:
-    image: secopsai/frontend:latest
+    image: t79ai/frontend:latest
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -57,7 +57,7 @@ services:
     image: supabase/postgres:15
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: secopsai
+      POSTGRES_DB: t79ai
     ports:
       - "5432:5432"
     volumes:

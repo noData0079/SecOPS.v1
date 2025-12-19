@@ -1,6 +1,6 @@
-"""Initial DB schema for SecOps AI.
+"""Initial DB schema for T79 AI.
 
-Creates the primary `issues` table used by the SecOps console.
+Creates the primary `issues` table used by the T79 console.
 
 Revision ID: 0001_initial
 Revises: None

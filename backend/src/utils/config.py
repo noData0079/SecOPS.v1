@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     """Application runtime configuration with sensible defaults for tests."""
 
     # ========= GENERAL ==========
-    APP_NAME: str = "SecOps AI"
+    APP_NAME: str = "T79 AI"
     APP_VERSION: str = "0.1.0"
     ENV: str = Field(default="development")
     ENVIRONMENT: str = Field(default="development")

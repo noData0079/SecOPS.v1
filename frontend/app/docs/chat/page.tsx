@@ -38,7 +38,7 @@ export default function DocsChatPage() {
           <p className="text-sm text-emerald-300 uppercase tracking-widest">DocsGPT</p>
           <h1 className="text-4xl font-bold">Documentation chat</h1>
           <p className="text-slate-300 mt-3 max-w-3xl">
-            Ask anything about SecOpsAI. The backend RAG service retrieves doc chunks and the LLM responds with citations.
+            Ask anything about T79AI. The backend RAG service retrieves doc chunks and the LLM responds with citations.
           </p>
         </div>
 

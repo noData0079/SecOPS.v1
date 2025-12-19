@@ -1,12 +1,12 @@
-# SecOpsAI — Autonomous DevSecOps Intelligence Platform
+# T79AI — Autonomous DevT79 Intelligence Platform
 
 ## Whitepaper & Investor Briefing – 2025 Edition
 
 ### 1. Executive Summary
 
-SecOpsAI is the world’s first autonomous DevSecOps intelligence engine, designed to continuously analyze codebases, cloud infrastructure, CI/CD pipelines, Kubernetes clusters, and enterprise databases — and automatically detect, explain, and fix security plus reliability issues.
+T79AI is the world’s first autonomous DevT79 intelligence engine, designed to continuously analyze codebases, cloud infrastructure, CI/CD pipelines, Kubernetes clusters, and enterprise databases — and automatically detect, explain, and fix security plus reliability issues.
 
-Unlike traditional tools, SecOpsAI is:
+Unlike traditional tools, T79AI is:
 
 - Self-evolving
 - Multi-LLM powered
@@ -14,7 +14,7 @@ Unlike traditional tools, SecOpsAI is:
 - Integrates with any stack in minutes
 - Enterprise secure (SOC 2-ready, SSO, audit logs)
 
-SecOpsAI reduces DevSecOps operational cost by 80%, improves incident detection by 10x, and enables small teams to run infrastructure at enterprise scale.
+T79AI reduces DevT79 operational cost by 80%, improves incident detection by 10x, and enables small teams to run infrastructure at enterprise scale.
 
 ### 2. Problem Statement
 
@@ -30,9 +30,9 @@ Companies today face:
 
 Each system produces logs, events, configs, and code — but no human team can analyze them in real time. This leads to missed CVEs, broken deployments, unpatched misconfigurations, database corruption, compliance failures, and revenue loss.
 
-### 3. SecOpsAI Solution Overview
+### 3. T79AI Solution Overview
 
-SecOpsAI provides:
+T79AI provides:
 
 **Autonomous Detection Engine**
 
@@ -52,7 +52,7 @@ RAG + reasoning delivers both executive summaries and deep technical root-cause 
 
 ### 4. Market Opportunity
 
-- DevSecOps market: $15.2B (2024), projected $43B by 2030
+- DevT79 market: $15.2B (2024), projected $43B by 2030
 - AI security market: $50B by 2030
 
 Target segments include mid-size SaaS, enterprises with 100+ microservices, regulated sectors (finance, healthcare), cloud-native startups, and DevOps-heavy organizations.
@@ -61,7 +61,7 @@ Opportunity: no current competitor offers autonomous fixes, multi-model LLM insi
 
 ### 5. Competitive Landscape
 
-| Feature | SecOpsAI | Snyk | Wiz | Prisma Cloud | GitHub Advanced Security |
+| Feature | T79AI | Snyk | Wiz | Prisma Cloud | GitHub Advanced Security |
 | --- | --- | --- | --- | --- | --- |
 | Auto-fix agents | ✅ | ❌ | ❌ | ❌ | ❌ |
 | Multi-environment scanning | ✅ | ⚠️ partial | ⚠️ | ⚠️ | ❌ |
@@ -115,9 +115,9 @@ Opportunity: no current competitor offers autonomous fixes, multi-model LLM insi
 
 ### 10. Contact
 
-SecOpsAI HQ  
-Email: founders@secops.ai  
-Website: https://secops.ai
+T79AI HQ  
+Email: founders@t79.ai  
+Website: https://t79.ai
 
 ---
 

@@ -5,17 +5,17 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
-  title: "SecOpsAI Console",
-  description: "Autonomous DevSecOps intelligence.",
+  title: "T79AI Console",
+  description: "Autonomous DevT79 intelligence.",
   openGraph: {
-    title: "SecOpsAI",
-    description: "Autonomous DevSecOps intelligence.",
+    title: "T79AI",
+    description: "Autonomous DevT79 intelligence.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "SecOpsAI",
+        alt: "T79AI",
       },
     ],
   },
