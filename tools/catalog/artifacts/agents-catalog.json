@@ -1,0 +1,48 @@
+{
+  "generated_from": "agents",
+  "agent_count": 1,
+  "agents": [
+    {
+      "name": "example-agent",
+      "version": "0.1.0",
+      "description": "Minimal, production-ready agent scaffold for SecOPS.v1 (health, metrics, config, graceful shutdown).",
+      "path": "agents/example_agent",
+      "metrics": [
+        {
+          "name": "example_agent_requests_total",
+          "units": "requests/s",
+          "type": "counter",
+          "description": "Total HTTP requests received by the agent, labeled by method and path."
+        },
+        {
+          "name": "example_agent_errors_total",
+          "units": "errors/s",
+          "type": "counter",
+          "description": "Total application errors (exceptions captured)."
+        },
+        {
+          "name": "example_agent_uptime_seconds",
+          "units": "seconds",
+          "type": "gauge",
+          "description": "Agent process uptime in seconds."
+        }
+      ],
+      "alerts": [
+        {
+          "id": "example-agent-high-error-rate",
+          "expr": "sum(rate(example_agent_errors_total[5m])) / sum(rate(example_agent_requests_total[5m])) > 0.05",
+          "level": "critical",
+          "summary": "High error rate in example-agent",
+          "description": "When more than 5% of requests in the last 5m are errors, this alerts."
+        },
+        {
+          "id": "example-agent-no-metrics",
+          "expr": "absent(example_agent_requests_total)",
+          "level": "critical",
+          "summary": "example-agent metrics missing",
+          "description": "No metrics scraped from example-agent; likely agent down or scrape misconfigured."
+        }
+      ]
+    }
+  ]
+}
