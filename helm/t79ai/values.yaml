@@ -1,0 +1,22 @@
+domain: "t79.yourcompany.com"
+
+backend:
+  image: t79ai/backend:latest
+  replicas: 3
+
+frontend:
+  image: t79ai/frontend:latest
+  replicas: 2
+
+postgres:
+  password: "supersecurepassword"
+
+supabase:
+  url: "https://xyzcompany.supabase.co"
+  anon_key: "YOUR_PUBLIC_ANON_KEY"
+
+redis:
+  enabled: true
+
+prometheus:
+  enabled: true

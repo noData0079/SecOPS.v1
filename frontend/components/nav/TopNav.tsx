@@ -42,10 +42,10 @@ export default function TopNav({ showConsoleLinks = true }: TopNavProps) {
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-semibold tracking-tight text-slate-900">
-                SecOpsAI
+                T79AI
               </span>
               <span className="text-[10px] text-slate-500">
-                Autonomous DevSecOps
+                Autonomous DevT79
               </span>
             </div>
           </Link>

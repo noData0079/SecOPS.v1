@@ -1,2 +1,2 @@
 """Package initializer."""
-"""Core domain packages for SecOpsAI."""
+"""Core domain packages for T79AI."""

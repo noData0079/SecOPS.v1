@@ -77,11 +77,11 @@ class AnalysisService:
 
     def _build_prompt(self, report: Dict[str, Any]) -> str:
         return f"""
-You are SecOpsAI. Analyze the following collected scan results and produce:
+You are T79AI. Analyze the following collected scan results and produce:
 - Risk evaluation
 - Specific fixes
 - Maintenance suggestions
-- DevSecOps best practices
+- DevT79 best practices
 - Step-by-step mitigation plans
 
 SCAN DATA:

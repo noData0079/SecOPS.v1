@@ -1,6 +1,6 @@
 # Multi-LLM RAG patterns
 
-SecOPS.v1 keeps its Retrieval-Augmented Generation engine modular so that patterns from multiple open-source libraries can be reused without vendor lock-in. The repositories below are the main references when extending `backend/src/rag`.
+t79 keeps its Retrieval-Augmented Generation engine modular so that patterns from multiple open-source libraries can be reused without vendor lock-in. The repositories below are the main references when extending `backend/src/rag`.
 
 | Project | What to borrow | Where to plug it in |
 | --- | --- | --- |

@@ -3,11 +3,11 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "secops-backend"
+name = "t79-backend"
 version = "0.1.0"
-description = "SecOpsAI Backend – Automated maintenance, DevSecOps intelligence, and RAG-based issue detection."
+description = "T79AI Backend – Automated maintenance, DevT79 intelligence, and RAG-based issue detection."
 authors = [
-    { name = "inboxplus-collab", email = "support@secops.ai" }
+    { name = "inboxplus-collab", email = "support@t79.ai" }
 ]
 license = "MIT"
 requires-python = ">=3.10"

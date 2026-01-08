@@ -115,10 +115,10 @@ export default function Sidebar() {
         <div className="px-4 py-6 flex flex-col h-full">
           <div className="mb-6">
             <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-              SecOps Console
+              T79 Console
             </h2>
             <p className="text-xs text-slate-500">
-              Autonomous DevSecOps Intelligence
+              Autonomous DevT79 Intelligence
             </p>
           </div>
 
@@ -147,7 +147,7 @@ export default function Sidebar() {
 
           {/* Footer / version */}
           <div className="mt-6 border-t pt-4 text-xs text-slate-500">
-            SecOpsAI v1.0.0  
+            T79AI v1.0.0  
             <br />
             <span className="text-slate-400">MVP Preview Build</span>
           </div>
