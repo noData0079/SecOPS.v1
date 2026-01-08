@@ -43,7 +43,7 @@ class AutoUpdaterAgent:
             path,
             patched,
             sha,
-            message=f"[SecOpsAI] Auto-fix: {path}"
+            message=f"[T79AI] Auto-fix: {path}"
         )
 
         return {

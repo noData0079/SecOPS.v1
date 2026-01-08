@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: t79-postgres
+spec:
+  ports:
+    - port: 5432
+      targetPort: 5432
+  selector:
+    app: t79-postgres
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: t79-postgres
+spec:
+  serviceName: t79-postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: t79-postgres
+  template:
+    metadata:
+      labels:
+        app: t79-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: supabase/postgres:15
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: t79-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value: t79ai
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: postgres-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 10Gi

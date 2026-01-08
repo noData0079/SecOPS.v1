@@ -9,7 +9,7 @@ export default function SettingsPage() {
         <header>
           <h1 className="text-2xl font-semibold">Settings & Integrations</h1>
           <p className="text-sm text-neutral-400">
-            Connect GitHub, Kubernetes clusters, and scanners to SecOpsAI.
+            Connect GitHub, Kubernetes clusters, and scanners to T79AI.
           </p>
         </header>
 

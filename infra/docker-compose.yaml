@@ -6,12 +6,12 @@ services:
   ###########################################################################
   postgres:
     image: postgres:15
-    container_name: secops-postgres
+    container_name: t79-postgres
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: secops
+      POSTGRES_DB: t79
     ports:
       - "5432:5432"
     volumes:
@@ -22,7 +22,7 @@ services:
   ###########################################################################
   redis:
     image: redis:7
-    container_name: secops-redis
+    container_name: t79-redis
     restart: always
     ports:
       - "6379:6379"
@@ -34,10 +34,10 @@ services:
     build:
       context: ..
       dockerfile: infra/docker/backend.Dockerfile
-    container_name: secops-backend
+    container_name: t79-backend
     restart: always
     environment:
-      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/secops
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@postgres:5432/t79
       REDIS_URL: redis://redis:6379/0
       BACKEND_ENV: "production"
     depends_on:
@@ -55,7 +55,7 @@ services:
     build:
       context: ..
       dockerfile: infra/docker/frontend.Dockerfile
-    container_name: secops-frontend
+    container_name: t79-frontend
     restart: always
     environment:
       NEXT_PUBLIC_API_URL: "http://localhost:8000"

@@ -83,12 +83,12 @@ jobs:
         run: |
           docker build \
             -f infra/docker/frontend.Dockerfile \
-            -t ghcr.io/${{ github.repository }}/secops-frontend:latest \
+            -t ghcr.io/${{ github.repository }}/t79-frontend:latest \
             .
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository }}/secops-frontend:latest
+          docker push ghcr.io/${{ github.repository }}/t79-frontend:latest
 
   # =====================================================
   # 3. Deploy to Kubernetes (Optional)
@@ -111,14 +111,14 @@ jobs:
 
       - name: Update image in frontend deployment
         run: |
-          kubectl set image deployment/secops-frontend \
-          secops-frontend=ghcr.io/${{ github.repository }}/secops-frontend:latest \
-          -n secops
+          kubectl set image deployment/t79-frontend \
+          t79-frontend=ghcr.io/${{ github.repository }}/t79-frontend:latest \
+          -n t79
 
       - name: Restart rollout
         run: |
-          kubectl rollout restart deployment secops-frontend -n secops
+          kubectl rollout restart deployment t79-frontend -n t79
 
       - name: Verify deployment status
         run: |
-          kubectl rollout status deployment/secops-frontend -n secops
+          kubectl rollout status deployment/t79-frontend -n t79

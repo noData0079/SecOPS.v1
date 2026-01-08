@@ -1,6 +1,6 @@
 # backend/src/extensions/__init__.py
 """
-SecOps AI – extensions package.
+T79 AI – extensions package.
 
 This package contains optional, advanced modules for:
 - adaptive / auto-evolving behavior,

@@ -20,7 +20,7 @@ export const API_URL =
  *  Application Metadata
  * ========================================================================== */
 
-export const APP_NAME = "SecOps AI";
+export const APP_NAME = "T79 AI";
 export const APP_DESCRIPTION =
   "Automated security scanning, dependency auditing, CI hardening, and AI-assisted remediation.";
 export const APP_VERSION =
