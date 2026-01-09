@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from backend.src.rag.llm_client import llm_client
 
 
@@ -15,7 +17,7 @@ Return:
 - How to prevent it
 """
     return await llm_client.ask(prompt)
-from __future__ import annotations
+
 
 from typing import Any, Dict, Optional
 

@@ -82,6 +82,42 @@ Bring up both services with the provided compose file:
 docker compose -f infra/docker-compose.yaml up --build
 ```
 
+## 🚀 Deployment
+
+### Prerequisites
+- Python 3.9+
+- OpenAI/Anthropic/Google API keys (optional for local models)
+
+### Setup & Run
+1. Install dependencies:
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
+2. Configure environment:
+   ```bash
+   # Copy .env.example to .env and add your API keys
+   cp .env.example .env
+   ```
+3. Start the API:
+   ```bash
+   cd backend/src
+   uvicorn app:app --reload --host 0.0.0.0 --port 8000
+   ```
+4. Access Documentation:
+   - **Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)
+   - **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+## 📡 API Endpoints
+- `POST /api/v1/findings` - Report security findings
+- `GET /api/v1/findings` - List findings (with filters)
+- `POST /api/v1/findings/{id}/fix` - Trigger auto-fix (Playbook or LLM)
+- `GET /api/v1/system/metrics` - View system intelligence stats
+
+## 🧪 Testing
+Run integration tests to verify deployment:
+```bash
+python backend/tests/test_integration.py
+```
 ## Additional resources
 - Frontend integration guidance: `frontend/lib/appsSdkUiIntegration.ts`
 - Transformer and MoE background: `docs/gpt-architecture.md`

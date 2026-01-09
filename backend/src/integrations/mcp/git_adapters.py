@@ -310,9 +310,7 @@ class GitLabAdapter(MCPAdapter):
             "title": title,
             "source_branch": source_branch,
             "target_branch": target_branch,
-            "description": params.get("
-
-description", ""),
+            "description": params.get("description", ""),
         }
         
         result = await self.write(f"projects/{project_id}/merge_requests", mr_data)
