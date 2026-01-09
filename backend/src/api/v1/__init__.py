@@ -1,8 +1,8 @@
 """
-API Module
+API v1 Module
 """
 
-from .v1 import findings_router, playbooks_router, system_router
+from .endpoints import findings_router, playbooks_router, system_router
 
 __all__ = [
     "findings_router",
