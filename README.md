@@ -1,23 +1,16 @@
-# t79
+# The Sovereign Mechanica (TSM99)
 
-A curated reference for t79 resources.
+**TSM99**: The Autonomous Agentic AI Platform for Security Operations.
 
-## LLM Systems & Serving
-- [llama.cpp](https://github.com/ggerganov/llama.cpp): Lightweight C/C++ inference engine for running LLaMA-family models efficiently on local CPUs/GPUs.
-- [ollama](https://github.com/ollama/ollama): Local-first model runner with simple APIs and model packaging for serving LLMs on desktops or servers.
-- [open-webui](https://github.com/open-webui/open-webui): Self-hosted web interface that connects to local or remote models, providing chat and management features for LLM deployments.
-- [vLLM](https://github.com/vllm-project/vllm): High-throughput LLM serving engine that uses PagedAttention for efficient inference and streaming.
-t79 is organized into `backend`, `frontend`, and `infra` packages that together provide a security operations workflow. This repository documents external LLM neural network projects used for research or integration inspiration. The README now reflects the resolved merge state and is free of conflict markers.
+> **DOMAIN**: [thesovereignmechanica.ai](https://thesovereignmechanica.ai)
 
-## LLM Neural Networks
+TSM99 is a production-ready, self-evolving security automation platform that consolidates 10 layers of intelligence into a single sovereign control system.
 
-This project references a few open-source LLM implementations and tooling stacks:
-
-- [huggingface/transformers](https://github.com/huggingface/transformers)
-- [meta-llama/llama3](https://github.com/meta-llama/llama3)
-- [karpathy/llm.c](https://github.com/karpathy/llm.c)
-This repository hosts t79. For background on the autonomous evolution engine and LLM agent concepts guiding this work, see the [autonomous evolution engine documentation](docs/autonomous_evolution_engine.md).
-t79 is an experimental security automation platform that layers a multi-LLM Retrieval-Augmented Generation (RAG) engine on top of infrastructure, code, and operational data. The goal is to give T79 teams a single interface for questions such as vulnerability triage, playbook generation, and environment introspection.
+## 🌟 Key Features
+- **TSM99 AI Core**: Self-evolving learning system (Foundation → Autonomous)
+- **Sovereign Data**: Full data residency with local execution
+- **Poly-LLM**: Orchestrates GPT-4, Claude, Gemini, and Local models
+- **Trust Ledger**: Cryptographic audit of all actions
 
 ## Multi-LLM RAG inspirations
 

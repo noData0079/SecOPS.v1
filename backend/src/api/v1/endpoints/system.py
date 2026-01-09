@@ -242,7 +242,8 @@ async def get_learning_roadmap() -> Dict[str, Any]:
 async def get_version() -> Dict[str, str]:
     """Get system version information."""
     return {
-        "name": "SecOps-AI",
+        "name": "The Sovereign Mechanica",
+        "product": "TSM99",
         "version": "2.0.0",
         "build": "2026.01.09",
         "api_version": "v1",

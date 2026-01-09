@@ -1,19 +1,20 @@
 # backend/src/utils/errors.py
 
-"""Custom exception classes for the SecOps platform."""
+"""Custom exception classes for The Sovereign Mechanica (TSM99)."""
 
 from fastapi import HTTPException
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 
 class T79Error(HTTPException):
-    """Base error for T79/SecOps platform."""
+    """Base error for TSM99 Platform (formerly T79)."""
     def __init__(self, message: str, status_code: int = 400):
         super().__init__(status_code=status_code, detail=message)
 
 
-# Aliases for compatibility
+# Aliases for compatibility and new branding
 SecOpsError = T79Error
+TSM99Error = T79Error
 
 
 class IntegrationError(T79Error):

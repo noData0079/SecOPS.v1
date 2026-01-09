@@ -1,4 +1,4 @@
-# SecOps-AI Component Catalog
+# TSM99 Component Catalog
 
 > **Integrated from 44 repositories with 154,710+ files**
 

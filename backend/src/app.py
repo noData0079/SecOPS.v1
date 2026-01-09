@@ -1,7 +1,7 @@
 """
-SecOps-AI FastAPI Application
+The Sovereign Mechanica (TSM99) FastAPI Application
 
-Production-ready API for security operations automation.
+Production-ready API for autonomous security operations.
 """
 
 from __future__ import annotations
@@ -30,17 +30,17 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler."""
-    logger.info("SecOps-AI starting up...")
+    logger.info("TSM99 Platform starting up...")
     # Initialize services here (database, vector store, etc.)
     yield
-    logger.info("SecOps-AI shutting down...")
+    logger.info("TSM99 Platform shutting down...")
     # Cleanup here
 
 
 # Create FastAPI app
 app = FastAPI(
-    title="SecOps-AI",
-    description="Agentic AI Platform for Security Operations",
+    title="The Sovereign Mechanica",
+    description="TSM99: Autonomous Agentic AI Platform for Security Operations",
     version="2.0.0",
     docs_url="/docs",
     redoc_url="/redoc",
@@ -69,7 +69,8 @@ app.include_router(system_router, prefix="/api/v1")
 async def root():
     """Root endpoint."""
     return {
-        "name": "SecOps-AI",
+        "name": "The Sovereign Mechanica",
+        "product": "TSM99",
         "version": "2.0.0",
         "status": "running",
         "docs": "/docs",
