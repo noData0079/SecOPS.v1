@@ -85,7 +85,7 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  
+
   // mobile open/close state
   const [open, setOpen] = useState(false);
 
@@ -108,17 +108,16 @@ export default function Sidebar() {
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 transform bg-white border-r border-slate-200 shadow-sm transition-transform duration-300 md:translate-x-0 ${
-          open ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-40 w-64 transform bg-white border-r border-slate-200 shadow-sm transition-transform duration-300 md:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         <div className="px-4 py-6 flex flex-col h-full">
           <div className="mb-6">
             <h2 className="text-lg font-semibold tracking-tight text-slate-900">
-              T79 Console
+              TSM99 Console
             </h2>
             <p className="text-xs text-slate-500">
-              Autonomous DevT79 Intelligence
+              Autonomous Security Intelligence
             </p>
           </div>
 
@@ -131,11 +130,10 @@ export default function Sidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                    active
+                  className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${active
                       ? "bg-slate-900 text-white shadow-sm"
                       : "text-slate-700 hover:bg-slate-100"
-                  }`}
+                    }`}
                   onClick={() => setOpen(false)} // close on mobile
                 >
                   {item.icon}
@@ -147,7 +145,7 @@ export default function Sidebar() {
 
           {/* Footer / version */}
           <div className="mt-6 border-t pt-4 text-xs text-slate-500">
-            T79AI v1.0.0  
+            TSM99 v2.0.0
             <br />
             <span className="text-slate-400">MVP Preview Build</span>
           </div>

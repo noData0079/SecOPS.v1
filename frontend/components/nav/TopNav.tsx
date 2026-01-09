@@ -42,10 +42,10 @@ export default function TopNav({ showConsoleLinks = true }: TopNavProps) {
             </div>
             <div className="flex flex-col leading-tight">
               <span className="text-sm font-semibold tracking-tight text-slate-900">
-                T79AI
+                TSM99
               </span>
               <span className="text-[10px] text-slate-500">
-                Autonomous DevT79
+                Autonomous Security
               </span>
             </div>
           </Link>
@@ -58,11 +58,10 @@ export default function TopNav({ showConsoleLinks = true }: TopNavProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-md px-3 py-1.5 font-medium transition ${
-                  isActive(item.href)
+                className={`rounded-md px-3 py-1.5 font-medium transition ${isActive(item.href)
                     ? "bg-slate-900 text-white shadow-sm"
                     : "text-slate-700 hover:bg-slate-100"
-                }`}
+                  }`}
               >
                 {item.label}
               </Link>
@@ -104,11 +103,10 @@ export default function TopNav({ showConsoleLinks = true }: TopNavProps) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className={`rounded-md px-3 py-1.5 font-medium transition ${
-                  isActive(item.href)
+                className={`rounded-md px-3 py-1.5 font-medium transition ${isActive(item.href)
                     ? "bg-slate-900 text-white shadow-sm"
                     : "text-slate-700 hover:bg-slate-100"
-                }`}
+                  }`}
               >
                 {item.label}
               </Link>

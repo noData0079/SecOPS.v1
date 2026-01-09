@@ -74,9 +74,9 @@ else:
 # ---------------------------------------------------------------------------
 
 app = FastAPI(
-    title="T79AI Backend",
-    version="0.1.0",
-    description="T79AI – Autonomous DevT79 intelligence backend API.",
+    title="TSM99 Sovereign API",
+    version="2.0.0",
+    description="The Sovereign Mechanica (TSM99) – Autonomous Security Intelligence.",
 )
 
 # ---------------------------------------------------------------------------

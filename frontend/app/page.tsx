@@ -16,19 +16,19 @@ export default function HomePage() {
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 border border-emerald-400/40 px-3 py-1 text-xs text-emerald-100 mb-2">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Deployment-ready MVP • T79AI Console</span>
+              <span>Deployment-ready MVP • TSM99 Console</span>
             </div>
 
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-semibold tracking-tight leading-tight">
               Autonomous{" "}
-              <span className="text-emerald-400">DevT79 intelligence</span>{" "}
+              <span className="text-emerald-400">Security Intelligence</span>{" "}
               for real-world systems.
             </h1>
 
             <p className="text-sm sm:text-base text-slate-300 max-w-xl">
-              Connect your GitHub, CI, and Kubernetes. T79AI continuously
+              Connect your GitHub, CI, and Kubernetes. TSM99 continuously
               scans, explains, and suggests fixes for security gaps, drift, and
-              reliability issues – like having a senior DevT79 engineer
+              reliability issues – like having a senior Security Engineer
               watching your stack 24/7.
             </p>
 
@@ -37,7 +37,7 @@ export default function HomePage() {
                 onClick={() => router.push("/console")}
                 className="inline-flex items-center justify-center rounded-md bg-emerald-500 px-5 py-2.5 text-sm font-medium text-slate-950 shadow-md shadow-emerald-500/30 hover:bg-emerald-400 transition"
               >
-                Open T79 Console
+                Open TSM99 Console
               </button>
 
               <button
@@ -70,7 +70,7 @@ export default function HomePage() {
             <div className="relative border border-slate-700/70 bg-slate-900 rounded-2xl shadow-2xl shadow-black/40 overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800/80 bg-slate-950">
                 <span className="text-xs font-medium text-slate-200">
-                  T79AI • Issues Overview
+                  TSM99 • Issues Overview
                 </span>
                 <span className="flex gap-1.5">
                   <span className="h-2 w-2 rounded-full bg-emerald-400" />
@@ -119,10 +119,10 @@ export default function HomePage() {
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div>
               <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
-                Built for teams who can’t hire 20 DevT79 engineers.
+                Built for teams who can’t hire 20 Security engineers.
               </h2>
               <p className="mt-2 text-sm text-slate-600 max-w-xl">
-                Connect your existing stack. T79AI continuously analyzes your
+                Connect your existing stack. TSM99 continuously analyzes your
                 code, config, dependencies, CI, and clusters — then explains
                 what’s wrong, why it matters, and how to fix it, step by step.
               </p>
@@ -154,7 +154,7 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-6 py-10 lg:py-12 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <h3 className="text-lg font-semibold">
-              Ready to see what T79AI finds in your stack?
+              Ready to see what TSM99 finds in your stack?
             </h3>
             <p className="mt-1 text-sm text-slate-300 max-w-xl">
               Start with a minimal integration: connect a single GitHub repo or
@@ -194,10 +194,10 @@ function IssueRow({ severity, title, source }: IssueRowProps) {
     severity === "CRITICAL"
       ? "bg-red-500/20 text-red-300 border-red-500/60"
       : severity === "HIGH"
-      ? "bg-amber-500/20 text-amber-200 border-amber-500/60"
-      : severity === "MEDIUM"
-      ? "bg-emerald-500/15 text-emerald-200 border-emerald-500/40"
-      : "bg-slate-600/20 text-slate-200 border-slate-500/60";
+        ? "bg-amber-500/20 text-amber-200 border-amber-500/60"
+        : severity === "MEDIUM"
+          ? "bg-emerald-500/15 text-emerald-200 border-emerald-500/40"
+          : "bg-slate-600/20 text-slate-200 border-slate-500/60";
 
   return (
     <div className="flex items-start gap-3 px-4 py-3 bg-slate-900/70">
@@ -218,6 +218,8 @@ type FeatureCardProps = {
   label: string;
   title: string;
   body: string;
+  // eslint-disable-next-line
+  icon?: any;
 };
 
 function FeatureCard({ label, title, body }: FeatureCardProps) {
