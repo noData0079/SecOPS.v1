@@ -1,0 +1,5 @@
+{
+    "threshold": 0.5,
+    "input_channels": 1,
+    "mean_multiplier": 1.2
+}

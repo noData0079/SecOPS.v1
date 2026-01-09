@@ -1,0 +1,289 @@
+# backend/src/core/agentic/reasoning_loop.py
+
+"""
+Continuous reasoning loop for autonomous agents.
+
+Implements Chain-of-Thought reasoning, self-correction, and iterative refinement.
+"""
+
+from __future__ import annotations
+
+import logging
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+
+from core.llm import LLMRouter, TaskType
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ReasoningStep:
+    """A single step in a reasoning plan."""
+    
+    step_number: int
+    description: str
+    action_type: str  # e.g., "scan", "fix", "analyze", "report"
+    parameters: Dict[str, Any] = field(default_factory=dict)
+    risk_level: str = "low"  # low, medium, high
+    dependencies: List[int] = field(default_factory=list)  # step numbers this depends on
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "step_number": self.step_number,
+            "description": self.description,
+            "action_type": self.action_type,
+            "parameters": self.parameters,
+            "risk_level": self.risk_level,
+            "dependencies": self.dependencies,
+        }
+
+
+@dataclass
+class ReasoningPlan:
+    """A complete reasoning plan with multiple steps."""
+    
+    goal: str
+    steps: List[ReasoningStep]
+    reasoning: str  # The LLM's reasoning process
+    confidence: float  # 0-1
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary."""
+        return {
+            "goal": self.goal,
+            "steps": [s.to_dict() for s in self.steps],
+            "reasoning": self.reasoning,
+            "confidence": self.confidence,
+            "created_at": self.created_at.isoformat(),
+        }
+
+
+class ReasoningLoop:
+    """
+    Implements autonomous reasoning with Chain-of-Thought.
+    
+    Features:
+    - Multi-step planning
+    - Self-correction
+    - Iterative refinement
+    - Confidence scoring
+    """
+    
+    def __init__(self, llm_router: LLMRouter):
+        """Initialize reasoning loop."""
+        self.llm_router = llm_router
+    
+    async def generate_plan(
+        self,
+        goal: str,
+        context: Dict[str, Any],
+        temperature: float = 0.7,
+        max_steps: int = 10,
+    ) -> ReasoningPlan:
+        """
+        Generate a multi-step plan to achieve a goal.
+        
+        Args:
+            goal: The objective to achieve
+            context: Current context (signals, memory, etc.)
+            temperature: LLM temperature for reasoning
+            max_steps: Maximum number of steps in the plan
+            
+        Returns:
+            Complete reasoning plan
+        """
+        # Format context for LLM
+        context_str = "\n".join([f"{k}: {v}" for k, v in context.items()])
+        
+        prompt = f"""You are an autonomous security operations agent. Generate a detailed plan to achieve the following goal.
+
+GOAL: {goal}
+
+CURRENT CONTEXT:
+{context_str}
+
+Generate a step-by-step plan. For each step, provide:
+1. Step number
+2. Clear description
+3. Action type (scan/analyze/fix/report/configure)
+4. Risk level (low/medium/high)
+5. Any dependencies on previous steps
+
+Think through this carefully. Consider:
+- What information do we need?
+- What are the dependencies?
+- What could go wrong?
+- What approvals might be needed?
+
+Format your response as a structured plan with clear steps.
+Maximum {max_steps} steps.
+"""
+        
+        # Use reasoning-optimized model (GPT-4)
+        response = await self.llm_router.generate(
+            prompt=prompt,
+            task_type=TaskType.REASONING,
+            temperature=temperature,
+        )
+        
+        # Parse response into structured plan
+        steps = self._parse_plan_from_response(response.content, max_steps)
+        
+        # Calculate confidence
+        confidence = self._calculate_confidence(response.content, steps)
+        
+        plan = ReasoningPlan(
+            goal=goal,
+            steps=steps,
+            reasoning=response.content,
+            confidence=confidence,
+        )
+        
+        logger.info(f"Generated plan with {len(steps)} steps, confidence: {confidence:.2f}")
+        
+        return plan
+    
+    def _parse_plan_from_response(
+        self,
+        response: str,
+        max_steps: int
+    ) -> List[ReasoningStep]:
+        """Parse LLM response into structured steps."""
+        steps = []
+        
+        # Simple parsing - in production, use more robust parsing or JSON mode
+        lines = response.split('\n')
+        current_step_num = 1
+        
+        for line in lines:
+            line = line.strip()
+            
+            # Look for numbered steps
+            if line and (line[0].isdigit() or line.startswith('Step')):
+                # Extract step information
+                description = line
+                
+                # Determine action type from keywords
+                action_type = "analyze"  # default
+                if any(word in line.lower() for word in ["scan", "check", "detect"]):
+                    action_type = "scan"
+                elif any(word in line.lower() for word in ["fix", "remediate", "patch"]):
+                    action_type = "fix"
+                elif any(word in line.lower() for word in ["report", "notify", "alert"]):
+                    action_type = "report"
+                elif any(word in line.lower() for word in ["configure", "setup", "deploy"]):
+                    action_type = "configure"
+                
+                # Determine risk level
+                risk_level = "low"
+                if any(word in line.lower() for word in ["delete", "remove", "drop", "destroy"]):
+                    risk_level = "high"
+                elif any(word in line.lower() for word in ["modify", "update", "change", "deploy"]):
+                    risk_level = "medium"
+                
+                step = ReasoningStep(
+                    step_number=current_step_num,
+                    description=description,
+                    action_type=action_type,
+                    risk_level=risk_level,
+                    parameters={},
+                )
+                
+                steps.append(step)
+                current_step_num += 1
+                
+                if len(steps) >= max_steps:
+                    break
+        
+        # If no steps were parsed, create a generic one
+        if not steps:
+            steps.append(ReasoningStep(
+                step_number=1,
+                description="Analyze the situation and gather information",
+                action_type="analyze",
+                risk_level="low",
+            ))
+        
+        return steps
+    
+    def _calculate_confidence(self, reasoning: str, steps: List[ReasoningStep]) -> float:
+        """
+        Calculate confidence score for the plan.
+        
+        Heuristic-based scoring:
+        - More detailed reasoning = higher confidence
+        - Clear steps = higher confidence
+        - Uncertainty words = lower confidence
+        """
+        confidence = 0.5  # baseline
+        
+        # Bonus for detailed reasoning
+        if len(reasoning) > 200:
+            confidence += 0.2
+        
+        # Bonus for clear steps
+        if len(steps) >= 2:
+            confidence += 0.1
+        
+        # Penalty for uncertainty
+        uncertainty_words = ["maybe", "might", "possibly", "uncertain", "unclear"]
+        if any(word in reasoning.lower() for word in uncertainty_words):
+            confidence -= 0.2
+        
+        # Bonus for specific actions
+        if any(step.action_type in ["scan", "fix", "configure"] for step in steps):
+            confidence += 0.1
+        
+        return max(0.0, min(1.0, confidence))  # Clamp to [0, 1]
+    
+    async def self_correct(
+        self,
+        plan: ReasoningPlan,
+        feedback: str
+    ) -> ReasoningPlan:
+        """
+        Self-correct a plan based on feedback.
+        
+        Args:
+            plan: The original plan
+            feedback: Feedback about what went wrong
+            
+        Returns:
+            Corrected plan
+        """
+        prompt = f"""The following plan was attempted but encountered issues. Revise the plan to address the problems.
+
+ORIGINAL GOAL: {plan.goal}
+
+ORIGINAL PLAN:
+{plan.reasoning}
+
+FEEDBACK/ISSUES:
+{feedback}
+
+Generate a revised plan that addresses these issues. Be specific about what changes you're making and why.
+"""
+        
+        response = await self.llm_router.generate(
+            prompt=prompt,
+            task_type=TaskType.REASONING,
+            temperature=0.7,
+        )
+        
+        # Parse revised plan
+        revised_steps = self._parse_plan_from_response(response.content, len(plan.steps) + 2)
+        
+        revised_plan = ReasoningPlan(
+            goal=plan.goal,
+            steps=revised_steps,
+            reasoning=response.content,
+            confidence=self._calculate_confidence(response.content, revised_steps),
+        )
+        
+        logger.info(f"Self-corrected plan: {len(revised_steps)} steps")
+        
+        return revised_plan
