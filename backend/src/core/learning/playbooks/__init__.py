@@ -11,6 +11,10 @@ from .engine import (
     PlaybookMatch,
     ApprovalPolicy,
 )
+from .extended_playbooks import (
+    get_extended_playbooks,
+    load_extended_playbooks_into_engine,
+)
 
 __all__ = [
     "PlaybookEngine",
@@ -20,4 +24,6 @@ __all__ = [
     "SuccessMetrics",
     "PlaybookMatch",
     "ApprovalPolicy",
+    "get_extended_playbooks",
+    "load_extended_playbooks_into_engine",
 ]
