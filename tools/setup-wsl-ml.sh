@@ -25,10 +25,28 @@ sudo apt install -y \
     python3.10 python3.10-venv python3.10-dev \
     python3.11 python3.11-venv python3.11-dev
 
-# Set Default Python? (Optional - asking user usually better, but here we default to 3.11 for ML)
-# log "Creating Virtual Environment (python3.11)..."
-# python3.11 -m venv .venv
-# source .venv/bin/activate
+log "Creating Virtual Environment (python3.11)..."
+# Create venv if not exists
+if [ ! -d ".venv" ]; then
+    python3.11 -m venv .venv
+    log "Virtual Environment created at .venv"
+else
+    log "Virtual Environment already exists."
+fi
+
+log "Installing Dependencies (including vLLM/Torch for Linux)..."
+source .venv/bin/activate
+pip install --upgrade pip setuptools wheel
+if [ -f "backend/requirements.txt" ]; then
+    pip install -r backend/requirements.txt
+    log "Backend dependencies installed."
+elif [ -f "requirements.txt" ]; then
+    pip install -r requirements.txt
+    log "Dependencies installed."
+else
+    log "Warning: requirements.txt not found. Skipping pip install."
+fi
 
 log "Installation Complete."
-echo "To activate a venv: python3.11 -m venv .venv && source .venv/bin/activate"
+echo "To activate: source .venv/bin/activate"
+
