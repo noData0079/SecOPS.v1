@@ -25,14 +25,25 @@ async def security_guard(request: Request, call_next):
     # -----------------------------------------------------------------------
     # 0. Identify Requestor (Admin vs Public/Demo)
     # -----------------------------------------------------------------------
-    # Check for Admin Key
+    # Check for Admin Key or Identity Header (Simulated IdP downstream)
     auth_header = request.headers.get("Authorization", "")
+    identity_email = request.headers.get("X-User-Email", "") # In prod, from verifiable JWT
+    
     is_admin = False
+    
+    # Method A: Direct Admin Key (Legacy/Service-to-Service)
     if auth_header.startswith("Bearer "):
         token = auth_header.split(" ")[1]
         if token == ADMIN_KEY:
              is_admin = True
-    
+             
+    # Method B: Identity Resolution (Phase 4 Requirement)
+    if identity_email == "founder@thesovereignmechanica.ai":
+        # In a real system, we'd verify the JWT signature here.
+        # For this stage, we assume the Gateway/LoadBalancer verifies auth
+        # and passes trusted headers.
+        is_admin = True
+
     client_ip = request.client.host if request.client else "unknown"
 
     # -----------------------------------------------------------------------
