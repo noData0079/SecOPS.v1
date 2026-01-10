@@ -9,6 +9,8 @@ from typing import Any, Dict
 
 from fastapi import FastAPI, Response
 from fastapi.middleware.cors import CORSMiddleware
+from src.middleware.demo_guard import demo_token_guard
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from prometheus_client import (
     Counter,
