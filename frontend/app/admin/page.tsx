@@ -1,49 +1,72 @@
 "use client";
 
-import { useState } from "react";
-import { ExclamationTriangleIcon, PowerIcon } from "@heroicons/react/24/outline";
+import { useState, useEffect } from "react";
+import {
+  ShieldCheckIcon,
+  ExclamationTriangleIcon,
+  CpuChipIcon,
+  BanknotesIcon,
+  KeyIcon,
+  DocumentCheckIcon,
+  BeakerIcon,
+  Cog6ToothIcon,
+  SignalIcon
+} from "@heroicons/react/24/outline";
 
-export default function AdminPage() {
+export default function ControlPlanePage() {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState("");
-
-  // Simulated Toggles
-  const [toggles, setToggles] = useState({
-    demoMode: true,
-    llmProviders: true,
-    rag: true,
-    autonomousExec: false
-  });
-
+  const [activeTab, setActiveTab] = useState("global");
   const [killSwitchActive, setKillSwitchActive] = useState(false);
+  const [emergencyMode, setEmergencyMode] = useState(false);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "admin123") { // Mock password
+    if (password === "admin123") {
       setAuthenticated(true);
     } else {
-      alert("Invalid password");
+      alert("Invalid Access Key");
     }
   };
 
-  const toggle = (key: keyof typeof toggles) => {
-    setToggles(prev => ({ ...prev, [key]: !prev[key] }));
-  };
+  const menuItems = [
+    { id: "overview", label: "System Overview", icon: ShieldCheckIcon },
+    { id: "global", label: "Global Controls", icon: ExclamationTriangleIcon, textClass: "text-red-400" },
+    { id: "runtime", label: "Agent Runtime", icon: CpuChipIcon },
+    { id: "usage", label: "Usage & Cost", icon: BanknotesIcon },
+    { id: "access", label: "Access & Identity", icon: KeyIcon },
+    { id: "ledger", label: "Trust Ledger", icon: DocumentCheckIcon },
+    { id: "demo", label: "Demo Governance", icon: BeakerIcon },
+    { id: "config", label: "Platform Config", icon: Cog6ToothIcon },
+    { id: "health", label: "System Health", icon: SignalIcon },
+  ];
 
   if (!authenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-950">
-        <form onSubmit={handleLogin} className="w-full max-w-md space-y-4 rounded-xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
-          <h1 className="text-xl font-bold text-white text-center">TSM99 Admin Control Plane</h1>
-          <input
-            type="password"
-            placeholder="Enter Admin Key"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full rounded bg-slate-800 border border-slate-700 px-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-          />
-          <button type="submit" className="w-full rounded bg-emerald-600 py-2 font-medium text-white hover:bg-emerald-500">
-            Access Dashboard
+        <form onSubmit={handleLogin} className="w-full max-w-md space-y-6 rounded-xl border border-slate-800 bg-slate-900 p-8 shadow-2xl">
+          <div className="text-center">
+            <h1 className="text-xl font-bold text-white tracking-wide">TSM99 CONTROL PLANE</h1>
+            <p className="text-xs text-slate-500 mt-2">Restricted Access. All actions audited.</p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1">Identity</label>
+            <input disabled value="founder@thesovereignmechanica.ai" className="w-full rounded bg-slate-800/50 border border-slate-700 px-4 py-2 text-slate-400 text-sm cursor-not-allowed" />
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-slate-400 mb-1">Access Key</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full rounded bg-slate-800 border border-slate-700 px-4 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500"
+            />
+          </div>
+
+          <button type="submit" className="w-full rounded bg-emerald-600 py-2 font-medium text-white hover:bg-emerald-500 transition">
+            Authenticate
           </button>
         </form>
       </div>
@@ -51,75 +74,85 @@ export default function AdminPage() {
   }
 
   return (
-    <div className={`min-h-screen bg-slate-950 text-slate-200 p-8 ${killSwitchActive ? "border-4 border-red-600" : ""}`}>
-      <header className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white">System Admin & Controls</h1>
+    <div className={`min-h-screen bg-slate-950 text-slate-200 flex flex-col ${emergencyMode || killSwitchActive ? "border-4 border-red-600" : ""}`}>
+
+      {/* Top Bar */}
+      <header className="flex h-14 items-center justify-between border-b border-white/5 bg-slate-900 px-6">
         <div className="flex items-center gap-4">
-          <div className="text-xs text-slate-400">
-            Target: <span className="font-mono text-emerald-400">prod-us-east-1</span>
-          </div>
-          <button onClick={() => setAuthenticated(false)} className="text-xs text-red-400 hover:text-red-300">
-            Logout
-          </button>
+          <span className="font-bold text-white tracking-widest text-sm">CONTROL PLANE</span>
+          <span className="text-slate-600">|</span>
+          <span className="text-xs text-emerald-400">Environment: Production</span>
+        </div>
+        <div className="flex items-center gap-4 text-xs">
+          {emergencyMode && <span className="animate-pulse font-bold text-red-500">⚠ EMERGENCY MODE ACTIVE</span>}
+          <span className="text-slate-400">Admin: <span className="text-white">founder@thesovereignmechanica.ai</span></span>
         </div>
       </header>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {/* Metrics */}
-        <section className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Live Metrics</h2>
-          <div className="space-y-4">
-            <div className="flex justify-between items-center bg-slate-800/50 p-3 rounded">
-              <span className="text-sm text-slate-400">Active Demo Sessions</span>
-              <span className="text-lg font-mono text-white">24</span>
-            </div>
-            <div className="flex justify-between items-center bg-slate-800/50 p-3 rounded">
-              <span className="text-sm text-slate-400">Tokens Consumed (1h)</span>
-              <span className="text-lg font-mono text-white">2.4M</span>
-            </div>
-            <div className="flex justify-between items-center bg-slate-800/50 p-3 rounded">
-              <span className="text-sm text-slate-400">Est. API Cost</span>
-              <span className="text-lg font-mono text-white">$42.10</span>
-            </div>
-          </div>
-        </section>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <aside className="w-64 border-r border-white/5 bg-slate-900 overflow-y-auto">
+          <nav className="p-4 space-y-1">
+            {menuItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => setActiveTab(item.id)}
+                className={`flex w-full items-center gap-3 rounded px-3 py-2 text-sm font-medium transition-colors ${activeTab === item.id
+                    ? "bg-slate-800 text-white"
+                    : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
+                  } ${item.textClass || ""}`}
+              >
+                <item.icon className="h-5 w-5" />
+                {item.label}
+              </button>
+            ))}
+          </nav>
+        </aside>
 
-        {/* Feature Toggles */}
-        <section className="rounded-xl border border-slate-800 bg-slate-900 p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Feature Toggles</h2>
-          <div className="space-y-4">
-            {Object.entries(toggles).map(([key, active]) => (
-              <div key={key} className="flex items-center justify-between">
-                <span className="text-sm text-slate-300 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto p-8">
+          {activeTab === "global" && (
+            <div className="max-w-2xl mx-auto space-y-8">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <ExclamationTriangleIcon className="h-8 w-8 text-red-500" />
+                Global Controls
+              </h2>
+
+              {/* KILL SWITCH CARD */}
+              <div className="rounded-xl border border-red-900/50 bg-red-950/10 p-8 text-center">
+                <h3 className="text-xl font-bold text-red-500 mb-2">Global Kill Switch</h3>
+                <p className="text-sm text-red-400 mb-8 max-w-md mx-auto">
+                  Activation immediately halts all autonomous execution, agent reasoning loops, and API calls. Read-only access persists.
+                </p>
+
+                <div className="mb-6">
+                  <label className="block text-left text-xs font-medium text-red-300 mb-1">Mandatory Reason for Audit Log</label>
+                  <input placeholder="e.g. Unexpected agent behavior in pod-99" className="w-full bg-red-950/30 border border-red-900/50 rounded px-3 py-2 text-red-200 placeholder-red-700/50 focus:outline-none focus:border-red-500" />
+                </div>
+
                 <button
-                  onClick={() => toggle(key as any)}
-                  className={`h-6 w-11 rounded-full transition-colors relative ${active ? 'bg-emerald-600' : 'bg-slate-700'}`}
+                  onClick={() => setKillSwitchActive(!killSwitchActive)}
+                  className={`w-full py-4 rounded font-bold text-lg transition-all ${killSwitchActive
+                      ? "bg-slate-900 text-red-500 border-2 border-red-500 shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+                      : "bg-red-600 hover:bg-red-500 text-white shadow-lg shadow-red-900/20"
+                    }`}
                 >
-                  <span className={`absolute top-1 left-1 bg-white h-4 w-4 rounded-full transition-transform ${active ? 'translate-x-5' : ''}`} />
+                  {killSwitchActive ? "SYSTEM HALTED - CLICK TO RESTORE" : "ACTIVATE KILL SWITCH"}
                 </button>
               </div>
-            ))}
-          </div>
-        </section>
+            </div>
+          )}
 
-        {/* Kill Switch */}
-        <section className="rounded-xl border border-red-900/30 bg-red-950/10 p-6">
-          <h2 className="text-lg font-semibold text-red-500 mb-4 flex items-center gap-2">
-            <ExclamationTriangleIcon className="h-6 w-6" />
-            Danger Zone
-          </h2>
-          <p className="text-xs text-red-400 mb-6">
-            Disabling external connectivity will immediately stop all ongoing reasoning loops, demo sessions, and agent actions.
-          </p>
-
-          <button
-            onClick={() => setKillSwitchActive(!killSwitchActive)}
-            className={`w-full flex items-center justify-center gap-2 rounded-lg py-4 font-bold text-white transition-all shadow-lg ${killSwitchActive ? 'bg-slate-800 text-red-500 border border-red-500' : 'bg-red-600 hover:bg-red-500'}`}
-          >
-            <PowerIcon className="h-6 w-6" />
-            {killSwitchActive ? "SYSTEM HALTED - CLICK TO RESTORE" : "KILL SWITCH (HALT ALL)"}
-          </button>
-        </section>
+          {activeTab !== "global" && (
+            <div className="flex h-full items-center justify-center text-slate-500">
+              <div className="text-center">
+                <DocumentCheckIcon className="h-12 w-12 mx-auto mb-4 opacity-20" />
+                <p>Module <strong>{menuItems.find(m => m.id === activeTab)?.label}</strong> is active.</p>
+                <p className="text-xs mt-2">All actions in this view are logged to the Trust Ledger.</p>
+              </div>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   );

@@ -10,14 +10,12 @@ export function HeroSection() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-slate-950/0 to-transparent" />
 
             <div className="relative z-10 mx-auto max-w-7xl px-6 text-center">
-                <h1 className="mx-auto max-w-4xl text-5xl font-extrabold tracking-tight text-white md:text-7xl">
-                    TSM99 — <span className="text-emerald-400">The Sovereign Mechanica</span>
+                <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl mb-6">
+                    Policy-Governed <span className="text-emerald-500">Autonomy</span>
                 </h1>
-
-                <p className="mx-auto mt-6 max-w-2xl text-lg text-slate-400 md:text-xl">
-                    Autonomous Security, DevOps, and AI Operations.
-                    <br className="hidden md:block" />
-                    Continuously reason, act, and verify across your entire environment.
+                <p className="mt-6 text-lg leading-8 text-slate-400 max-w-2xl mx-auto">
+                    The first autonomous security platform you can actually trust.
+                    Governed by human oversight. Enforced by policy. Auditable by design.
                 </p>
 
                 <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
