@@ -1,0 +1,15 @@
+[Unit]
+Description=Full Ice Age Autonomous Server Launcher
+After=network.target docker.service
+
+[Service]
+Type=simple
+User=root
+ExecStart=/home/ubuntu/tools/ice-age/launcher.sh
+Restart=always
+RestartSec=10
+Environment=PATH=/usr/bin:/usr/local/bin
+WorkingDirectory=/home/ubuntu/tools/ice-age
+
+[Install]
+WantedBy=multi-user.target
