@@ -24,3 +24,14 @@
 - [x] Create `GOVERNANCE_BINDER.md` (SOC 2, Policies)
 - [x] Create `MARKETING_POSITIONING.md` (Strategy)
 - [x] Final Polish & Handover
+
+## Phase 7: Bonus Capabilities
+- [x] Implemented "Ice Age" Bare Metal Deployment Tools (`tools/ice-age/`)
+- [x] Added Fault-Tolerant Builder (`tools/ice-age/force-run.sh`)
+- [x] Created "Start Here" ML Stack Setup for WSL (`tools/setup-wsl-ml.sh`)
+
+
+
+
+
+
