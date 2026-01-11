@@ -1,4 +1,4 @@
-from backend.src.rag.llm_client import llm_client
+from core.llm import LLMRouter
 
 
 async def explain_issue(issue):
@@ -14,4 +14,5 @@ Explain:
 3. Exact fix steps
 4. Preventive best practices
 """
-    return await llm_client.ask(prompt)
+    llm = LLMRouter()
+    return await llm.agenerate(prompt)

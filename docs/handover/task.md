@@ -30,6 +30,17 @@
 - [x] Added Fault-Tolerant Builder (`tools/ice-age/force-run.sh`)
 - [x] Created "Start Here" ML Stack Setup for WSL (`tools/setup-wsl-ml.sh`)
 
+## Phase 8: Final Autonomy Architecture (LOCKED)
+- [x] Created `docs/AUTONOMY_ARCHITECTURE.md` (Frozen Spec)
+- [x] Implemented Tool Registry (`backend/src/core/autonomy/tool_registry.json`)
+- [x] Implemented Policy Engine (`backend/src/core/autonomy/policy_engine.py`) - NO ML, deterministic rules
+- [x] Implemented Autonomy Loop (`backend/src/core/autonomy/loop.py`) - OBSERVATION→MODEL→POLICY→TOOLS→OUTCOME→REPLAY
+- [x] Implemented Replay Engine (`backend/src/core/autonomy/replay.py`) - Offline learning without GPUs
+- [x] Fixed FastAPI 204 status code errors (`findings.py`, `playbooks.py`)
+- [x] Fixed Pydantic Settings extra fields (`config.py`)
+- [x] All backend tests passing (13 passed, 1 skipped)
+
+
 
 
 
