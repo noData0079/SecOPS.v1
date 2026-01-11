@@ -1,40 +1,41 @@
-"""
-GhostSimulation - Runs 1000 "What-If" scenarios per hour.
-Tech: Monte Carlo Tree Search (MCTS)
-"""
 import logging
-import random
-from typing import List, Dict, Any
+from typing import Dict, Any, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from backend.src.core.simulation.digital_twin import DigitalTwinManager, TestResults
 
 logger = logging.getLogger(__name__)
 
 class GhostSimulation:
-    """
-    Runs massive parallel simulations to predict future states.
-    """
-    def __init__(self):
-        self.scenarios_run = 0
+    def __init__(self, digital_twin_manager: 'DigitalTwinManager'):
+        self.twin = digital_twin_manager
+        self.pass_threshold = 0.95 # Require 95% safety score
 
-    def run_mcts_simulations(self, initial_state: Dict[str, Any], iterations: int = 1000) -> Dict[str, float]:
+    def validate_evolution(self, proposed_code_hash: str, impact_area: str) -> Dict[str, Any]:
         """
-        Runs MCTS to determine the best next move.
+        Runs a 'Ghost' version of the system with the new self-written code.
         """
-        logger.info(f"Running {iterations} MCTS scenarios...")
-        outcomes = {"success": 0, "failure": 0}
+        logger.info(f"Validating evolution {proposed_code_hash} on {impact_area}")
+        # 1. Instantiate a specialized Digital Twin
+        ghost_env = self.twin.clone_subsystem(impact_area)
 
-        for _ in range(iterations):
-            # Simulate a path
-            if self._simulate_path(initial_state):
-                outcomes["success"] += 1
-            else:
-                outcomes["failure"] += 1
-            self.scenarios_run += 1
+        # 2. Inject the AI's self-written mutation
+        ghost_env.apply_patch(proposed_code_hash)
 
-        success_prob = outcomes["success"] / iterations if iterations > 0 else 0.0
-        return {"success_probability": success_prob}
+        # 3. Stress Test via 'Chaos Bot'
+        # Simulates traffic spikes, DB locks, and API failures
+        results = ghost_env.run_stress_test(duration_minutes=5)
 
-    def _simulate_path(self, state: Dict[str, Any]) -> bool:
-        # Simple random rollout
-        return random.random() > 0.5
+        # 4. Final Scoring
+        safety_score = self._calculate_safety(results)
 
-ghost_simulation = GhostSimulation()
+        logger.info(f"Evolution validation complete. Score: {safety_score}")
+
+        if safety_score >= self.pass_threshold:
+            return {"status": "GREEN", "score": safety_score, "trace": results.logs}
+        else:
+            return {"status": "RED", "score": safety_score, "failure": results.critical_error}
+
+    def _calculate_safety(self, results: 'TestResults') -> float:
+        # Weighting performance vs. functional correctness
+        return (results.success_rate * 0.7) + (results.perf_baseline_delta * 0.3)
