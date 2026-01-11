@@ -19,6 +19,11 @@ from pathlib import Path
 import hashlib
 from typing import Any, Callable, Dict, Optional, List
 
+from ..audit.immutable_trace import (
+    ImmutableTrace,
+    ReasoningTrace,
+    VerificationResult,
+)
 from .policy_engine import (
     PolicyEngine,
     PolicyDecision,
@@ -56,6 +61,7 @@ class ReplayEntry:
     outcome: Dict[str, Any]
     resolution_time_seconds: int
     timestamp: datetime = field(default_factory=datetime.now)
+    trace: Optional[Dict[str, Any]] = None
 
 
 class AutonomyLoop:
@@ -118,6 +124,9 @@ Last action failed: {self.state.last_action_failed}
 
 OUTPUT (JSON ONLY):
 {{
+  "tool": "tool_name",
+  "args": {{...}},
+  "reasoning": "Explain why this action is chosen..."
   "reasoning": "Chain of thought explaining why this action is chosen...",
   "confidence": 0-100,
   "tool": "tool_name",
@@ -199,45 +208,78 @@ OUTPUT (JSON ONLY):
             decision = PolicyDecision.ALLOW
             logger.info("Action allowed after approval.")
 
+        # Prepare Reasoning Trace
+        model_reasoning = model_response.get("reasoning", "No reasoning provided")
+        if reason:
+            full_reasoning = f"{model_reasoning} | Policy: {reason}"
+        else:
+            full_reasoning = model_reasoning
+
+        reasoning_trace = ReasoningTrace(
+            decision=f"{decision.value.upper()} {model_response.get('tool', 'unknown')}",
+            reasoning=full_reasoning,
+            context={"observation": observation.content, "source": observation.source},
+        )
+
+        outcome: Optional[Outcome] = None
+        verification_result: Optional[VerificationResult] = None
+
         if decision == PolicyDecision.BLOCK:
             logger.warning(f"Action BLOCKED: {reason}")
-            # Even if blocked, we might want to update stats? Unused decay still happens.
-            # But specific tool usage logic requires execution attempt or at least intent?
-            # We'll treat blocked as "tool not used" but we should still tick the decay for others.
-            # However, `update_tool_stats` expects a used tool name.
-            # We'll skip stats update for blocked actions for now, or maybe decay everything as "unused"?
-            # Let's keep it simple.
-            return decision, None
+            # Verification: Blocked actions are successful if the policy intended to block them?
+            # Or are they just "verified" as blocked?
+            # We'll assign a score of 100 for correct policy enforcement, or 0 if we consider it a failed attempt?
+            # The prompt says "Verification: Success Score ...". If policy blocked it, the system worked.
+            verification_result = VerificationResult(
+                success_score=100,
+                details=f"Blocked by policy: {reason}"
+            )
         
-        if decision == PolicyDecision.ESCALATE:
+        elif decision == PolicyDecision.ESCALATE:
             logger.warning(f"Action ESCALATED: {reason}")
             self.state.escalation_count += 1
-            return decision, None
+            verification_result = VerificationResult(
+                success_score=50, # Neutral score for escalation?
+                details=f"Escalated: {reason}"
+            )
         
-        # 4. Execute tool (decision == ALLOW)
-        assert decision == PolicyDecision.ALLOW, f"Expected ALLOW, got {decision}"
+        else:
+            # 4. Execute tool (decision == ALLOW)
+            assert decision == PolicyDecision.ALLOW, f"Expected ALLOW, got {decision}"
 
-        tool_name = model_response.get("tool")
-        tool_args = model_response.get("args", {})
-        
-        outcome: Outcome
-        try:
-            # Runtime assertion before execution
-            assert tool_name in self.policy_engine.tool_registry, "Tool not in registry"
+            tool_name = model_response.get("tool")
+            tool_args = model_response.get("args", {})
 
-            outcome = self.tool_executor(tool_name, tool_args)
-            assert isinstance(outcome, Outcome), "Tool executor must return Outcome object"
+            try:
+                # Runtime assertion before execution
+                assert tool_name in self.policy_engine.tool_registry, "Tool not in registry"
 
-        except Exception as e:
-            logger.error(f"Tool execution failed: {e}")
-            outcome = Outcome(success=False, error=str(e))
-        
-        # 5. Update state and confidence
-        self.state.actions_taken += 1
-        self.state.last_action_failed = not outcome.success
-        
-        # Update confidence/decay
-        self.policy_engine.update_tool_stats(self.state, tool_name, outcome.success)
+                outcome = self.tool_executor(tool_name, tool_args)
+                assert isinstance(outcome, Outcome), "Tool executor must return Outcome object"
+
+            except Exception as e:
+                logger.error(f"Tool execution failed: {e}")
+                outcome = Outcome(success=False, error=str(e))
+
+            # 5. Update state and confidence
+            self.state.actions_taken += 1
+            self.state.last_action_failed = not outcome.success
+
+            # Update confidence/decay
+            self.policy_engine.update_tool_stats(self.state, tool_name, outcome.success)
+
+            # Verification based on outcome
+            verification_result = VerificationResult(
+                success_score=100 if outcome.success else 0,
+                details="Action executed successfully" if outcome.success else f"Action failed: {outcome.error}"
+            )
+
+        # Create Immutable Trace
+        immutable_trace = ImmutableTrace.create(
+            reasoning=reasoning_trace,
+            verification=verification_result
+        )
+        immutable_trace.sign()
 
         # 6. Store replay entry
         if self.incident_id and self.start_time:
@@ -247,15 +289,19 @@ OUTPUT (JSON ONLY):
                 observation=observation.content,
                 action=model_response,
                 outcome={
-                    "success": outcome.success,
-                    "error": outcome.error,
-                    "side_effects": outcome.side_effects,
+                    "success": outcome.success if outcome else False,
+                    "error": outcome.error if outcome else None,
+                    "side_effects": outcome.side_effects if outcome else False,
                 },
                 resolution_time_seconds=resolution_time,
+                trace=immutable_trace.to_dict()
             )
             self.replay_buffer.append(entry)
             self._persist_replay_entry(entry)
         
+        if decision in (PolicyDecision.BLOCK, PolicyDecision.ESCALATE):
+            return decision, None
+
         return decision, outcome
     
     def run_until_resolved(
@@ -322,6 +368,7 @@ OUTPUT (JSON ONLY):
                 "outcome": entry.outcome,
                 "resolution_time_seconds": entry.resolution_time_seconds,
                 "timestamp": entry.timestamp.isoformat(),
+                "trace": entry.trace,
             }, f, indent=2)
         
         logger.debug(f"Replay entry saved: {filepath}")
