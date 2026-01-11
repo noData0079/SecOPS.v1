@@ -24,7 +24,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +64,7 @@ class ReplayEngine:
         self.records: List[ReplayRecord] = []
         self._load_records()
     
-    def _load_records(self):
+    def _load_records(self) -> None:
         """Load existing replay records from disk."""
         for filepath in self.storage_path.glob("*.json"):
             try:
@@ -179,6 +179,7 @@ class ReplayEngine:
         # Suggestion 1: Adjust action limit
         success_by_count = patterns.get("success_by_action_count", {})
         if success_by_count:
+            # Type hint: success_by_count keys are int, values are floats
             best_action_count = max(success_by_count.items(), key=lambda x: x[1])[0]
             current_limit = 3  # Default
             if best_action_count != current_limit:
@@ -190,7 +191,7 @@ class ReplayEngine:
                 })
         
         # Suggestion 2: Confidence thresholds
-        resolution_rate = patterns.get("resolution_rate", 0)
+        resolution_rate = float(patterns.get("resolution_rate", 0))
         if resolution_rate < 0.6:
             suggestions.append({
                 "type": "CONFIDENCE_THRESHOLD",
@@ -201,7 +202,7 @@ class ReplayEngine:
             })
         
         # Suggestion 3: Escalation triggers
-        escalation_rate = patterns.get("escalation_rate", 0)
+        escalation_rate = float(patterns.get("escalation_rate", 0))
         if escalation_rate > 0.4:
             suggestions.append({
                 "type": "ESCALATION_THRESHOLD",
@@ -221,7 +222,7 @@ class ReplayEngine:
         # Simple keyword-based similarity (replace with vector search in production)
         observation_words = set(observation.lower().split())
         
-        scored_records = []
+        scored_records: List[Tuple[int, ReplayRecord]] = []
         for record in self.records:
             # Check overlap with action tool names and any stored context
             record_words: set = set()
