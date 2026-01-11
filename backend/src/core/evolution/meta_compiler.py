@@ -44,7 +44,7 @@ import os
 import shutil
 import tempfile
 import logging
-from typing import Optional, Callable
+from typing import Optional, Callable, List, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -149,11 +149,52 @@ def slow_sum(n):
                 shutil.move(backup_path, original_path)
             return False
 
+    def check_outdated_libraries(self) -> List[str]:
+        """
+        Checks for outdated libraries using a mock or pip.
+        """
+        # Mock implementation
+        # In a real scenario, this would run `pip list --outdated`
+        return ["requests", "numpy"]
+
+    def generate_refactor_proposal(self, source_code: str, issue: str) -> str:
+        """
+        Generates a refactor proposal.
+        """
+        # In a real scenario, this would call LLM.
+        # For now, we reuse optimize_function logic or expand it.
+        return self.optimize_function(source_code, issue)
+
+    def benchmark_code(self, test_path: str, env: Optional[Dict[str, str]] = None) -> float:
+        """
+        Runs the test and returns the execution time.
+        """
+        import time
+        import subprocess
+        start_time = time.time()
+        try:
+            subprocess.run(
+                ['python3', test_path],
+                capture_output=True,
+                text=True,
+                env=env or {"PYTHONPATH": os.getcwd()},
+                check=True
+            )
+        except subprocess.CalledProcessError:
+            return float('inf') # Failed run takes infinite time effectively
+        return time.time() - start_time
+
     def hot_swap(self, module_path: str, test_path: str):
         """
         Orchestrates the optimization process.
         """
         target_func = self.analyze_module(module_path)
+
+        # Check for outdated libraries (part of Meta-Compiler duties)
+        outdated = self.check_outdated_libraries()
+        if outdated:
+             logger.info(f"Found outdated libraries: {outdated}")
+
         if not target_func:
             logger.info("No optimization targets found.")
             return
@@ -161,15 +202,50 @@ def slow_sum(n):
         with open(module_path, 'r') as f:
             source_code = f.read()
 
-        optimized_code = self.optimize_function(source_code, target_func)
+        # 1. Baseline Benchmark
+        logger.info("Running baseline benchmark...")
+        baseline_time = self.benchmark_code(test_path)
+        if baseline_time == float('inf'):
+             logger.error("Baseline tests failed. Cannot optimize.")
+             return
+        logger.info(f"Baseline time: {baseline_time:.4f}s")
+
+        # 2. Generate Proposal
+        optimized_code = self.generate_refactor_proposal(source_code, target_func)
 
         if optimized_code == source_code:
             logger.info("No optimization needed or possible.")
             return
 
-        success = self.verify_optimization(module_path, optimized_code, test_path)
+        # 3. Verify & Benchmark New Code
+        logger.info("Verifying and benchmarking optimization...")
+        backup_path = module_path + ".bak"
+        shutil.copy2(module_path, backup_path)
 
-        if success:
-            logger.info(f"Hot-swap successful for {module_path}")
-        else:
-            logger.warning(f"Hot-swap aborted for {module_path} due to test failure.")
+        try:
+            with open(module_path, 'w') as f:
+                f.write(optimized_code)
+
+            new_time = self.benchmark_code(test_path)
+
+            if new_time == float('inf'):
+                logger.warning("Optimization broke tests. Reverting.")
+                shutil.move(backup_path, module_path)
+                return
+
+            # 4. Compare
+            improvement = (baseline_time - new_time) / baseline_time
+            logger.info(f"New time: {new_time:.4f}s, Improvement: {improvement:.2%}")
+
+            if improvement > 0.10:
+                logger.info("Improvement > 10%. Committing change.")
+                if os.path.exists(backup_path):
+                    os.remove(backup_path)
+            else:
+                logger.info("Improvement insufficient (< 10%). Reverting.")
+                shutil.move(backup_path, module_path)
+
+        except Exception as e:
+            logger.error(f"Error during hot-swap: {e}")
+            if os.path.exists(backup_path):
+                shutil.move(backup_path, module_path)

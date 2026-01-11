@@ -58,8 +58,10 @@ class LogEntry:
 class PatternLearner:
     """
     Learns patterns from observations and converts them into PolicyMemory rules.
-    Example: "Every time Database A peaks, Web Server B fails 2 minutes later."
-    -> Rule: IF db.io_wait > 0.8 THEN throttle(web_server_b.inbound)
+    Neuro-Symbolic Induction:
+    1. Observe: Neural layer detects fuzzy patterns (mocked/simulated here).
+    2. Codify: Symbolic layer converts to hard rules.
+    3. Axiom Synthesis: Permanent axiom in PolicyMemory.
     """
 
     def __init__(self, policy_memory: PolicyMemory):
@@ -69,44 +71,62 @@ class PatternLearner:
     def ingest_observations(self, observations: List[LogEntry]):
         """
         Ingest new observations for analysis.
+        Simulates the "Neural Layer" detecting patterns from raw logs.
         """
         self.observations.extend(observations)
 
     def extract_axioms(self) -> List[Dict[str, Any]]:
         """
         Analyzes observations to find correlations.
-        Searches for DB IO Wait spike followed by Web Server Failure within a time window.
+        This represents the "Codify" step where fuzzy patterns become symbolic logic.
+
+        Example: "Latency spikes every time Dev-Team-B pushes a Docker image"
+        Rule: IF git_event.author == 'TeamB' AND target == 'Prod' THEN pre_warm_cache()
         """
         axioms = []
 
         # Sort observations by timestamp
         sorted_obs = sorted(self.observations, key=lambda x: x.timestamp)
 
+        # 1. Detection Logic (Simulating Neural Pattern Recognition)
+        # Looking for correlations: Event A -> Event B
+
+        # Example 1: DB Spike -> Web Server Failure
         db_spikes = [o for o in sorted_obs if o.source == "db" and o.metric == "io_wait" and o.value > 0.8]
-
         for spike in db_spikes:
-            # Look for web server failure in the next 2 minutes (120 seconds)
-            window_start = spike.timestamp
             window_end = spike.timestamp + timedelta(minutes=2)
-
             failures = [
                 o for o in sorted_obs
-                if o.source == "web_server_b"
-                and o.metric == "status"
-                and o.value == 500
-                and window_start < o.timestamp <= window_end
+                if o.source == "web_server_b" and o.metric == "status" and o.value == 500
+                and spike.timestamp < o.timestamp <= window_end
             ]
-
             if failures:
-                logger.info(f"Pattern detected: DB spike at {spike.timestamp} followed by failure at {failures[0].timestamp}")
                 axioms.append({
                     "cause": "db.io_wait > 0.8",
                     "effect": "web_server_b.failure",
                     "confidence": 0.9,
                     "suggested_action": "throttle(web_server_b.inbound)",
-                    "time_lag_seconds": (failures[0].timestamp - spike.timestamp).total_seconds()
+                    "description": "Throttling inbound traffic when DB is overloaded preventing cascade failure."
                 })
-                # Break to avoid duplicate axioms for the same pattern type (simplification)
+                break # Avoid duplicates
+
+        # Example 2: Team B Commit -> Latency Spike (From prompt)
+        commits = [o for o in sorted_obs if o.source == "git" and o.metric == "push_event" and o.context.get("author") == "TeamB"]
+        for commit in commits:
+            window_end = commit.timestamp + timedelta(minutes=5)
+            latency_spikes = [
+                o for o in sorted_obs
+                if o.source == "prod_api" and o.metric == "latency" and o.value > 1000
+                and commit.timestamp < o.timestamp <= window_end
+            ]
+            if latency_spikes:
+                axioms.append({
+                    "cause": "git_event.author == 'TeamB' AND target == 'Prod'",
+                    "effect": "prod_api.latency_spike",
+                    "confidence": 0.85,
+                    "suggested_action": "pre_warm_cache()",
+                    "description": "Pre-warm cache on Team B deployment to mitigate latency spikes."
+                })
                 break
 
         return axioms
