@@ -12,10 +12,11 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional, List
 
 from .policy_engine import (
     PolicyEngine,
@@ -75,15 +76,18 @@ class AutonomyLoop:
         model_fn: Callable[[str, Dict[str, Any]], Dict[str, Any]],
         tool_executor: Callable[[str, Dict[str, Any]], Outcome],
         replay_store_path: Optional[Path] = None,
+        approvals_path: Optional[Path] = None,
     ):
         self.policy_engine = policy_engine
         self.model_fn = model_fn  # Function that calls the model
         self.tool_executor = tool_executor  # Function that executes tools
         self.replay_store_path = replay_store_path or Path("./replay_buffer")
         self.replay_store_path.mkdir(exist_ok=True)
+        self.approvals_path = approvals_path or Path("backend/approvals")
+        self.approvals_path.mkdir(exist_ok=True, parents=True)
         
         self.state = AgentState()
-        self.replay_buffer: list[ReplayEntry] = []
+        self.replay_buffer: List[ReplayEntry] = []
         self.incident_id: Optional[str] = None
         self.start_time: Optional[datetime] = None
     
@@ -114,6 +118,21 @@ Last action failed: {self.state.last_action_failed}
 OUTPUT (JSON ONLY):
 """
         return prompt
+
+    def _wait_for_approval(self, incident_id: str) -> None:
+        """
+        Poll for approval token for the given incident.
+        Blocks until the file backend/approvals/<incident_id>.approve exists.
+        """
+        approval_file = self.approvals_path / f"{incident_id}.approve"
+        logger.warning(f"WAITING FOR APPROVAL. Create file to proceed: {approval_file}")
+
+        while not approval_file.exists():
+            time.sleep(1)
+
+        logger.info(f"Approval received for incident {incident_id}. Resuming.")
+        # Optional: remove file to consume token
+        # approval_file.unlink()
     
     def run_step(self, observation: Observation) -> tuple[PolicyDecision, Optional[Outcome]]:
         """
@@ -122,6 +141,8 @@ OUTPUT (JSON ONLY):
         Returns:
             (decision, outcome) - decision is the policy result, outcome is None if blocked/escalated
         """
+        assert self.incident_id is not None, "Incident ID must be set before running step"
+
         # 1. Build prompt from observation
         prompt = self.observe(observation)
         
@@ -137,8 +158,23 @@ OUTPUT (JSON ONLY):
         # 3. Policy check
         decision, reason = self.policy_engine.evaluate(model_response, self.state)
         
+        # Handle WAIT_APPROVAL
+        if decision == PolicyDecision.WAIT_APPROVAL:
+            self._wait_for_approval(self.incident_id)
+            # After approval, we PROCEED (switch to ALLOW) or re-evaluate?
+            # Usually approval implies "Allow despite risk".
+            # We will treat it as ALLOW after approval.
+            decision = PolicyDecision.ALLOW
+            logger.info("Action allowed after approval.")
+
         if decision == PolicyDecision.BLOCK:
             logger.warning(f"Action BLOCKED: {reason}")
+            # Even if blocked, we might want to update stats? Unused decay still happens.
+            # But specific tool usage logic requires execution attempt or at least intent?
+            # We'll treat blocked as "tool not used" but we should still tick the decay for others.
+            # However, `update_tool_stats` expects a used tool name.
+            # We'll skip stats update for blocked actions for now, or maybe decay everything as "unused"?
+            # Let's keep it simple.
             return decision, None
         
         if decision == PolicyDecision.ESCALATE:
@@ -147,19 +183,30 @@ OUTPUT (JSON ONLY):
             return decision, None
         
         # 4. Execute tool (decision == ALLOW)
+        assert decision == PolicyDecision.ALLOW, f"Expected ALLOW, got {decision}"
+
         tool_name = model_response.get("tool")
         tool_args = model_response.get("args", {})
         
+        outcome: Outcome
         try:
+            # Runtime assertion before execution
+            assert tool_name in self.policy_engine.tool_registry, "Tool not in registry"
+
             outcome = self.tool_executor(tool_name, tool_args)
+            assert isinstance(outcome, Outcome), "Tool executor must return Outcome object"
+
         except Exception as e:
             logger.error(f"Tool execution failed: {e}")
             outcome = Outcome(success=False, error=str(e))
         
-        # 5. Update state
+        # 5. Update state and confidence
         self.state.actions_taken += 1
         self.state.last_action_failed = not outcome.success
         
+        # Update confidence/decay
+        self.policy_engine.update_tool_stats(self.state, tool_name, outcome.success)
+
         # 6. Store replay entry
         if self.incident_id and self.start_time:
             resolution_time = int((datetime.now() - self.start_time).total_seconds())
