@@ -16,6 +16,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
+import hashlib
 from typing import Any, Callable, Dict, Optional, List
 
 from .policy_engine import (
@@ -116,6 +117,12 @@ Previous actions taken: {self.state.actions_taken}
 Last action failed: {self.state.last_action_failed}
 
 OUTPUT (JSON ONLY):
+{{
+  "reasoning": "Chain of thought explaining why this action is chosen...",
+  "confidence": 0-100,
+  "tool": "tool_name",
+  "args": {{ ... }}
+}}
 """
         return prompt
 
@@ -154,10 +161,35 @@ OUTPUT (JSON ONLY):
             return PolicyDecision.ESCALATE, None
         
         logger.info(f"Model decision: {model_response}")
+
+        # Cognitive Health & Observability
+        reasoning = model_response.get("reasoning", "No reasoning provided")
+        confidence = float(model_response.get("confidence", 100))
+
+        # Traceability: Calculate Reasoning Hash
+        # Hash = SHA256(observation + reasoning + action)
+        action_str = json.dumps({k: v for k, v in model_response.items() if k not in ["reasoning", "confidence"]}, sort_keys=True)
+        trace_content = f"{observation.content}{reasoning}{action_str}"
+        reasoning_hash = hashlib.sha256(trace_content.encode()).hexdigest()
         
+        # Store Cognitive Trace
+        self._store_cognitive_trace(reasoning_hash, reasoning, confidence, model_response)
+
+        # Confidence Check
+        if confidence < 70:
+            logger.warning(f"Low confidence ({confidence}%). Pausing for Consultation.")
+            # Force WAIT_APPROVAL regardless of policy engine, unless it's already blocking/escalating
+            # We will evaluate policy first, then override if ALLOW but low confidence
+            pass
+
         # 3. Policy check
         decision, reason = self.policy_engine.evaluate(model_response, self.state)
         
+        # Override decision if confidence is low and decision was ALLOW
+        if decision == PolicyDecision.ALLOW and confidence < 70:
+            decision = PolicyDecision.WAIT_APPROVAL
+            reason = f"Low confidence ({confidence}%) requires consultation"
+
         # Handle WAIT_APPROVAL
         if decision == PolicyDecision.WAIT_APPROVAL:
             self._wait_for_approval(self.incident_id)
@@ -258,6 +290,25 @@ OUTPUT (JSON ONLY):
         
         return is_resolved_fn()
     
+    def _store_cognitive_trace(self, r_hash: str, reasoning: str, confidence: float, action: Dict[str, Any]):
+        """Store cognitive trace to disk."""
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+        filename = f"{timestamp}_{r_hash}.json"
+        filepath = Path("data/cognitive_trace") / filename
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+
+        try:
+            with open(filepath, "w") as f:
+                json.dump({
+                    "reasoning_hash": r_hash,
+                    "reasoning": reasoning,
+                    "confidence": confidence,
+                    "action": action,
+                    "timestamp": datetime.now().isoformat()
+                }, f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to store cognitive trace: {e}")
+
     def _persist_replay_entry(self, entry: ReplayEntry):
         """Persist a replay entry to disk."""
         filename = f"{entry.incident_id}_{entry.timestamp.strftime('%Y%m%d_%H%M%S')}.json"
