@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # --- THE INFERENCE ENGINE (OLLAMA) ---
+  ollama:
+    image: ollama/ollama:latest
+    container_name: tsm99-ollama
+    volumes:
+      - ./ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+  # --- THE RECURSIVE BACKEND (PYTHON + UNSLOTH) ---
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tsm99-backend
+    volumes:
+      - ./backend:/app
+      - ./models:/app/models
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - DATABASE_URL=postgresql://user:pass@db:5432/tsm99
+    depends_on:
+      - ollama
+      - db
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  # --- THE SOVEREIGN DASHBOARD (FRONTEND) ---
+  frontend:
+    build: ./frontend
+    container_name: tsm99-ui
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    depends_on:
+      - backend
+
+  # --- PERSISTENT MEMORY (POSTGRES) ---
+  db:
+    image: postgres:15-alpine
+    container_name: tsm99-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: tsm99
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+  ollama_data:

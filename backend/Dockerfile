@@ -1,64 +1,41 @@
-# Dockerfile 
-###############################
-# Stage 1 — Builder
-###############################
-FROM python:3.10-slim AS builder
+# Use NVIDIA's official CUDA development image for compatibility
+FROM nvidia/cuda:12.1.1-devel-ubuntu22.04
 
-# Avoid prompts
+# Set non-interactive for automated builds
 ENV DEBIAN_FRONTEND=noninteractive
 
-# System dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    curl \
+# Install core system dependencies
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-dev \
     git \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-
-# Install Python dependencies to a wheels directory (cacheable)
-COPY requirements.txt .
-RUN pip install --upgrade pip && \
-    pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
-
-
-###############################
-# Stage 2 — Final Runtime
-###############################
-FROM python:3.10-slim
-
-# Create user for security
-RUN useradd -m t79user
-
-WORKDIR /app
-
-# Install minimal system deps
-RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    libxml2-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy wheels from builder and install
-COPY --from=builder /wheels /wheels
-COPY --from=builder /app/requirements.txt .
-RUN pip install --no-cache-dir /wheels/*
+# Upgrade pip and install fundamental AI libraries
+RUN pip3 install --upgrade pip
+RUN pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
-# Copy backend source code
-COPY src ./src
-COPY pyproject.toml ./pyproject.toml
+# --- THE SOVEREIGN CORE: UNSLOTH ---
+# Install Unsloth with 4-bit quantization and Flash Attention 2 support
+RUN pip3 install "unsloth[colab-new] @ git+https://github.com/unslothai/unsloth.git"
+RUN pip3 install --no-deps "xformers<0.0.27" "trl<0.9.0" peft accelerate bitsandbytes
 
-# Expose API port
+# Install Backend API dependencies
+COPY requirements.txt .
+RUN pip3 install -r requirements.txt
+
+# Set up local workspace
+WORKDIR /app
+COPY . .
+
+# Environment variables for Sovereign Mode
+ENV PYTHONUNBUFFERED=1
+ENV OLLAMA_HOST=http://tsm99-ollama:11434
+
+# Expose the API port
 EXPOSE 8000
 
-# Environment (safe defaults)
-ENV ENV=production \
-    PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1
-
-# Healthcheck (optional but recommended)
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD curl -f http://localhost:8000/health || exit 1
-
-# Switch to non-root user
-USER t79user
-
-# Production server command
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+# Start the TSM99 Recursive Backend
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
