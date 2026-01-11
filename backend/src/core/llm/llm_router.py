@@ -26,6 +26,7 @@ from .model_providers import (
     LocalProvider,
 )
 from .data_isolation import DataIsolationManager
+from src.core.economics.governor import economic_governor
 
 
 logger = logging.getLogger(__name__)
@@ -100,6 +101,22 @@ class LLMRouter:
             },
         }
         
+        # Tier-based model mapping (Economic Negotiator)
+        self.tier_mapping = {
+            "high_tier": {
+                "openai": "gpt-4-turbo-preview",
+                "claude": "claude-3-opus-20240229",
+                "gemini": "gemini-1.5-pro",
+                "local": "local-model-large", # Placeholder
+            },
+            "low_tier": {
+                "openai": "gpt-3.5-turbo",
+                "claude": "claude-3-haiku-20240307",
+                "gemini": "gemini-pro",
+                "local": "local-model",
+            }
+        }
+
         # Data isolation manager
         self.data_isolation = None
         if enable_data_isolation:
@@ -163,8 +180,20 @@ class LLMRouter:
         
         raise LLMError("No LLM providers are available. Please configure at least one provider.")
     
-    def _select_model(self, task_type: TaskType, provider_name: str) -> str:
-        """Select the best model for a task and provider."""
+    def _select_model(self, task_type: TaskType, provider_name: str, incident_severity: str = "medium", tenant_id: Optional[str] = None) -> str:
+        """
+        Select the best model for a task and provider.
+
+        Uses Economic Negotiator to determine model tier based on severity.
+        """
+        # Determine tier
+        tier = economic_governor.evaluate_model_tier(incident_severity, tenant_id)
+
+        # Try to get model from tier mapping first
+        if tier in self.tier_mapping and provider_name in self.tier_mapping[tier]:
+            return self.tier_mapping[tier][provider_name]
+
+        # Fallback to task-based preferences
         preferences = self.model_preferences.get(task_type, {})
         return preferences.get(provider_name, self.providers[provider_name].get_default_model())
     
@@ -176,6 +205,8 @@ class LLMRouter:
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
         metadata: Optional[Dict[str, Any]] = None,
+        incident_severity: str = "medium",
+        tenant_id: Optional[str] = None,
         **kwargs
     ) -> ModelResponse:
         """
@@ -188,6 +219,8 @@ class LLMRouter:
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
             metadata: Additional metadata for audit logging
+            incident_severity: Severity of the incident
+            tenant_id: Tenant identifier for budget checks
             **kwargs: Additional provider-specific parameters
             
         Returns:
@@ -196,12 +229,16 @@ class LLMRouter:
         Raises:
             LLMError: If generation fails
         """
+        # Extract tenant_id from metadata if not provided directly
+        if not tenant_id and metadata:
+            tenant_id = metadata.get("tenant_id")
+
         # Select provider and model
         provider_name, provider = self._select_provider(task_type, preferred_provider)
-        model = self._select_model(task_type, provider_name)
+        model = self._select_model(task_type, provider_name, incident_severity, tenant_id)
         
         logger.info(
-            f"Routing {task_type.value} task to {provider_name} using {model}"
+            f"Routing {task_type.value} task to {provider_name} using {model} (Severity: {incident_severity})"
         )
         
         # Log request (data isolation)
@@ -258,6 +295,8 @@ class LLMRouter:
         preferred_provider: Optional[str] = None,
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
+        incident_severity: str = "medium",
+        tenant_id: Optional[str] = None,
         **kwargs
     ):
         """
@@ -269,15 +308,17 @@ class LLMRouter:
             preferred_provider: Specific provider to use
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
+            incident_severity: Severity of the incident
+            tenant_id: Tenant identifier for budget checks
             **kwargs: Additional parameters
             
         Yields:
             Chunks of generated text
         """
         provider_name, provider = self._select_provider(task_type, preferred_provider)
-        model = self._select_model(task_type, provider_name)
+        model = self._select_model(task_type, provider_name, incident_severity, tenant_id)
         
-        logger.info(f"Streaming {task_type.value} task to {provider_name} using {model}")
+        logger.info(f"Streaming {task_type.value} task to {provider_name} using {model} (Severity: {incident_severity})")
         
         try:
             async for chunk in provider.generate_streaming(
@@ -299,6 +340,8 @@ class LLMRouter:
         task_type: TaskType = TaskType.GENERAL,
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
+        incident_severity: str = "medium",
+        tenant_id: Optional[str] = None,
         **kwargs
     ) -> ModelResponse:
         """
@@ -333,6 +376,8 @@ class LLMRouter:
                     preferred_provider=provider_name,
                     temperature=temperature,
                     max_tokens=max_tokens,
+                    incident_severity=incident_severity,
+                    tenant_id=tenant_id,
                     **kwargs
                 )
             except LLMError as e:

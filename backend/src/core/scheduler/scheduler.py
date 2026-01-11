@@ -20,6 +20,7 @@ from src.core.checks.ci_hardening import CIHardeningCheck
 from src.core.issues.service import IssuesService
 from src.integrations.service import IntegrationsService  # to be implemented
 from src.utils.config import Settings  # type: ignore[attr-defined]
+from src.core.economics.resource_arbiter import resource_arbiter
 
 logger = logging.getLogger(__name__)
 
@@ -270,6 +271,24 @@ class CheckScheduler:
             check = self._checks.get(check_id)
             if not check:
                 logger.warning("Unknown check id '%s' requested, skipping", check_id)
+                continue
+
+            # Resource Arbitration Check
+            # Determine category from check or default to 'general'
+            category = getattr(check, "category", "general")
+            if not resource_arbiter.should_allow_task(category):
+                logger.warning(
+                    f"Skipping check {check_id} (category: {category}) "
+                    "due to resource constraints (Sovereign Core protection)"
+                )
+                per_check_results[check_id] = {
+                    "status": "skipped",
+                    "last_run_at": datetime.utcnow(),
+                    "duration_ms": 0,
+                    "issues_count": 0,
+                    "metrics": {},
+                    "errors": ["Skipped due to resource arbitration"],
+                }
                 continue
 
             adapter = _SchedulerLoggerAdapter(logger, {"check_id": check_id})
