@@ -1,7 +1,0 @@
-# t79 AI model CPU inference dependencies
-numpy==1.26.4
-Pillow==10.4.0
-torch==2.3.1
-transformers==4.44.2
-accelerate==0.33.0
-datasets==2.21.0
