@@ -107,6 +107,25 @@ restore_snapshot() {
     
     # Note: Hash might differ due to manifest exclusion, simplified check
     log "Snapshot verified"
+
+    # Idempotency check: Is current data already in sync?
+    if [ -d "$DATA_DIR" ]; then
+        log "Checking if restore is needed (Idempotency Check)..."
+        current_data_hash=$(find "$DATA_DIR" -type f -exec sha256sum {} \; | sha256sum | cut -d' ' -f1)
+        # We need to compare against what the snapshot hash *is*.
+        # The snapshot hash covers the *snapshot folder structure*.
+        # The current data hash covers *DATA_DIR*.
+        # Since snapshot has /data subfolder, we should hash $DATA_DIR and compare to the hash of $snapshot_path/data
+
+        # Re-calculating snapshot data hash specifically for DATA_DIR comparison
+        if [ -d "$snapshot_path/data" ]; then
+             snap_data_hash=$(find "$snapshot_path/data" -type f -exec sha256sum {} \; | sha256sum | cut -d' ' -f1)
+             if [ "$current_data_hash" == "$snap_data_hash" ]; then
+                 log "Current data matches snapshot. No restore needed."
+                 exit 0
+             fi
+        fi
+    fi
     
     # Stop services
     log "Stopping services..."

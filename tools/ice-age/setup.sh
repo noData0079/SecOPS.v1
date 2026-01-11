@@ -8,10 +8,32 @@
 set -e
 set -o pipefail
 
+# Safety Warnings
+echo "================================================================"
+echo "WARNING: This script performs extensive system modifications."
+echo "It installs packages, changes firewall rules, and manages services."
+echo "Ensure you have inspected the code before running."
+echo "================================================================"
+
+# Check for Offline Mode
+if [ -z "$OFFLINE_MODE" ]; then
+    OFFLINE_MODE="false"
+fi
+
+if [ "$OFFLINE_MODE" == "true" ]; then
+    echo "[SETUP] OFFLINE MODE ACTIVE. Skipping network operations."
+fi
+
 # ---------------------------
 # Retry helper
 # ---------------------------
 retry() {
+    if [ "$OFFLINE_MODE" == "true" ]; then
+        # In offline mode, if it's a network command, we might want to skip or fail?
+        # But this helper is generic. We will wrap network calls instead.
+        "$@"
+        return $?
+    fi
     local n=0
     local max=5
     local delay=3
@@ -35,9 +57,13 @@ log() { echo -e "\n========== $1 =========="; }
 # 1. System Update & Essentials
 # ---------------------------
 log "Updating system & installing essentials"
-retry sudo apt update
-retry sudo apt -y upgrade
-retry sudo apt install -y build-essential curl git ufw fail2ban software-properties-common docker.io docker-compose python3-pip lsof
+if [ "$OFFLINE_MODE" != "true" ]; then
+    retry sudo apt update
+    retry sudo apt -y upgrade
+    retry sudo apt install -y build-essential curl git ufw fail2ban software-properties-common docker.io docker-compose python3-pip lsof
+else
+    log "Offline mode: Skipping apt update/install. Assuming packages are present."
+fi
 
 retry sudo systemctl enable --now docker
 
@@ -45,15 +71,22 @@ retry sudo systemctl enable --now docker
 # 2. Node.js & PM2
 # ---------------------------
 log "Installing Node.js & PM2"
-retry curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-retry sudo apt install -y nodejs
-retry sudo npm install -g pm2
+if [ "$OFFLINE_MODE" != "true" ]; then
+    echo "WARNING: Downloading and executing remote script from nodesource.com"
+    retry curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+    retry sudo apt install -y nodejs
+    retry sudo npm install -g pm2
+else
+    log "Offline mode: Skipping Node.js download/install."
+fi
 
 # ---------------------------
 # 3. Nginx
 # ---------------------------
 log "Installing Nginx"
-retry sudo apt install -y nginx
+if [ "$OFFLINE_MODE" != "true" ]; then
+    retry sudo apt install -y nginx
+fi
 retry sudo systemctl enable --now nginx
 
 # ---------------------------
@@ -76,16 +109,28 @@ APP_START_CMD="index.js" # Replace with your entry file
 
 log "Cloning/updating app repository"
 if [ ! -d "$APP_DIR" ]; then
-    retry git clone "$REPO_URL" "$APP_DIR"
+    if [ "$OFFLINE_MODE" != "true" ]; then
+        retry git clone "$REPO_URL" "$APP_DIR"
+    else
+        echo "ERROR: App directory $APP_DIR does not exist and OFFLINE_MODE is on."
+        exit 1
+    fi
 else
     cd "$APP_DIR"
-    retry git pull
+    if [ "$OFFLINE_MODE" != "true" ]; then
+        retry git pull
+    fi
 fi
 cd "$APP_DIR"
 
 if [ -f "package.json" ]; then
     log "Installing Node.js dependencies"
-    retry npm install
+    # Deterministic build
+    if [ -f "package-lock.json" ]; then
+        retry npm ci
+    else
+        retry npm install
+    fi
 fi
 if [ -f "requirements.txt" ]; then
     log "Installing Python dependencies"
@@ -146,9 +191,13 @@ retry sudo systemctl restart nginx
 # 9. Certbot SSL
 # ---------------------------
 log "Installing Certbot & obtaining SSL"
-retry sudo apt install -y certbot python3-certbot-nginx
-retry sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos -m admin@$DOMAIN
-retry sudo certbot renew --dry-run
+if [ "$OFFLINE_MODE" != "true" ]; then
+    retry sudo apt install -y certbot python3-certbot-nginx
+    retry sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos -m admin@$DOMAIN
+    retry sudo certbot renew --dry-run
+else
+    log "Offline mode: Skipping Certbot."
+fi
 
 # ---------------------------
 # 10. PM2 Auto-Start

@@ -4,6 +4,12 @@
 
 set -e
 
+# Ensure we are root
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
 log() {
     echo -e "\033[1;32m[CPU-MODE] $1\033[0m"
 }

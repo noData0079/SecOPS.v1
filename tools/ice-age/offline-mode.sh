@@ -4,6 +4,12 @@
 
 set -e
 
+# Ensure we are root
+if [ "$(id -u)" != "0" ]; then
+   echo "This script must be run as root" 1>&2
+   exit 1
+fi
+
 IPTABLES_BACKUP="/root/iptables-backup-$(date +%Y%m%d).rules"
 
 log() {
@@ -27,12 +33,7 @@ iptables -A OUTPUT -o lo -j ACCEPT
 # Allow established connections (for local services)
 iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 
-# Allow local network (customize as needed)
-iptables -A OUTPUT -d 192.168.0.0/16 -j ACCEPT
-iptables -A OUTPUT -d 10.0.0.0/8 -j ACCEPT
-iptables -A OUTPUT -d 172.16.0.0/12 -j ACCEPT
-
-# Block ALL other outbound
+# Block ALL other outbound (including LAN)
 iptables -A OUTPUT -j DROP
 
 log "Offline mode ACTIVATED"
