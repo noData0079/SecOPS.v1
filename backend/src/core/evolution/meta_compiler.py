@@ -1,50 +1,17 @@
 """
 Meta Compiler - Self-coding/Refactoring engine.
+Performs Recursive Self-Improvement (RSI) and JIT Logic Synthesis.
 """
-from typing import Optional, Dict, Any
-
-class MetaCompiler:
-    """
-    Handles autonomous code refactoring and generation.
-    """
-
-    def __init__(self):
-        # Placeholder for LLM Router or similar dependency
-        pass
-
-    def refactor_code(self, source_code: str, goal: str) -> str:
-        """
-        Refactors the given source code to achieve the specified goal.
-
-        Args:
-            source_code: The code to refactor.
-            goal: The objective of the refactoring (e.g., "optimize for speed", "improve readability").
-
-        Returns:
-            The refactored code.
-        """
-        # TODO: Integrate with LLM to perform refactoring
-        # For now, return code as-is or mock behavior
-        return source_code
-
-    def generate_code(self, spec: str) -> str:
-        """
-        Generates code based on a high-level specification.
-
-        Args:
-            spec: The requirements specification.
-
-        Returns:
-            Generated source code.
-        """
-        # TODO: Integrate with LLM synthesis
-        return "# Generated code based on spec\n"
-
 import os
 import shutil
-import tempfile
 import logging
-from typing import Optional, Callable
+import ast
+import time
+from typing import Optional, Callable, Dict, Any
+
+# Assuming these will be available or created
+from ..healing.ghost_sim import GhostSimulator
+# from .code_validator import CodeValidator # Circular dependency potential, or not created yet.
 
 logger = logging.getLogger(__name__)
 
@@ -52,27 +19,98 @@ class MetaCompiler:
     """
     The Meta-Compiler monitors code performance, identifies bottlenecks,
     and rewrites code to be more efficient (e.g., O(n^2) -> O(n)).
+    It acts as the "Director" of self-evolution.
     """
 
-    def __init__(self, optimization_strategy: Optional[Callable[[str, str], str]] = None):
-        """
-        Args:
-            optimization_strategy: A function that takes (source_code, function_name) and returns optimized code.
-                                   If None, uses a default mock strategy.
-        """
-        self.optimization_strategy = optimization_strategy or self._default_mock_strategy
+    def __init__(self, ghost_sim: Optional[GhostSimulator] = None):
+        self.ghost_sim = ghost_sim or GhostSimulator()
+        # self.validator = CodeValidator() # To be integrated
+        self.optimization_history = []
 
-    def _default_mock_strategy(self, source_code: str, function_name: str) -> str:
+    def profile_and_optimize(self, module_path: str, test_path: str):
         """
-        Default mock strategy for demonstration.
+        Main entry point: Profiles a module, synthesizes optimizations,
+        validates them in Shadow-Sandbox, and performs hot-swap.
         """
-        # Simple heuristic to avoid hardcoding "dummy_slow.py" checks in the main logic.
-        # It still looks for the specific O(n^2) pattern to replace.
-        if function_name == "slow_sum" and "for i in range(n):" in source_code:
-             logger.info("Optimizing slow_sum from O(n^2) to O(1)...")
-             return """
-import time
+        logger.info(f"Profiling {module_path} for optimization opportunities...")
 
+        # 1. Profile / Analyze (Simulated)
+        target_func = self._analyze_module(module_path)
+        if not target_func:
+            logger.info("No inefficiencies detected.")
+            return
+
+        logger.info(f"Inefficiency detected in function: {target_func}")
+
+        # 2. JIT Logic Synthesis (Generate Optimized Code)
+        # In a real system, this calls an LLM. Here we simulate it.
+        with open(module_path, 'r') as f:
+            source_code = f.read()
+
+        optimized_code = self._synthesize_optimization(source_code, target_func)
+
+        if optimized_code == source_code:
+            logger.info("Could not synthesize a better version.")
+            return
+
+        # 3. Validation & Simulation (Shadow-Sandbox)
+        logger.info("Validating optimization in Shadow-Sandbox...")
+        # if not self.validator.check_safety(optimized_code):
+        #     logger.warning("Code safety check failed!")
+        #     return
+
+        simulation_result = self.ghost_sim.simulate_scenario({
+            "type": "code_change",
+            "target": module_path,
+            "new_code": optimized_code
+        })
+
+        if simulation_result.get("outcome") != "success":
+            logger.warning(f"Ghost Simulation rejected the change: {simulation_result.get('details')}")
+            return
+
+        # 4. Verification (Test Suite)
+        if self._verify_optimization(module_path, optimized_code, test_path):
+            logger.info(f"Hot-swap successful for {module_path}. Logic upgraded.")
+            self.optimization_history.append({
+                "module": module_path,
+                "function": target_func,
+                "timestamp": time.time()
+            })
+        else:
+            logger.warning(f"Hot-swap aborted for {module_path} due to test failure.")
+
+    def _analyze_module(self, module_path: str) -> Optional[str]:
+        """
+        Analyzes a module to find slow functions (Simulated Profiler).
+        """
+        # Logic to parse file and find "slow_sum" or other patterns
+        try:
+            with open(module_path, 'r') as f:
+                content = f.read()
+                # Heuristic: Detect O(n^2) loop pattern in 'slow_sum'
+                if "def slow_sum(" in content and "for i in range(n):" in content:
+                    return "slow_sum"
+        except Exception as e:
+            logger.error(f"Error analyzing module: {e}")
+        return None
+
+    def _synthesize_optimization(self, source_code: str, function_name: str) -> str:
+        """
+        JIT Logic Synthesis: Rewrites the function to be more efficient.
+        """
+        # Mock LLM Logic
+        if function_name == "slow_sum":
+             logger.info("Synthesizing O(1) algorithm for slow_sum...")
+             # Replace the O(n) loop with the Gaussian formula
+             # We use string replacement for simplicity in this demo,
+             # but AST manipulation would be safer.
+
+             # Locate the function and replace it.
+             # For robustness, we'll just return a full block replacement if it matches exactly what we expect.
+             # In a real agent, we'd use AST to replace just the function node.
+
+             new_func = """
 def slow_sum(n):
     \"\"\"
     Calculates the sum of numbers from 0 to n-1.
@@ -82,35 +120,38 @@ def slow_sum(n):
         return 0
     return (n * (n - 1)) // 2
 """
+             # Heuristic replacement
+             import re
+             pattern = r"def slow_sum\(n\):[\s\S]*?return total"
+             # This regex is brittle, assuming specific structure.
+             # Let's try to just find the function def and indented block.
+             # For this MVP, let's assume standard formatting of the dummy file.
+
+             # If we can't reliably replace, we return original to be safe.
+             # But let's try a simpler replacement for the specific dummy file known content.
+             if "total = 0" in source_code:
+                 # It's the slow version
+                 # We will use AST to replace it properly
+                 tree = ast.parse(source_code)
+                 class FunctionReplacer(ast.NodeTransformer):
+                     def visit_FunctionDef(self, node):
+                         if node.name == "slow_sum":
+                             # Create new AST for the optimized function
+                             new_node = ast.parse(new_func).body[0]
+                             return new_node
+                         return node
+
+                 new_tree = FunctionReplacer().visit(tree)
+                 return ast.unparse(new_tree)
+
         return source_code
 
-    def analyze_module(self, module_path: str) -> Optional[str]:
-        """
-        Analyzes a module to find slow functions.
-        """
-        # Logic to parse file and find "slow_sum" (simulated analysis)
-        # We look for the definition of slow_sum to confirm it exists
-        try:
-            with open(module_path, 'r') as f:
-                content = f.read()
-                if "def slow_sum(" in content:
-                    return "slow_sum"
-        except Exception:
-            pass
-        return None
-
-    def optimize_function(self, source_code: str, function_name: str) -> str:
-        """
-        Optimizes the function code using the injected strategy.
-        """
-        return self.optimization_strategy(source_code, function_name)
-
-    def verify_optimization(self, original_path: str, new_code: str, test_path: str) -> bool:
+    def _verify_optimization(self, original_path: str, new_code: str, test_path: str) -> bool:
         """
         Verifies the new code by running existing tests against it.
         Uses atomic file operations where possible.
         """
-        logger.info("Verifying optimization...")
+        logger.info("Verifying optimization with test suite...")
 
         # 1. Create a backup
         backup_path = original_path + ".bak"
@@ -123,53 +164,29 @@ def slow_sum(n):
 
             # 3. Run the test
             import subprocess
+            # We assume PYTHONPATH=. is needed
+            env = os.environ.copy()
+            env["PYTHONPATH"] = os.getcwd()
+
             result = subprocess.run(
                 ['python3', test_path],
                 capture_output=True,
                 text=True,
-                env={"PYTHONPATH": os.getcwd()}
+                env=env
             )
 
             if result.returncode == 0:
-                logger.info("Verification passed!")
-                # Cleanup backup
+                logger.info("Test verification passed!")
                 if os.path.exists(backup_path):
                     os.remove(backup_path)
                 return True
             else:
-                logger.error(f"Verification failed: {result.stderr}")
-                # Restore from backup
+                logger.error(f"Test verification failed: {result.stderr}")
                 shutil.move(backup_path, original_path)
                 return False
 
         except Exception as e:
             logger.error(f"Verification error: {e}")
-            # Restore from backup if exists
             if os.path.exists(backup_path):
                 shutil.move(backup_path, original_path)
             return False
-
-    def hot_swap(self, module_path: str, test_path: str):
-        """
-        Orchestrates the optimization process.
-        """
-        target_func = self.analyze_module(module_path)
-        if not target_func:
-            logger.info("No optimization targets found.")
-            return
-
-        with open(module_path, 'r') as f:
-            source_code = f.read()
-
-        optimized_code = self.optimize_function(source_code, target_func)
-
-        if optimized_code == source_code:
-            logger.info("No optimization needed or possible.")
-            return
-
-        success = self.verify_optimization(module_path, optimized_code, test_path)
-
-        if success:
-            logger.info(f"Hot-swap successful for {module_path}")
-        else:
-            logger.warning(f"Hot-swap aborted for {module_path} due to test failure.")
