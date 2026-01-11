@@ -83,6 +83,27 @@ class LocalLLMProvider:
         self.active_provider: Optional[str] = None
         self.active_model: Optional[str] = None
     
+    async def reload_model(self, model_name: Optional[str] = None) -> bool:
+        """
+        Reloads the model.
+        """
+        if model_name:
+             self.active_model = model_name
+
+        logger.info(f"Reloading model: {self.active_model} on provider {self.active_provider}")
+        # In a real implementation, this would trigger an API call to unload/load or restart the service
+        # For vLLM: we might call an endpoint to swap LoRA adapters or load a new model
+        # For Ollama: we might call /api/pull or just start generating with the new model name
+
+        # Reset provider availability check to ensure we can connect to the reloaded service
+        if self.active_provider:
+            is_available = await self._check_provider(self.active_provider)
+            if not is_available:
+                logger.warning(f"Provider {self.active_provider} unavailable after reload signal.")
+                return False
+
+        return True
+
     async def initialize(self) -> bool:
         """Initialize and find available providers."""
         for provider in self.fallback_order:
