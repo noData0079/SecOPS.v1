@@ -5,6 +5,8 @@ import { Suspense, useEffect, useMemo, useState } from "react";
 import { Card } from "@/components/shared/Card";
 import { Button } from "@/components/shared/Button";
 import DashboardCharts from "@/components/issues/DashboardCharts";
+import { StrategicRoadmap } from "@/components/executive/StrategicRoadmap";
+import { ExplainableAIPanel } from "@/components/executive/ExplainableAIPanel";
 import {
   fetchCostBreakdown,
   fetchIssues,
@@ -104,7 +106,11 @@ export default function ConsolePage() {
           </Card>
         </section>
 
-        <section>
+        <section className="space-y-6">
+          <StrategicRoadmap />
+
+          <ExplainableAIPanel />
+
           <Card className="space-y-4">
             <div className="flex flex-col justify-between gap-2 md:flex-row md:items-center">
               <div>
