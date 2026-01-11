@@ -4,6 +4,12 @@
 
 set -e
 
+# Safety Header
+echo "================================================================"
+echo "Forensic Replay Tool - Offline Analysis Mode"
+echo "Verifying local resources..."
+echo "================================================================"
+
 REPLAY_DIR="${REPLAY_DIR:-./data/episodic_memory}"
 OUTPUT_DIR="${OUTPUT_DIR:-./forensic_reports}"
 
