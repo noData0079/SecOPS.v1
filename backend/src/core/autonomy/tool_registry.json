@@ -1,0 +1,80 @@
+{
+    "restart_service": {
+        "description": "Restart a failing service",
+        "inputs": [
+            "service_name"
+        ],
+        "risk": "low",
+        "prod_allowed": false,
+        "requires_confirmation": false
+    },
+    "scale_pod": {
+        "description": "Scale a Kubernetes deployment",
+        "inputs": [
+            "deployment",
+            "replicas"
+        ],
+        "risk": "medium",
+        "prod_allowed": false,
+        "requires_confirmation": true
+    },
+    "rollback_deploy": {
+        "description": "Rollback to previous deployment version",
+        "inputs": [
+            "deployment"
+        ],
+        "risk": "high",
+        "prod_allowed": false,
+        "requires_confirmation": true
+    },
+    "get_logs": {
+        "description": "Retrieve logs from a service or pod",
+        "inputs": [
+            "target",
+            "lines"
+        ],
+        "risk": "none",
+        "prod_allowed": true,
+        "requires_confirmation": false
+    },
+    "run_diagnostic": {
+        "description": "Run a diagnostic check",
+        "inputs": [
+            "check_type",
+            "target"
+        ],
+        "risk": "none",
+        "prod_allowed": true,
+        "requires_confirmation": false
+    },
+    "apply_patch": {
+        "description": "Apply a security patch to code",
+        "inputs": [
+            "file_path",
+            "patch_content"
+        ],
+        "risk": "high",
+        "prod_allowed": false,
+        "requires_confirmation": true
+    },
+    "update_config": {
+        "description": "Update configuration values",
+        "inputs": [
+            "config_key",
+            "config_value"
+        ],
+        "risk": "medium",
+        "prod_allowed": false,
+        "requires_confirmation": true
+    },
+    "escalate": {
+        "description": "Escalate to human operator",
+        "inputs": [
+            "reason",
+            "severity"
+        ],
+        "risk": "none",
+        "prod_allowed": true,
+        "requires_confirmation": false
+    }
+}

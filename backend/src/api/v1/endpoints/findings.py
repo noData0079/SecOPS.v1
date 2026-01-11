@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 from datetime import datetime
 from enum import Enum
 
-from fastapi import APIRouter, HTTPException, Query, Path, Body
+from fastapi import APIRouter, HTTPException, Query, Path, Body, Response
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -224,16 +224,17 @@ async def update_finding(
     return FindingResponse(**finding)
 
 
-@router.delete("/{finding_id}", status_code=204)
+@router.delete("/{finding_id}", status_code=204, response_class=Response)
 async def delete_finding(
     finding_id: str = Path(..., description="Finding ID"),
-) -> None:
+):
     """Delete a finding."""
     if finding_id not in _findings:
         raise HTTPException(status_code=404, detail="Finding not found")
     
     del _findings[finding_id]
     logger.info(f"Deleted finding: {finding_id}")
+    return Response(status_code=204)
 
 
 @router.post("/{finding_id}/fix", response_model=FixResponse)

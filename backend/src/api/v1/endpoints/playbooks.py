@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional
 from datetime import datetime
 from enum import Enum
 
-from fastapi import APIRouter, HTTPException, Query, Path, Body
+from fastapi import APIRouter, HTTPException, Query, Path, Body, Response
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
@@ -244,10 +244,10 @@ async def update_playbook(
     return PlaybookResponse(**playbook)
 
 
-@router.delete("/{playbook_id}", status_code=204)
+@router.delete("/{playbook_id}", status_code=204, response_class=Response)
 async def delete_playbook(
     playbook_id: str = Path(..., description="Playbook ID"),
-) -> None:
+):
     """Delete a playbook."""
     if playbook_id not in _playbooks:
         raise HTTPException(status_code=404, detail="Playbook not found")
@@ -257,6 +257,7 @@ async def delete_playbook(
     
     del _playbooks[playbook_id]
     logger.info(f"Deleted playbook: {playbook_id}")
+    return Response(status_code=204)
 
 
 @router.post("/match", response_model=List[PlaybookMatch])

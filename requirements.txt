@@ -1,84 +1,68 @@
-# Consolidated dependencies for the unified t79 stack (model + FastAPI app)
-# Unified requirements for the t79 AI components and API layer.
-# GPU users should install the CUDA build of torch/torchvision that matches their runtime
-# (e.g., torch==2.3.1+cu121 torchvision==0.18.1+cu121 from https://download.pytorch.org/whl/cu121).
-# Unified dependency set for the t79 AI model and API.
-# For GPU acceleration, install the CUDA-specific torch wheel (e.g., torch==2.3.1+cu121).
-# Consolidated requirements for the t79 AI model and API
-# Install a CUDA-enabled build of torch/torchvision if GPU acceleration is desired:
-#   pip install torch==2.3.1+cu121 torchvision==0.18.1+cu121 --extra-index-url https://download.pytorch.org/whl/cu121
-# Unified dependency set for the t79 model and orchestration layers
-# For GPU acceleration install torch/torchvision with the matching CUDA wheel, e.g.:
-#   pip install torch==2.3.1+cu121 torchvision==0.18.1+cu121 \
-#       --extra-index-url https://download.pytorch.org/whl/cu121
-# Unified dependency set for the t79 AI model and FastAPI app
-# GPU users should install the matching CUDA build of torch/torchvision from
-# Unified requirements for the t79 stack (vLLM-based model + FastAPI app).
-# GPU users: install the matching CUDA build of torch/torchvision from
-# https://download.pytorch.org/whl/torch/ before installing the remaining packages.
-
-# FastAPI backend and orchestration
+# ===============================
+# FastAPI backend
+# ===============================
 fastapi==0.111.0
 uvicorn[standard]==0.30.1
+starlette==0.37.2
+
 pydantic==2.7.1
 pydantic-settings==2.2.1
+
 SQLAlchemy==2.0.30
-asyncpg==0.29.0
 alembic==1.13.1
 aiosqlite==0.20.0
+asyncpg==0.29.0
+
 httpx==0.27.0
 python-multipart==0.0.9
+
 prometheus-client==0.20.0
 sentry-sdk[fastapi]==2.5.1
+
 python-jose[cryptography]==3.3.0
 Authlib==1.3.1
 stripe==10.12.0
 kubernetes==29.0.0
 
-# Shared ML/LLM stack
-# Shared ML stack for both projects
+
+# ===============================
+# ML / LLM (CPU ONLY)
+# ===============================
 torch==2.3.1
 torchvision==0.18.1
-transformers==4.44.2
-datasets==2.21.0
-accelerate==0.33.0
-vllm==0.5.4.post1
-numpy==1.26.4
-Pillow==10.4.0
 
-# Testing
-pytest==8.2.0
-pytest-asyncio==0.23.5
-# Shared ML/tooling dependencies
 transformers==4.44.2
-datasets==2.21.0
 accelerate==0.33.0
-# Shared AI/ML stack across both projects
-numpy==1.26.4
-Pillow==10.4.0
-transformers==4.44.2
 datasets==2.21.0
-accelerate==0.33.0
-torch==2.3.1
-torchvision==0.18.1
-vllm==0.5.4.post1
 
-# Testing
-pytest==8.2.0
-pytest-asyncio==0.23.5
-# Shared ML stack
 numpy==1.26.4
 pillow==10.4.0
-transformers==4.44.2
-datasets==2.21.0
-accelerate==0.33.0
-torch==2.3.1
+sentencepiece
+safetensors
+tqdm
+regex
+packaging
 
-# Optional: include torchvision when working with image inputs
-# torchvision==0.18.1
-torchvision==0.18.1
-vllm==0.5.4.post1
 
-# Tooling / tests
+# ===============================
+# Async / runtime
+# ===============================
+anyio
+aiohttp
+watchfiles
+
+
+# ===============================
+# Crypto
+# ===============================
+cryptography
+rsa
+ecdsa
+pyasn1
+
+
+# ===============================
+# Testing
+# ===============================
 pytest==8.2.0
 pytest-asyncio==0.23.5

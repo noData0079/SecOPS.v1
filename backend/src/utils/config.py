@@ -86,6 +86,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"  # Ignore extra fields from .env (frontend vars, etc.)
 
 
 settings = Settings()
