@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from rag.AdvancedRAGTypes import RAGChunk
+from src.rag.AdvancedRAGTypes import RAGChunk
 
 
 class CitationProcessor:

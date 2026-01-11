@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from typing import Dict, List
 
-from core.checks.base import CheckContext, CheckRunResult, NullLogger
-from integrations.k8s.collectors import collect_workloads
+from src.core.checks.base import CheckContext, CheckRunResult, NullLogger
+from src.integrations.k8s.collectors import collect_workloads
 
 
 class K8sMisconfigCheck:

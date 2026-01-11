@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Protocol
 
-from api.schemas.issues import (
+from src.api.schemas.issues import (
     IssueDetail,
     IssueLocation,
     IssueResolutionState,

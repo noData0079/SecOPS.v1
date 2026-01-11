@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 
-from utils.config import Settings  # type: ignore[attr-defined]
+from src.utils.config import Settings  # type: ignore[attr-defined]
 
 logger = logging.getLogger(__name__)
 

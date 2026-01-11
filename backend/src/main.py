@@ -25,21 +25,21 @@ from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
 # Routers
-from api.routes import platform, rag, docs_chat  # core routes used in tests
+from src.api.routes import platform, rag, docs_chat  # core routes used in tests
 
 try:  # Optional routes may rely on heavyweight dependencies
-    from api.routes import analysis, integrations, admin, auth, billing  # type: ignore[attr-defined]
+    from src.api.routes import analysis, integrations, admin, auth, billing  # type: ignore[attr-defined]
 except Exception as exc:  # noqa: BLE001
     logging.getLogger(__name__).warning("Optional routers could not be loaded: %s", exc)
     analysis = integrations = admin = auth = billing = None
 
 try:  # Optional SSO routers
-    from integrations.sso import azure_ad as azure_sso, google as google_sso, okta as okta_sso
+    from src.integrations.sso import azure_ad as azure_sso, google as google_sso, okta as okta_sso
 except Exception as exc:  # noqa: BLE001
     logging.getLogger(__name__).warning("SSO routers could not be loaded: %s", exc)
     azure_sso = google_sso = okta_sso = None
 
-from utils.config import validate_runtime_config
+from src.utils.config import validate_runtime_config
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -207,7 +207,7 @@ if azure_sso:
 # ---------------------------------------------------------------------------
 
 try:
-    from core.scheduler.scheduler import start_scheduler, shutdown_scheduler  # type: ignore
+    from src.core.scheduler.scheduler import start_scheduler, shutdown_scheduler  # type: ignore
 except Exception:  # noqa: BLE001
     start_scheduler = None
     shutdown_scheduler = None

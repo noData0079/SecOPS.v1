@@ -5,7 +5,7 @@ from typing import List
 
 import httpx
 
-from rag.AdvancedRAGTypes import RAGChunk
+from src.rag.AdvancedRAGTypes import RAGChunk
 
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")

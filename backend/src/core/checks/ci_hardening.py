@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, List
 
-from api.schemas.issues import IssueSeverity, IssueStatus, IssueLocation
+from src.api.schemas.issues import IssueSeverity, IssueStatus, IssueLocation
 from .base import BaseCheck, CheckContext, CheckRunResult, LoggerLike, NullLogger
-from integrations.ci.github_actions import GitHubActionsClient
+from src.integrations.ci.github_actions import GitHubActionsClient
 
 
 class CIHardeningCheck(BaseCheck):

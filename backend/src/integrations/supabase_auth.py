@@ -8,7 +8,7 @@ from fastapi import HTTPException, Request, status
 from fastapi.security import HTTPBearer
 from jose import JWTError, jwt
 
-from utils.config import settings
+from src.utils.config import settings
 
 
 class SupabaseAuthError(Exception):
