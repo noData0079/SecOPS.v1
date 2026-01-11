@@ -1,25 +1,3 @@
-import EnterpriseBlock from "../components/EnterpriseBlock";
-
-export default function Enterprise() {
-  return (
-    <div className="px-20 py-20">
-      <h1 className="text-6xl font-bold">Enterprise</h1>
-      <p className="mt-10 text-2xl text-gray-300 max-w-3xl">
-        T79AI is built for global-scale companies requiring high availability,
-        custom compliance, on-premise deployment, and private LLM execution.
-      </p>
-
-      <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-12">
-        <EnterpriseBlock title="Private Cloud / On-Prem" desc="Deploy inside your firewalls." />
-        <EnterpriseBlock
-          title="Dedicated LLM Compute"
-          desc="Run custom tuned models isolated per client."
-        />
-        <EnterpriseBlock
-          title="SOC2, GDPR, HIPAA readiness"
-          desc="Fully compliant auditing and privacy controls."
-        />
-        <EnterpriseBlock title="24/7 Autonomous Agent Monitoring" desc="AI agents that never sleep." />
 const assurances = [
   "Private cloud and on-prem deployment options",
   "SOC2-ready audit logging and immutable evidence",
@@ -58,12 +36,45 @@ export default function Enterprise() {
       </div>
 
       <div className="mt-12">
-        <a
-          href="/contact"
-          className="inline-block bg-blue-600 hover:bg-blue-700 px-7 py-3 rounded-lg font-semibold"
-        >
-          Schedule a security review
-        </a>
+        <div className="bg-slate-900 p-8 rounded-xl border border-slate-800 max-w-2xl">
+            <h3 className="text-xl font-bold text-white mb-4">Start your pilot</h3>
+             <form className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-semibold text-slate-400 mb-1">Work Email</label>
+                    <input
+                    type="email"
+                    className="w-full rounded-lg border border-slate-700 bg-slate-950 p-2.5 focus:border-blue-500 focus:outline-none"
+                    placeholder="you@company.com"
+                    required
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-semibold text-slate-400 mb-1">Company</label>
+                    <input
+                    type="text"
+                    className="w-full rounded-lg border border-slate-700 bg-slate-950 p-2.5 focus:border-blue-500 focus:outline-none"
+                    placeholder="Your organization"
+                    required
+                    />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-slate-400 mb-1">What do you want to secure?</label>
+                <textarea
+                  className="w-full rounded-lg border border-slate-700 bg-slate-950 p-2.5 focus:border-blue-500 focus:outline-none"
+                  rows={3}
+                  placeholder="Cloud footprint, CI/CD, Kubernetes, data stores, or all of the above"
+                />
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-blue-600 hover:bg-blue-700 py-2.5 rounded-lg font-semibold transition"
+              >
+                Request a demo
+              </button>
+            </form>
+        </div>
       </div>
     </div>
   );
