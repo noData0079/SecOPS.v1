@@ -47,6 +47,9 @@ class Settings(BaseSettings):
     AZURE_AD_TENANT_ID: Optional[str] = None
 
     # ========= GITHUB ==========
+    GITHUB_TOKEN: str | None = None
+    GITHUB_API_BASE_URL: str | None = None
+    GITHUB_USER_AGENT: str | None = None
     GITHUB_APP_ID: str | None = None
     GITHUB_APP_PRIVATE_KEY: str | None = None
     GITHUB_WEBHOOK_SECRET: str | None = None
@@ -75,6 +78,10 @@ class Settings(BaseSettings):
     # ========= KUBERNETES ==========
     K8S_IN_CLUSTER: bool = False
     K8S_KUBECONFIG: str | None = None
+
+    # ========= INTEGRATIONS ==========
+    SLACK_WEBHOOK_URL: str | None = None
+    TERRAFORM_BINARY_PATH: str = "terraform"
 
     # ========= BILLING ==========
     STRIPE_SECRET_KEY: str | None = None

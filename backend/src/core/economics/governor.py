@@ -53,6 +53,34 @@ class EconomicGovernor:
         # ROI threshold
         self.min_roi_threshold = 0.5  # Minimum ROI to allow action
     
+    def evaluate_model_tier(
+        self,
+        incident_severity: str = "medium",
+        tenant_id: Optional[str] = None
+    ) -> str:
+        """
+        Determine which model tier to use based on severity and budget.
+
+        Args:
+            incident_severity: Severity of the incident (critical, high, medium, low)
+            tenant_id: Optional tenant ID to check budget
+
+        Returns:
+            "high_tier" or "low_tier"
+        """
+        # Critical and high severity defaults to high tier (large models)
+        if incident_severity in ["critical", "high"]:
+            # If we have a tenant, check if we are in "budget panic mode"
+            if tenant_id:
+                budget = self.memory.get_budget(tenant_id)
+                if budget and budget.daily_remaining < 5.0: # Arbitrary low budget threshold
+                    logger.warning(f"Budget low for {tenant_id}, downgrading {incident_severity} task to low tier")
+                    return "low_tier"
+            return "high_tier"
+
+        # Medium and low severity defaults to low tier (small models)
+        return "low_tier"
+
     def can_afford(
         self,
         tenant_id: str,
