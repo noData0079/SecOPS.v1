@@ -1,0 +1,7 @@
+{
+    "v1.0.1-human-vetted": {
+        "path": "models/tsm99_prod_v1",
+        "status": "STABLE",
+        "description": "Initial baseline"
+    }
+}
