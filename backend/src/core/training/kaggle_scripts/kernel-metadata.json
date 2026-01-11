@@ -1,0 +1,13 @@
+{
+  "id": "tsm99/tsm99-llama-tuner",
+  "title": "TSM99 Llama Tuner",
+  "code_file": "train.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "dataset_sources": ["tsm99/tsm99-it-distillation-data"],
+  "competition_sources": [],
+  "kernel_sources": []
+}

@@ -202,6 +202,7 @@ class LLMRouter:
         prompt: str,
         task_type: TaskType = TaskType.GENERAL,
         preferred_provider: Optional[str] = None,
+        model: Optional[str] = None,
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
         metadata: Optional[Dict[str, Any]] = None,
@@ -216,6 +217,7 @@ class LLMRouter:
             prompt: The input prompt
             task_type: Type of task for intelligent routing
             preferred_provider: Specific provider to use (overrides routing)
+            model: Specific model to use (overrides routing)
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
             metadata: Additional metadata for audit logging
@@ -235,7 +237,8 @@ class LLMRouter:
 
         # Select provider and model
         provider_name, provider = self._select_provider(task_type, preferred_provider)
-        model = self._select_model(task_type, provider_name, incident_severity, tenant_id)
+        if model is None:
+            model = self._select_model(task_type, provider_name, incident_severity, tenant_id)
         
         logger.info(
             f"Routing {task_type.value} task to {provider_name} using {model} (Severity: {incident_severity})"
@@ -293,6 +296,7 @@ class LLMRouter:
         prompt: str,
         task_type: TaskType = TaskType.GENERAL,
         preferred_provider: Optional[str] = None,
+        model: Optional[str] = None,
         temperature: float = 0.7,
         max_tokens: Optional[int] = None,
         incident_severity: str = "medium",
@@ -306,6 +310,7 @@ class LLMRouter:
             prompt: The input prompt
             task_type: Type of task for routing
             preferred_provider: Specific provider to use
+            model: Specific model to use (overrides routing)
             temperature: Sampling temperature
             max_tokens: Maximum tokens to generate
             incident_severity: Severity of the incident
@@ -316,7 +321,8 @@ class LLMRouter:
             Chunks of generated text
         """
         provider_name, provider = self._select_provider(task_type, preferred_provider)
-        model = self._select_model(task_type, provider_name, incident_severity, tenant_id)
+        if model is None:
+            model = self._select_model(task_type, provider_name, incident_severity, tenant_id)
         
         logger.info(f"Streaming {task_type.value} task to {provider_name} using {model} (Severity: {incident_severity})")
         

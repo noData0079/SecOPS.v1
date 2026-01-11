@@ -187,6 +187,8 @@ export interface AdminUser {
   email: string;
   role: string;
   active: boolean;
+  tier?: string;
+  mfa?: boolean;
 }
 
 export interface AdminTeam {
