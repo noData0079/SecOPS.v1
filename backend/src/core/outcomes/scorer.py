@@ -15,7 +15,11 @@ from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
+from core.security.kill_switch import kill_switch
+
 logger = logging.getLogger(__name__)
+
+SAFETY_THRESHOLD = 30.0
 
 
 class OutcomeCategory(str, Enum):
@@ -163,6 +167,11 @@ class OutcomeScorer:
             category = OutcomeCategory.TIMEOUT
         else:
             category = OutcomeCategory.FAILURE
+
+        # KILL SWITCH CHECK
+        if total_score < SAFETY_THRESHOLD:
+            logger.critical(f"Outcome Score {total_score} below safety threshold {SAFETY_THRESHOLD}. ACTIVATING KILL SWITCH.")
+            kill_switch.activate()
         
         # Calculate confidence in score
         confidence = self._calculate_confidence(outcome, context)
