@@ -259,9 +259,12 @@ class SemanticStore:
             except Exception as e:
                 logger.warning(f"Failed to load patterns: {e}")
 
+# Global instance
+semantic_store = SemanticStore()
 
 __all__ = [
     "SemanticStore",
     "SemanticFact",
     "ToolPattern",
+    "semantic_store",
 ]
