@@ -1,2 +1,3 @@
-"""Package initializer."""
-"""Database models and migrations."""
+from .base import Base
+
+__all__ = ["Base"]
