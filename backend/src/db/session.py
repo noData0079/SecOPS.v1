@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase
-from utils.config import settings
+from src.utils.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -60,3 +60,9 @@ async def get_db() -> AsyncSession:
 
     async with SessionLocal() as session:
         yield session
+
+
+def get_session_maker():
+    if SessionLocal is None:
+        raise RuntimeError("Database engine is not initialized; ensure driver dependencies are installed.")
+    return SessionLocal

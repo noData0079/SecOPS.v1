@@ -8,20 +8,20 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import logging
 
-from api.schemas.rag import (
+from src.api.schemas.rag import (
     RAGQueryRequest,
     RAGQueryResponse,
 )
-from rag.AdvancedRAGTypes import (
+from src.rag.AdvancedRAGTypes import (
     RAGQueryContext,
     RetrievedContext,
     RAGAnswer,
 )
-from rag.SearchOrchestrator import SearchOrchestrator
-from rag.RAGSynthesizer import RAGSynthesizer
-from rag.CitationProcessor import CitationProcessor
-from rag.llm_client import LLMClient
-from utils.config import settings  # global settings instance
+from src.rag.SearchOrchestrator import SearchOrchestrator
+from src.rag.RAGSynthesizer import RAGSynthesizer
+from src.rag.CitationProcessor import CitationProcessor
+from src.rag.llm_client import LLMClient
+from src.utils.config import settings  # global settings instance
 
 logger = logging.getLogger(__name__)
 

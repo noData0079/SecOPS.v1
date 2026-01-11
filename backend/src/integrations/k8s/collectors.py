@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Dict, List
 
-from integrations.k8s.client import get_k8s_client
+from src.integrations.k8s.client import get_k8s_client
 
 
 def collect_workloads() -> List[Dict]:

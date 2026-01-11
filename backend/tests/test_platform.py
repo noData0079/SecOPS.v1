@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 import pytest
 
 from src.main import app
-from api.deps import get_current_user
+from src.api.deps import get_current_user
 
 
 class DummyUser:

@@ -5,12 +5,12 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
-from api.schemas.issues import (
+from src.api.schemas.issues import (
     IssueSeverity,
     IssueStatus,
     IssueLocation,
 )
-from integrations.github.ingestor import GitHubDepsIngestor  # to be implemented
+from src.integrations.github.ingestor import GitHubDepsIngestor  # to be implemented
 from .base import (
     BaseCheck,
     CheckContext,

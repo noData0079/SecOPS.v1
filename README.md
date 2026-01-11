@@ -93,8 +93,8 @@ docker compose -f infra/docker-compose.yaml up --build
    ```
 3. Start the API:
    ```bash
-   cd backend/src
-   uvicorn app:app --reload --host 0.0.0.0 --port 8000
+   cd backend
+   uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
    ```
 4. Access Documentation:
    - **Swagger UI**: [http://localhost:8000/docs](http://localhost:8000/docs)

@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-from rag.AdvancedRAGTypes import RAGChunk, RAGQuery
-from rag.llm_client import llm_client
+from src.rag.AdvancedRAGTypes import RAGChunk, RAGQuery
+from src.rag.llm_client import llm_client
 
 
 class RAGSynthesizer:
     """Turn retrieved knowledge into a T79-focused answer."""
 
-    async def synthesize(self, query: RAGQuery, chunks: list[RAGChunk]) -> str:
+    def __init__(self, settings=None, llm_client=None):
+        self.settings = settings
+        self.llm_client = llm_client
+
+    async def synthesize(self, query: RAGQuery, chunks: list[RAGChunk], context=None) -> str:
         context = "\n\n".join([f"[{i + 1}] {c.text}" for i, c in enumerate(chunks)])
         prompt = f"""
 You are T79AI — an autonomous DevT79 assistant.

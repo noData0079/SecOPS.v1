@@ -6,20 +6,20 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from api.schemas.platform import CheckInfo
-from core.checks.base import (
+from src.api.schemas.platform import CheckInfo
+from src.core.checks.base import (
     BaseCheck,
     CheckContext,
     CheckRunResult,
     LoggerLike,
 )
-from core.checks.github_deps import GitHubDepsCheck
-from core.checks.github_security import GitHubSecurityCheck
-from core.checks.k8s_misconfig import K8sMisconfigCheck
-from core.checks.ci_hardening import CIHardeningCheck
-from core.issues.service import IssuesService
-from integrations.service import IntegrationsService  # to be implemented
-from utils.config import Settings  # type: ignore[attr-defined]
+from src.core.checks.github_deps import GitHubDepsCheck
+from src.core.checks.github_security import GitHubSecurityCheck
+from src.core.checks.k8s_misconfig import K8sMisconfigCheck
+from src.core.checks.ci_hardening import CIHardeningCheck
+from src.core.issues.service import IssuesService
+from src.integrations.service import IntegrationsService  # to be implemented
+from src.utils.config import Settings  # type: ignore[attr-defined]
 
 logger = logging.getLogger(__name__)
 

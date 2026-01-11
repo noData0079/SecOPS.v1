@@ -9,7 +9,7 @@ from sqlalchemy import Select, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from api.schemas.issues import IssueResolutionState
+from src.api.schemas.issues import IssueResolutionState
 from .models import Issue
 
 

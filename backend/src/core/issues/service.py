@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
-from api.schemas.issues import IssueDetail, IssueResolutionState
-from core.issues.repository import IssuesRepository
-from db.session import get_session_maker
+from src.api.schemas.issues import IssueDetail, IssueResolutionState
+from src.core.issues.repository import IssuesRepository
+from src.db.session import get_session_maker
 
 
 class IssuesService:
@@ -101,3 +101,8 @@ class IssuesService:
             await session.commit()
             return {"created": created, "updated": updated}
 
+
+async def create_issue(session: Any, data: dict[str, Any]) -> Any:
+    """Helper for legacy ingestors to create a single issue via the repo."""
+    repo = IssuesRepository()
+    return await repo.create_issue(session, data)

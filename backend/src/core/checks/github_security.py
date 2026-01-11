@@ -4,12 +4,12 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
-from api.schemas.issues import (
+from src.api.schemas.issues import (
     IssueSeverity,
     IssueStatus,
     IssueLocation,
 )
-from integrations.github.ingestor import GitHubSecurityIngestor  # to be implemented
+from src.integrations.github.ingestor import GitHubSecurityIngestor  # to be implemented
 from .base import (
     BaseCheck,
     CheckContext,

@@ -4,8 +4,8 @@ import logging
 
 from fastapi import APIRouter, HTTPException
 
-from api.schemas.docs_chat import DocsChatAnswer, QueryInput
-from rag.docs_chat import llm, vector_store
+from src.api.schemas.docs_chat import DocsChatAnswer, QueryInput
+from src.rag.docs_chat import llm, vector_store
 
 logger = logging.getLogger(__name__)
 

@@ -10,12 +10,12 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from sqlalchemy.orm import Session
 
-from integrations.supabase_auth import decode_supabase_jwt, SupabaseAuthError
-from db.session import get_db  # this is your migrations/session.py helper
-from rag.AdvancedRAGTypes import RAGQuery
-from rag.CitationProcessor import citation_processor
-from rag.RAGSynthesizer import synthesizer
-from rag.SearchOrchestrator import SearchOrchestrator
+from src.integrations.supabase_auth import decode_supabase_jwt, SupabaseAuthError
+from src.db.session import get_db  # this is your migrations/session.py helper
+from src.rag.AdvancedRAGTypes import RAGQuery
+from src.rag.CitationProcessor import citation_processor
+from src.rag.RAGSynthesizer import synthesizer
+from src.rag.SearchOrchestrator import SearchOrchestrator
 
 logger = logging.getLogger(__name__)
 

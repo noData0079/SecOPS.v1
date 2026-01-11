@@ -3,15 +3,15 @@ from typing import Any, Dict
 
 from fastapi import APIRouter, Depends, Query
 
-from api.deps import get_current_user
+from src.api.deps import get_current_user
 
 try:  # Optional runtime dependencies
-    from extensions.k8s_healer.healer import k8s_healer
+    from src.extensions.k8s_healer.healer import k8s_healer
 except Exception:  # noqa: BLE001
     k8s_healer = None
 
 try:
-    from extensions.db_repair import db_repair_agent
+    from src.extensions.db_repair import db_repair_agent
 except Exception:  # noqa: BLE001
     db_repair_agent = None
 
