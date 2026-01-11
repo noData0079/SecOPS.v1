@@ -18,6 +18,7 @@ from api.v1.endpoints import (
     playbooks_router,
     system_router,
 )
+from api.routes.webhooks import router as webhooks_router
 
 # Configure logging
 logging.basicConfig(
@@ -62,6 +63,7 @@ app.add_middleware(
 app.include_router(findings_router, prefix="/api/v1")
 app.include_router(playbooks_router, prefix="/api/v1")
 app.include_router(system_router, prefix="/api/v1")
+app.include_router(webhooks_router)
 
 
 # Root endpoint

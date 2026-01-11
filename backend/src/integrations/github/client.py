@@ -145,6 +145,91 @@ class GitHubClient:
             raise RuntimeError("GitHub response is not valid JSON")
 
     # ------------------------------------------------------------------
+    # Write / Mutation methods (Autonomous PRs)
+    # ------------------------------------------------------------------
+
+    async def create_branch(
+        self,
+        org: str,
+        repo: str,
+        branch: str,
+        base_sha: str,
+    ) -> Dict[str, Any]:
+        """
+        Create a new branch (reference) in the repo.
+        """
+        url = f"/repos/{org}/{repo}/git/refs"
+        payload = {
+            "ref": f"refs/heads/{branch}",
+            "sha": base_sha,
+        }
+        resp = await self._request("POST", url, json=payload)
+        if resp.status_code != 201:
+            logger.error("Failed to create branch %s: %s", branch, resp.text)
+            raise RuntimeError(f"Failed to create branch {branch}")
+        return resp.json()
+
+    async def create_file(
+        self,
+        org: str,
+        repo: str,
+        path: str,
+        message: str,
+        content: str,
+        branch: str,
+        sha: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Create or update a file in the repo.
+        Content must be base64 encoded if not handled by this method,
+        but typically GitHub API expects base64 in 'content'.
+        However, the simple 'create file' endpoint handles encoding if passed as string?
+        Actually, GitHub API requires base64 encoded content.
+        """
+        import base64
+        encoded_content = base64.b64encode(content.encode("utf-8")).decode("utf-8")
+
+        url = f"/repos/{org}/{repo}/contents/{path}"
+        payload = {
+            "message": message,
+            "content": encoded_content,
+            "branch": branch,
+        }
+        if sha:
+            payload["sha"] = sha
+
+        resp = await self._request("PUT", url, json=payload)
+        if resp.status_code not in (200, 201):
+            logger.error("Failed to create/update file %s: %s", path, resp.text)
+            raise RuntimeError(f"Failed to create/update file {path}")
+        return resp.json()
+
+    async def create_pull_request(
+        self,
+        org: str,
+        repo: str,
+        title: str,
+        body: str,
+        head: str,
+        base: str,
+    ) -> Dict[str, Any]:
+        """
+        Create a Pull Request.
+        """
+        url = f"/repos/{org}/{repo}/pulls"
+        payload = {
+            "title": title,
+            "body": body,
+            "head": head,
+            "base": base,
+        }
+        resp = await self._request("POST", url, json=payload)
+        if resp.status_code != 201:
+            logger.error("Failed to create PR: %s", resp.text)
+            raise RuntimeError("Failed to create PR")
+        return resp.json()
+
+    # ------------------------------------------------------------------
     # Public helper methods (used by ingestors/collectors)
     # ------------------------------------------------------------------
 
