@@ -25,7 +25,7 @@ from sentry_sdk.integrations.fastapi import FastApiIntegration
 from sentry_sdk.integrations.logging import LoggingIntegration
 
 # Routers
-from src.api.routes import platform, rag, docs_chat  # core routes used in tests
+from src.api.routes import platform, rag, docs_chat, vault  # core routes used in tests
 
 try:  # Optional routes may rely on heavyweight dependencies
     from src.api.routes import analysis, integrations, admin, auth, billing  # type: ignore[attr-defined]
@@ -188,6 +188,7 @@ if analysis:
 app.include_router(rag.router)
 app.include_router(docs_chat.router)
 app.include_router(platform.router)
+app.include_router(vault.router, prefix="/api/vault", tags=["vault"])
 if integrations:
     app.include_router(integrations.router, prefix="/api/integrations", tags=["integrations"])
 if admin:
