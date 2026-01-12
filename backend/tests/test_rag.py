@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.main import app
-from api.deps import get_current_user, get_rag_orchestrator
+from src.api.deps import get_current_user, get_optional_current_user, get_rag_orchestrator
 
 
 class DummyUser:
@@ -75,13 +75,16 @@ def test_rag_query_happy_path_with_overrides(client: TestClient) -> None:
     """
 
     # Arrange: override dependencies to avoid real DB/LLM calls
-    def override_get_current_user() -> DummyUser:
+    async def override_get_current_user() -> DummyUser:
         return DummyUser()
 
     def override_get_rag_orchestrator() -> DummyRagOrchestrator:
         return DummyRagOrchestrator()
 
-    app.dependency_overrides[get_current_user] = override_get_current_user
+    # Override both get_current_user and get_optional_current_user just to be safe,
+    # since the route uses get_optional_current_user but the dep logic checks get_current_user override.
+    # But overriding get_optional_current_user directly is the most reliable way.
+    app.dependency_overrides[get_optional_current_user] = override_get_current_user
     app.dependency_overrides[get_rag_orchestrator] = override_get_rag_orchestrator
 
     try:

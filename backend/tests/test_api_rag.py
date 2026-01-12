@@ -8,7 +8,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from src.main import app
-from api.deps import get_current_user, get_rag_orchestrator
+from src.api.deps import get_current_user, get_optional_current_user, get_rag_orchestrator
 
 
 class DummyUser:
@@ -58,13 +58,13 @@ def client() -> TestClient:
 
 def setup_overrides() -> None:
     """Apply dependency overrides for RAG tests."""
-    def override_get_current_user() -> DummyUser:
+    async def override_get_current_user() -> DummyUser:
         return DummyUser()
 
     def override_get_rag_orchestrator() -> DummyRagOrchestrator:
         return DummyRagOrchestrator()
 
-    app.dependency_overrides[get_current_user] = override_get_current_user
+    app.dependency_overrides[get_optional_current_user] = override_get_current_user
     app.dependency_overrides[get_rag_orchestrator] = override_get_rag_orchestrator
 
 
