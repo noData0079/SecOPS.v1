@@ -61,3 +61,9 @@ Import trace for requested module:
  ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
  GET /vault 200 in 1243ms
  GET /grid.svg 404 in 70ms
+ ○ Compiling / ...
+ ✓ Compiled / in 26.7s (3617 modules)
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET / 200 in 28457ms
+ ✓ Compiled in 962ms (1515 modules)
+ ✓ Compiled in 908ms (1515 modules)

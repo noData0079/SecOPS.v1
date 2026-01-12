@@ -1,5 +1,6 @@
 export default function Contact() {
   return (
+    <>
     <div className="bg-slate-950 text-white min-h-screen p-20">
       <h1 className="text-5xl font-extrabold">Talk with T79AI</h1>
       <p className="text-lg text-slate-300 mt-4 max-w-2xl">
@@ -43,6 +44,7 @@ export default function Contact() {
           </button>
         </form>
       </div>
+    </div>
     <div className="bg-slate-950 min-h-screen text-white px-20 py-20 grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
       <div>
         <h1 className="text-6xl font-bold">Contact</h1>
@@ -98,5 +100,6 @@ export default function Contact() {
         </button>
       </form>
     </div>
+    </>
   );
 }
