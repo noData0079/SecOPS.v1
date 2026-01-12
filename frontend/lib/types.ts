@@ -170,6 +170,30 @@ export interface PlatformHealthResponse {
   version?: string;
 }
 
+// Added Missing Types
+export interface PlatformSummary {
+  status: HealthStatus;
+  active_agents: number;
+  pending_actions: number;
+  cost_month: number;
+}
+
+export interface CostBreakdown {
+  items: CostBreakdownItem[];
+  total: number;
+  currency: string;
+}
+
+export interface RunAnalysisPayload {
+  repo_url?: string;
+  branch?: string;
+}
+
+export interface RunAnalysisResponse {
+  job_id: string;
+  status: string;
+}
+
 /* ============================================================================
  *  Activity & Admin
  * ========================================================================== */

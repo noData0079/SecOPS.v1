@@ -7,7 +7,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 
-from api.schemas.auth import (
+from src.api.schemas.auth import (
     SignupRequest,
     LoginRequest,
     AuthTokensResponse,
@@ -15,8 +15,8 @@ from api.schemas.auth import (
     LogoutResponse,
     MeResponse,
 )
-from api.deps import get_auth_service, get_current_user
-from services.auth_service import AuthService
+from src.api.deps import get_auth_service, get_current_user
+from src.services.auth_service import AuthService
 
 logger = logging.getLogger(__name__)
 

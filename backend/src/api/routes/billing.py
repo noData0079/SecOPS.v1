@@ -7,9 +7,9 @@ from typing import Any, Dict
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 import stripe
 
-from api.deps import get_optional_current_user
-from api.schemas.billing import CheckoutRequest, CheckoutResponse, SubscriptionState
-from services.billing import BillingDB, BillingService
+from src.api.deps import get_optional_current_user
+from src.api.schemas.billing import CheckoutRequest, CheckoutResponse, SubscriptionState
+from src.services.billing import BillingDB, BillingService
 
 logger = logging.getLogger(__name__)
 

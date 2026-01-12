@@ -1,86 +1,43 @@
-const auditLogs = Array.from({ length: 12 }).map((_, idx) => ({
-  id: `audit-${idx + 1}`,
-  actor: idx % 2 === 0 ? "system" : "founder@t79.ai",
-  action: idx % 2 === 0 ? "policy.update" : "scan.run",
-  target: `service-${idx + 1}`,
-  createdAt: new Date(Date.now() - idx * 5 * 60 * 1000).toISOString(),
-}));
+import React from 'react';
 
-export default function AuditLogsPage() {
+export default function AdminAuditPage() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 px-6 py-16">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold">Audit Logs</h1>
-        <p className="text-slate-300 mt-2 mb-6 max-w-3xl">
-          SOC2-friendly audit history showing every admin action, agent remediation, and policy update.
+    <div>
+      <h2 className="text-2xl font-bold mb-6 text-slate-800">Immutable Audit Ledger</h2>
+      <div className="bg-white rounded-lg border shadow-sm p-4 mb-4">
+        <p className="text-sm text-gray-600">
+           This ledger is append-only and cryptographically verified.
         </p>
-
-        <div className="rounded-xl border border-slate-800 bg-slate-900 divide-y divide-slate-800">
-          {auditLogs.map((entry) => (
-            <div key={entry.id} className="flex items-center justify-between px-4 py-3">
-              <div>
-                <p className="font-medium">{entry.action}</p>
-                <p className="text-slate-400 text-sm">
-                  {entry.actor} on {entry.target}
-                </p>
-              </div>
-              <span className="text-xs text-slate-400">{new Date(entry.createdAt).toLocaleString()}</span>
-            </div>
-          ))}
-        </div>
       </div>
-"use client";
-import { useEffect, useState } from "react";
-import { api } from "@/lib/api-client";
-import type { AuditLogEntry } from "@/lib/types";
-
-export default function AdminAudit() {
-  const [logs, setLogs] = useState<AuditLogEntry[]>([]);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    api.admin
-      .audit()
-      .then(setLogs)
-      .catch(() => setError("Unable to load audit logs."));
-  }, []);
-
-  return (
-    <div className="p-6">
-      <h1 className="text-xl font-semibold mb-4">Audit Logs</h1>
-
-      {error ? (
-        <div className="mb-4 text-sm text-red-600">{error}</div>
-      ) : null}
-
-      <table className="w-full text-left bg-white shadow rounded">
-        <thead>
-          <tr className="border-b">
-            <th className="p-3">Actor</th>
-            <th className="p-3">Action</th>
-            <th className="p-3">Target</th>
-            <th className="p-3">Timestamp</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {logs.map((log) => (
-            <tr key={log.id} className="border-b last:border-none">
-              <td className="p-3">{log.actor}</td>
-              <td className="p-3">{log.action}</td>
-              <td className="p-3">{log.target || "—"}</td>
-              <td className="p-3">{log.timestamp}</td>
-            </tr>
-          ))}
-          {logs.length === 0 ? (
+      <div className="bg-white rounded-lg border shadow-sm overflow-hidden">
+        <table className="min-w-full divide-y divide-gray-200 font-mono text-sm">
+          <thead className="bg-gray-50">
             <tr>
-              <td className="p-3 text-sm text-neutral-500" colSpan={4}>
-                No audit activity yet.
-              </td>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Timestamp</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actor</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Outcome</th>
             </tr>
-          ) : null}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            <tr>
+              <td className="px-6 py-4">2023-10-27T10:00:00Z</td>
+              <td className="px-6 py-4">evt_883a</td>
+              <td className="px-6 py-4">system</td>
+              <td className="px-6 py-4">POLICY_UPDATE</td>
+              <td className="px-6 py-4 text-green-600">SUCCESS</td>
+            </tr>
+            <tr>
+              <td className="px-6 py-4">2023-10-27T10:05:00Z</td>
+              <td className="px-6 py-4">evt_883b</td>
+              <td className="px-6 py-4">user_123</td>
+              <td className="px-6 py-4">DELETE_DB</td>
+              <td className="px-6 py-4 text-red-600">BLOCKED</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

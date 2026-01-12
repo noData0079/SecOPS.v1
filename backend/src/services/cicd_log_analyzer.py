@@ -21,10 +21,10 @@ Return:
 
 from typing import Any, Dict, Optional
 
-from integrations.ci.github_actions import GitHubActionsClient
-from integrations.ci.jenkins import jenkins_client
-from rag.llm_client import llm_client
-from extensions.auto_updater.repo_client import repo_client
+from src.integrations.ci.github_actions import GitHubActionsClient
+from src.integrations.ci.jenkins import jenkins_client
+from src.rag.llm_client import llm_client
+from src.extensions.auto_updater.repo_client import repo_client
 
 
 class CICDLogAnalyzerService:

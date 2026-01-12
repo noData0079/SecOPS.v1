@@ -7,7 +7,7 @@ from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 
-from api.schemas.integrations import (
+from src.api.schemas.integrations import (
     ProviderListResponse,
     IntegrationStatusResponse,
     ConnectGitHubRequest,
@@ -17,8 +17,8 @@ from api.schemas.integrations import (
     TestIntegrationRequest,
     TestIntegrationResponse,
 )
-from api.deps import get_current_user, get_integrations_service
-from integrations.service import IntegrationsService
+from src.api.deps import get_current_user, get_integrations_service
+from src.integrations.service import IntegrationsService
 
 logger = logging.getLogger(__name__)
 

@@ -6,8 +6,8 @@ from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query, status
 from pydantic import BaseModel, Field
 
-from backend.src.services.cicd_log_analyzer import cicd_log_analyzer
-from services.ai_orchestrator import AIOrchestrator, AnalysisRequest
+from src.services.cicd_log_analyzer import cicd_log_analyzer
+from src.services.ai_orchestrator import AIOrchestrator, AnalysisRequest
 
 logger = logging.getLogger(__name__)
 

@@ -7,7 +7,7 @@ from typing import Dict, Optional
 
 import stripe
 
-from utils.config import settings
+from src.utils.config import settings
 
 logger = logging.getLogger(__name__)
 

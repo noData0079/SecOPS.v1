@@ -14,8 +14,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from sqlalchemy import MetaData
-from sqlalchemy.orm import DeclarativeBase, declared_attr
+from sqlalchemy import MetaData, String, Boolean, DateTime
+from sqlalchemy.orm import DeclarativeBase, declared_attr, Mapped, mapped_column
+from sqlalchemy.sql import func
+from datetime import datetime
 
 # ---------------------------------------------------------------------------
 # Naming convention for constraints / indexes
@@ -35,11 +37,6 @@ metadata_obj = MetaData(naming_convention=NAMING_CONVENTION)
 class Base(DeclarativeBase):
     """
     Global SQLAlchemy Declarative Base for all ORM models.
-
-    All ORM model classes (e.g. Issue, User, Org) must inherit from this Base
-    so that:
-      - Alembic can see them via Base.metadata
-      - db.session / engine helpers can create/drop tables for local dev
     """
 
     metadata = metadata_obj
@@ -57,14 +54,39 @@ class Base(DeclarativeBase):
 
 
 # ---------------------------------------------------------------------------
+# Core Models (Stubbed for Expansion)
+# ---------------------------------------------------------------------------
+
+class User(Base):
+    __tablename__ = "users"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    email: Mapped[str] = mapped_column(String, unique=True, index=True)
+    hashed_password: Mapped[str] = mapped_column(String)
+    full_name: Mapped[str | None] = mapped_column(String, nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+class Organization(Base):
+    __tablename__ = "organizations"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    name: Mapped[str] = mapped_column(String, index=True)
+
+class ApiToken(Base):
+    __tablename__ = "api_tokens"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    token: Mapped[str] = mapped_column(String, unique=True, index=True)
+    user_id: Mapped[str] = mapped_column(String, index=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+
+# ---------------------------------------------------------------------------
 # Model registration
 # ---------------------------------------------------------------------------
 
 try:
-    from core.issues.models import Issue  # noqa: F401
-    from core.audit.models import AuditLog  # noqa: F401
+    from src.core.issues.models import Issue  # noqa: F401
+    from src.core.audit.models import AuditLog  # noqa: F401
 except Exception:
-    # In early setup or some tests the module may not be importable yet.
-    Issue = AuditLog = Any  # type: ignore[assignment]
+    pass
 
-__all__ = ["Base", "metadata_obj"]
+__all__ = ["Base", "metadata_obj", "User", "Organization", "ApiToken"]

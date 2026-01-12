@@ -16,6 +16,7 @@ from src.rag.AdvancedRAGTypes import RAGQuery
 from src.rag.CitationProcessor import citation_processor
 from src.rag.RAGSynthesizer import synthesizer
 from src.rag.SearchOrchestrator import SearchOrchestrator
+from src.services.auth_service import AuthService
 
 logger = logging.getLogger(__name__)
 
@@ -201,6 +202,14 @@ async def get_request_context(
         "method": request.method,
     }
 
+def get_auth_service(db: Session = Depends(db_session)) -> AuthService:
+    """Provide AuthService instance."""
+    return AuthService(db)
+
+def get_integrations_service(db: Session = Depends(db_session)) -> Any:
+    # Avoid circular import
+    from src.integrations.service import IntegrationsService
+    return IntegrationsService(db)
 
 __all__ = [
     "get_supabase_user",
@@ -210,4 +219,6 @@ __all__ = [
     "require_admin",
     "db_session",
     "get_request_context",
+    "get_auth_service",
+    "get_integrations_service",
 ]
