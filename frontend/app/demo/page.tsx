@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeftIcon, CloudArrowUpIcon, cpuIcon, LockClosedIcon } from "@heroicons/react/24/outline";
+import { ArrowLeftIcon, CloudArrowUpIcon, CpuChipIcon, LockClosedIcon } from "@heroicons/react/24/outline";
 
 export default function DemoPage() {
     const [tokensUsed, setTokensUsed] = useState(1240);

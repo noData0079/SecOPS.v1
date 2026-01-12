@@ -16,6 +16,14 @@ sys.modules["backend.src.integrations.enterprise.servicenow_client"] = mock_modu
 sys.modules["backend.src.integrations.enterprise.gitlab_client"] = mock_module
 sys.modules["backend.src.integrations.enterprise.bitbucket_client"] = mock_module
 
+sys.modules["src.integrations.enterprise.mssql_client"] = mock_module
+sys.modules["src.integrations.enterprise.oracle_client"] = mock_module
+sys.modules["src.integrations.enterprise.snowflake_client"] = mock_module
+sys.modules["src.integrations.enterprise.sap_client"] = mock_module
+sys.modules["src.integrations.enterprise.servicenow_client"] = mock_module
+sys.modules["src.integrations.enterprise.gitlab_client"] = mock_module
+sys.modules["src.integrations.enterprise.bitbucket_client"] = mock_module
+
 # Also mock the top level package to avoid circular imports if needed
 # But here we just want to bypass the submodules that fail.
 
