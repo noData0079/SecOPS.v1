@@ -9,6 +9,8 @@ from enum import Enum
 from typing import Any, Dict, List, Optional
 from datetime import datetime
 
+from core.memory.episodic_store import EpisodicStore
+
 logger = logging.getLogger(__name__)
 
 
@@ -24,10 +26,11 @@ class MemoryType(str, Enum):
 class MemoryManager:
     """Manages agent memory (short-term and long-term)."""
     
-    def __init__(self, agent_id: str):
+    def __init__(self, agent_id: str, episodic_store: Optional[EpisodicStore] = None):
         """Initialize memory manager."""
         self.agent_id = agent_id
         self._short_term: Dict[str, List[Dict[str, Any]]] = {}
+        self.episodic_store = episodic_store or EpisodicStore()
         logger.info(f"MemoryManager initialized for agent {agent_id}")
     
     def store_goal(self, goal: str) -> None:
@@ -81,3 +84,9 @@ class MemoryManager:
             "recent_results": self._short_term.get(MemoryType.ACTION_RESULT, [])[-3:],
             "recent_reflections": self._short_term.get(MemoryType.REFLECTION, [])[-2:],
         }
+
+    def find_similar_episodes(self, query: str, limit: int = 3) -> List[Any]:
+        """Find similar past episodes (Long-Term Memory / RAG)."""
+        if not self.episodic_store:
+            return []
+        return self.episodic_store.find_similar(query, limit)

@@ -94,7 +94,10 @@ class Agent:
         self.approval_gate = approval_gate or ApprovalGate()
         
         # Reasoning loop
-        self.reasoning_loop = ReasoningLoop(llm_router=self.llm_router)
+        self.reasoning_loop = ReasoningLoop(
+            llm_router=self.llm_router,
+            memory_manager=self.memory
+        )
         
         # State management
         self.state = AgentState.INITIALIZING
