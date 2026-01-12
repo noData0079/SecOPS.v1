@@ -14,6 +14,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from core.llm import LLMRouter, TaskType
+from .memory_manager import MemoryManager
 
 logger = logging.getLogger(__name__)
 
@@ -73,9 +74,10 @@ class ReasoningLoop:
     - Confidence scoring
     """
     
-    def __init__(self, llm_router: LLMRouter):
+    def __init__(self, llm_router: LLMRouter, memory_manager: Optional[MemoryManager] = None):
         """Initialize reasoning loop."""
         self.llm_router = llm_router
+        self.memory_manager = memory_manager
     
     async def generate_plan(
         self,
@@ -96,12 +98,27 @@ class ReasoningLoop:
         Returns:
             Complete reasoning plan
         """
+        # RAG: Fetch relevant past episodes
+        past_episodes = []
+        if self.memory_manager:
+            past_episodes = self.memory_manager.find_similar_episodes(goal, limit=3)
+
+        past_experience_str = ""
+        if past_episodes:
+            past_experience_str = "RELEVANT PAST EXPERIENCE:\n"
+            for ep in past_episodes:
+                past_experience_str += f"- Incident {ep.incident_id}: {ep.final_outcome}\n"
+                for snapshot in ep.episodes:
+                     past_experience_str += f"  * Action: {snapshot.action_taken} -> Outcome: {snapshot.outcome}\n"
+
         # Format context for LLM
         context_str = "\n".join([f"{k}: {v}" for k, v in context.items()])
         
         prompt = f"""You are an autonomous security operations agent. Generate a detailed plan to achieve the following goal.
 
 GOAL: {goal}
+
+{past_experience_str}
 
 CURRENT CONTEXT:
 {context_str}
@@ -118,6 +135,7 @@ Think through this carefully. Consider:
 - What are the dependencies?
 - What could go wrong?
 - What approvals might be needed?
+- How can we apply lessons from past experience?
 
 Format your response as a structured plan with clear steps.
 Maximum {max_steps} steps.
@@ -144,6 +162,40 @@ Maximum {max_steps} steps.
         )
         
         logger.info(f"Generated plan with {len(steps)} steps, confidence: {confidence:.2f}")
+
+        # Self-Reflection: Review the plan
+        plan = await self.review_plan(plan)
+
+        return plan
+
+    async def review_plan(self, plan: ReasoningPlan) -> ReasoningPlan:
+        """
+        Review the plan for errors and self-correct (Self-Reflection).
+        """
+        review_prompt = f"""Review the following security plan for potential issues.
+
+GOAL: {plan.goal}
+
+PLAN:
+{plan.reasoning}
+
+Identify:
+1. Logical gaps or missing steps.
+2. Dangerous commands or high risks without mitigation.
+3. Unclear instructions.
+
+If the plan is good, reply with "APPROVED".
+If there are issues, reply with "ISSUES FOUND:" followed by the critique.
+"""
+        response = await self.llm_router.generate(
+            prompt=review_prompt,
+            task_type=TaskType.REASONING,
+            temperature=0.3
+        )
+
+        if "ISSUES FOUND" in response.content:
+            logger.info("Plan review found issues, self-correcting...")
+            return await self.self_correct(plan, response.content)
         
         return plan
     
