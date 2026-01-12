@@ -19,6 +19,48 @@ https://nextjs.org/telemetry
 [@sentry/nextjs] It appears you've configured a `sentry.server.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation hook instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside `instrumentation.ts`. Learn more about setting up an instrumentation hook in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.server.config.ts` file afterward.
 warn  - It seems like you don't have a global error handler set up. It is recommended that you add a global-error.js file with Sentry instrumentation so that React rendering errors are reported to Sentry. Read more: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#react-render-errors-in-app-router (you can suppress this warning by setting SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING=1 as environment variable)
  ✓ Ready in 2.5s
+ ○ Compiling /vault ...
+ ⨯ ./components/vault/ShutterTransition.tsx:1:1
+Module not found: Can't resolve 'framer-motion'
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m { motion } [36mfrom[39m [32m'framer-motion'[39m[33m;[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 2 |[39m[0m
+[0m [90m 3 |[39m [36mexport[39m [36mconst[39m [33mShutterTransition[39m [33m=[39m ({ isChanging }[33m:[39m { isChanging[33m:[39m boolean }) [33m=>[39m ([0m
+[0m [90m 4 |[39m   [33m<[39m[33mmotion[39m[33m.[39mdiv[0m
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./app/vault/page.tsx
+ ⨯ ./components/vault/ShutterTransition.tsx:1:1
+Module not found: Can't resolve 'framer-motion'
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m { motion } [36mfrom[39m [32m'framer-motion'[39m[33m;[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 2 |[39m[0m
+[0m [90m 3 |[39m [36mexport[39m [36mconst[39m [33mShutterTransition[39m [33m=[39m ({ isChanging }[33m:[39m { isChanging[33m:[39m boolean }) [33m=>[39m ([0m
+[0m [90m 4 |[39m   [33m<[39m[33mmotion[39m[33m.[39mdiv[0m
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./app/vault/page.tsx
+ ⨯ ./components/vault/ShutterTransition.tsx:1:1
+Module not found: Can't resolve 'framer-motion'
+[0m[31m[1m>[22m[39m[90m 1 |[39m [36mimport[39m { motion } [36mfrom[39m [32m'framer-motion'[39m[33m;[39m[0m
+[0m [90m   |[39m [31m[1m^[22m[39m[0m
+[0m [90m 2 |[39m[0m
+[0m [90m 3 |[39m [36mexport[39m [36mconst[39m [33mShutterTransition[39m [33m=[39m ({ isChanging }[33m:[39m { isChanging[33m:[39m boolean }) [33m=>[39m ([0m
+[0m [90m 4 |[39m   [33m<[39m[33mmotion[39m[33m.[39mdiv[0m
+
+https://nextjs.org/docs/messages/module-not-found
+
+Import trace for requested module:
+./app/vault/page.tsx
+ GET /vault 500 in 30716ms
+ ✓ Compiled /_error in 5s (2927 modules)
+ ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ GET /vault 200 in 1243ms
+ GET /grid.svg 404 in 70ms
  ○ Compiling / ...
  ✓ Compiled / in 26.7s (3617 modules)
  ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
