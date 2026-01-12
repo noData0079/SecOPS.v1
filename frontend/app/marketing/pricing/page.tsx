@@ -1,3 +1,4 @@
+
 const tiers = [
   {
     name: "Starter",
@@ -26,18 +27,18 @@ export default function Pricing() {
 
       <div className="grid md:grid-cols-3 gap-8 mt-12">
         {tiers.map((tier) => (
-          <div key={tier.name} className="rounded-2xl border border-slate-800 bg-slate-900/70 p-8 shadow-xl">
-            <h2 className="text-2xl font-bold">{tier.name}</h2>
-            <p className="text-4xl font-extrabold mt-4">{tier.price}</p>
-            <ul className="mt-6 space-y-3 text-slate-200">
+          <div key={tier.name} className="rounded-2xl border border-slate-800 bg-slate-900/70 p-8 shadow-xl hover:border-slate-700 transition">
+            <h2 className="text-2xl font-bold text-white">{tier.name}</h2>
+            <p className="text-4xl font-extrabold mt-4 text-emerald-400">{tier.price}</p>
+            <ul className="mt-6 space-y-3 text-slate-300">
               {tier.highlights.map((item) => (
                 <li key={item} className="flex items-start gap-2">
-                  <span className="text-cyan-300">•</span>
+                  <span className="text-cyan-400">•</span>
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
-            <button className="mt-8 w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold">
+            <button className="mt-8 w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-semibold transition text-white">
               Talk to sales
             </button>
           </div>

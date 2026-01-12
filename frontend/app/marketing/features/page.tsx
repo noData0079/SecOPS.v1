@@ -1,3 +1,4 @@
+
 const features = [
   {
     title: "Autonomous Remediation",
@@ -19,6 +20,15 @@ const features = [
     description:
       "Detect drift, misconfigurations, and compliance gaps with automated evidence collection.",
   },
+  {
+    title: "Multi-Model AI Brain",
+    description:
+       "Orchestrated reasoning using GPT-4, Claude, Gemini, and Llama for optimal cost/performance."
+  },
+  {
+     title: "Self-Healing Infrastructure",
+     description: "Kubernetes operators that automatically detect and repair degraded pods and nodes."
+  }
 ];
 
 export default function Features() {
@@ -32,7 +42,7 @@ export default function Features() {
 
       <div className="grid md:grid-cols-2 gap-10 mt-12">
         {features.map((feature) => (
-          <div key={feature.title} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-8 shadow-xl">
+          <div key={feature.title} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-8 shadow-xl hover:border-slate-700 transition">
             <h2 className="text-2xl font-bold text-cyan-300">{feature.title}</h2>
             <p className="text-slate-200 mt-3 leading-relaxed">{feature.description}</p>
           </div>
