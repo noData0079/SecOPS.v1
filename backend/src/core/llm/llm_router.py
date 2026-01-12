@@ -26,7 +26,7 @@ from .model_providers import (
     LocalProvider,
 )
 from .data_isolation import DataIsolationManager
-from src.core.economics.governor import economic_governor
+from backend.src.core.economics.governor import economic_governor
 
 
 logger = logging.getLogger(__name__)
