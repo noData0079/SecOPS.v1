@@ -11,10 +11,17 @@
  ⚠ Invalid next.config.mjs options detected:
  ⚠     Unrecognized key(s) in object: 'appDir' at "experimental"
  ⚠ See more info here: https://nextjs.org/docs/messages/invalid-next-config
+Attention: Next.js now collects completely anonymous telemetry regarding usage.
+This information is used to shape Next.js' roadmap and prioritize features.
+You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+https://nextjs.org/telemetry
+
 [@sentry/nextjs] It appears you've configured a `sentry.server.config.ts` file. Please ensure to put this file's content into the `register()` function of a Next.js instrumentation hook instead. To ensure correct functionality of the SDK, `Sentry.init` must be called inside `instrumentation.ts`. Learn more about setting up an instrumentation hook in Next.js: https://nextjs.org/docs/app/building-your-application/optimizing/instrumentation. You can safely delete the `sentry.server.config.ts` file afterward.
 warn  - It seems like you don't have a global error handler set up. It is recommended that you add a global-error.js file with Sentry instrumentation so that React rendering errors are reported to Sentry. Read more: https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/#react-render-errors-in-app-router (you can suppress this warning by setting SENTRY_SUPPRESS_GLOBAL_ERROR_HANDLER_FILE_WARNING=1 as environment variable)
  ✓ Ready in 2.5s
- ○ Compiling /console ...
- ✓ Compiled /console in 16.2s (2757 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 26.7s (3617 modules)
  ⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
- GET /console 200 in 17535ms
+ GET / 200 in 28457ms
+ ✓ Compiled in 962ms (1515 modules)
+ ✓ Compiled in 908ms (1515 modules)
