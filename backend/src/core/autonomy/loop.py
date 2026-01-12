@@ -24,6 +24,9 @@ from .policy_engine import (
     PolicyDecision,
     AgentState,
 )
+from core.autonomy.gatekeeper import Gatekeeper, ApprovalQueueDB
+from core.safety.risk_matrix import RiskMatrix
+from core.security.kill_switch import kill_switch
 
 logger = logging.getLogger(__name__)
 
@@ -91,6 +94,11 @@ class AutonomyLoop:
         self.replay_buffer: List[ReplayEntry] = []
         self.incident_id: Optional[str] = None
         self.start_time: Optional[datetime] = None
+
+        # Initialize Gatekeeper
+        # Use default path (backend/data/approvals_queue) to match API
+        self.approval_db = ApprovalQueueDB()
+        self.gatekeeper = Gatekeeper(RiskMatrix(), self.approval_db)
     
     def reset(self, incident_id: str):
         """Reset the loop for a new incident."""
@@ -126,20 +134,51 @@ OUTPUT (JSON ONLY):
 """
         return prompt
 
-    def _wait_for_approval(self, incident_id: str) -> None:
+    def _wait_for_approval(self, incident_id: str, action_id: str = None) -> bool:
         """
-        Poll for approval token for the given incident.
-        Blocks until the file backend/approvals/<incident_id>.approve exists.
+        Poll for approval token/status for the given incident or specific action.
+        Blocks until approved or denied.
+        Returns True if approved, False if denied.
         """
-        approval_file = self.approvals_path / f"{incident_id}.approve"
-        logger.warning(f"WAITING FOR APPROVAL. Create file to proceed: {approval_file}")
+        logger.warning(f"WAITING FOR APPROVAL. Incident: {incident_id}, Action: {action_id}")
 
-        while not approval_file.exists():
-            time.sleep(1)
+        if action_id:
+            # Poll ApprovalQueueDB
+            while True:
+                if kill_switch.is_active():
+                    logger.error("Kill switch activated while waiting for approval. Aborting.")
+                    return False
 
-        logger.info(f"Approval received for incident {incident_id}. Resuming.")
-        # Optional: remove file to consume token
-        # approval_file.unlink()
+                request = self.approval_db.get_request(action_id)
+                if request:
+                    status = request.get('status')
+                    if status == "APPROVED":
+                        logger.info(f"Action {action_id} APPROVED.")
+                        return True
+                    elif status == "DENIED":
+                        logger.warning(f"Action {action_id} DENIED.")
+                        return False
+
+                # Also check legacy file mechanism as fallback or concurrent method
+                approval_file = self.approvals_path / f"{incident_id}.approve"
+                if approval_file.exists():
+                    logger.info(f"Legacy approval file found for incident {incident_id}. Resuming.")
+                    return True
+
+                time.sleep(1)
+        else:
+            # Legacy file polling
+            approval_file = self.approvals_path / f"{incident_id}.approve"
+            logger.warning(f"WAITING FOR APPROVAL. Create file to proceed: {approval_file}")
+
+            while not approval_file.exists():
+                if kill_switch.is_active():
+                    logger.error("Kill switch activated. Aborting.")
+                    return False
+                time.sleep(1)
+
+            logger.info(f"Approval received for incident {incident_id}. Resuming.")
+            return True
     
     def run_step(self, observation: Observation) -> tuple[PolicyDecision, Optional[Outcome]]:
         """
@@ -192,7 +231,11 @@ OUTPUT (JSON ONLY):
 
         # Handle WAIT_APPROVAL
         if decision == PolicyDecision.WAIT_APPROVAL:
-            self._wait_for_approval(self.incident_id)
+            approved = self._wait_for_approval(self.incident_id)
+            if not approved:
+                 # Denied (via kill switch or explicit denial if we passed action_id, but here generic)
+                 return PolicyDecision.BLOCK, None
+
             # After approval, we PROCEED (switch to ALLOW) or re-evaluate?
             # Usually approval implies "Allow despite risk".
             # We will treat it as ALLOW after approval.
@@ -214,12 +257,23 @@ OUTPUT (JSON ONLY):
             self.state.escalation_count += 1
             return decision, None
         
-        # 4. Execute tool (decision == ALLOW)
+        # 4. Gatekeeper Check before Execution
         assert decision == PolicyDecision.ALLOW, f"Expected ALLOW, got {decision}"
 
         tool_name = model_response.get("tool")
         tool_args = model_response.get("args", {})
         
+        # GATEKEEPER CHECK
+        gate_decision = self.gatekeeper.execute_or_wait(self.incident_id, tool_name, tool_args)
+
+        if gate_decision["status"] == "PAUSED":
+             logger.info(f"Gatekeeper PAUSED execution. {gate_decision['message']}")
+             approved = self._wait_for_approval(self.incident_id, gate_decision.get("action_id"))
+             if not approved:
+                 return PolicyDecision.BLOCK, None
+             # If approved, proceed to execution
+             logger.info("Gatekeeper released action.")
+
         outcome: Outcome
         try:
             # Runtime assertion before execution
@@ -274,6 +328,11 @@ OUTPUT (JSON ONLY):
             True if resolved, False if escalated or blocked
         """
         while not is_resolved_fn():
+            # 1. CHECK FOR KILL SWITCH
+            if kill_switch.is_active():
+                logger.error("🚨 KILL SWITCH ACTIVATED. TERMINATING LOOP.")
+                break
+
             observation = observe_fn()
             if observation is None:
                 logger.info("No more observations. Exiting loop.")

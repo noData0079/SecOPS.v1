@@ -19,6 +19,7 @@ from api.v1.endpoints import (
     system_router,
 )
 from api.routes.webhooks import router as webhooks_router
+from api.routes.human_approval import router as approval_router
 
 # Configure logging
 logging.basicConfig(
@@ -64,6 +65,7 @@ app.include_router(findings_router, prefix="/api/v1")
 app.include_router(playbooks_router, prefix="/api/v1")
 app.include_router(system_router, prefix="/api/v1")
 app.include_router(webhooks_router)
+app.include_router(approval_router, prefix="/api/v1")
 
 
 # Root endpoint

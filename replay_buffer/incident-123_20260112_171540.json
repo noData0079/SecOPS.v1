@@ -1,0 +1,17 @@
+{
+  "incident_id": "incident-123",
+  "observation": "test",
+  "action": {
+    "tool": "delete_db",
+    "args": {},
+    "confidence": 90,
+    "reasoning": "Delete DB"
+  },
+  "outcome": {
+    "success": true,
+    "error": null,
+    "side_effects": false
+  },
+  "resolution_time_seconds": 1,
+  "timestamp": "2026-01-12T17:15:40.324224"
+}
