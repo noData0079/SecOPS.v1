@@ -10,6 +10,7 @@ from kaggle.api.kaggle_api_extended import KaggleApi
 
 from src.core.training.synthesizer import DeepSeekSynthesizer
 from src.core.training.gatekeeper import DataCleaner
+from src.core.training.feedback_loop import get_feedback_collector
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,18 @@ class TrainingOrchestrator:
             for _ in range(0, count, batch_size):
                 batch = await self.synthesizer.generate_it_scenarios(count=batch_size)
                 raw_data.extend(batch)
+
+            # 1.5 Inject Human Feedback Data
+            feedback_collector = get_feedback_collector()
+            human_data = feedback_collector.get_training_examples()
+            if human_data:
+                logger.info(f"[TRAINING] Injecting {len(human_data)} human-verified examples.")
+                # We prioritize human data by appending it to raw_data.
+                # Note: We might want to skip cleaning for human data or ensure it passes too.
+                # For now, we trust human feedback more, so we might bypass cleaner or allow it.
+                # Let's treat it as raw_data so it goes through the same format checks,
+                # but potentially we should mark it to bypass strict filtering if needed.
+                raw_data.extend(human_data)
 
             self.current_status = "CLEANING"
             clean_data = await self.cleaner.filter_garbage(raw_data)

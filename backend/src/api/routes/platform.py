@@ -4,6 +4,8 @@ from typing import Any, Dict
 from fastapi import APIRouter, Depends, Query
 
 from src.api.deps import get_current_user
+from src.core.training.feedback_loop import get_feedback_collector
+from pydantic import BaseModel
 
 try:  # Optional runtime dependencies
     from src.extensions.k8s_healer.healer import k8s_healer
@@ -21,6 +23,34 @@ router = APIRouter(
     prefix="/api/platform",
     tags=["Platform"],
 )
+
+
+class FeedbackRequest(BaseModel):
+    incident_id: str
+    rating: int  # 1 (Thumbs Up) or -1 (Thumbs Down)
+    comment: str | None = None
+
+
+@router.post("/feedback", summary="Submit human feedback for model training")
+async def submit_feedback(
+    feedback: FeedbackRequest,
+    current_user: Any = Depends(get_current_user),
+) -> Dict[str, Any]:
+    """
+    Ingests user feedback ("Thumbs Up/Down") for Recursive Self-Improvement.
+    These signals are used to fine-tune the model.
+    """
+    collector = get_feedback_collector()
+    success = collector.collect_feedback(
+        incident_id=feedback.incident_id,
+        rating=feedback.rating,
+        comment=feedback.comment
+    )
+
+    return {
+        "status": "recorded" if success else "failed",
+        "incident_id": feedback.incident_id
+    }
 
 
 @router.get("/status", summary="Lightweight platform status")
