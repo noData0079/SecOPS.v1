@@ -1,3 +1,15 @@
+from typing import Dict, Any, List, Optional
+from dataclasses import dataclass
+import json
+
+@dataclass
+class HealingProposal:
+    action_type: str
+    target: str
+    parameters: Dict[str, Any]
+    reasoning: str
+    priority: str  # high, medium, low
+
 """
 Hot-Fix Mutator (Remediation Layer)
 Acts as the AI's "immune response." Detects pain points and writes targeted scripts.
@@ -53,6 +65,20 @@ class HotFixMutator:
         self.sandbox = SandboxEnvironment()
         self.ghost_sim = GhostSimulator()
         self.deployed_fixes: List[HotFix] = []
+
+    def synthesize_remedy(self, anomaly_report: Dict[str, Any]) -> Optional[str]:
+        """
+        Main entry point to resolve a detected pain point.
+        Alias for resolve_pain_point to match requirements.
+
+        Args:
+            anomaly_report: Dictionary containing anomaly details (signature, context).
+
+        Returns:
+            ID of the deployed hotfix, or None if failed.
+        """
+        # Adapt input format if needed
+        return self.resolve_pain_point(anomaly_report)
 
     def resolve_pain_point(self, anomaly_context: Dict[str, Any]) -> Optional[str]:
         """
