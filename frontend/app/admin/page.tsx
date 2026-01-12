@@ -12,6 +12,7 @@ import {
   Cog6ToothIcon,
   SignalIcon
 } from "@heroicons/react/24/outline";
+import TrainingControl from "@/components/executive/TrainingControl";
 
 export default function ControlPlanePage() {
   const [authenticated, setAuthenticated] = useState(false);
@@ -37,6 +38,7 @@ export default function ControlPlanePage() {
     { id: "access", label: "Access & Identity", icon: KeyIcon },
     { id: "ledger", label: "Trust Ledger", icon: DocumentCheckIcon },
     { id: "demo", label: "Demo Governance", icon: BeakerIcon },
+    { id: "training", label: "Sovereign Evolution", icon: CpuChipIcon },
     { id: "config", label: "Platform Config", icon: Cog6ToothIcon },
     { id: "health", label: "System Health", icon: SignalIcon },
   ];
@@ -143,7 +145,20 @@ export default function ControlPlanePage() {
             </div>
           )}
 
-          {activeTab !== "global" && (
+          {activeTab === "training" && (
+            <div className="max-w-5xl mx-auto space-y-8">
+               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <CpuChipIcon className="h-8 w-8 text-emerald-500" />
+                Sovereign Evolution Control
+              </h2>
+              <p className="text-slate-400">
+                 Manage the recursive self-improvement loop. Synthesize data with DeepSeek-V3, filter via Gatekeeper, and fine-tune Llama 3.3 on Kaggle.
+              </p>
+              <TrainingControl token={password} />
+            </div>
+          )}
+
+          {activeTab !== "global" && activeTab !== "training" && (
             <div className="flex h-full items-center justify-center text-slate-500">
               <div className="text-center">
                 <DocumentCheckIcon className="h-12 w-12 mx-auto mb-4 opacity-20" />
