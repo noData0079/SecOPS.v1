@@ -538,6 +538,61 @@ Learning: pattern reinforced
     "THIS decision polluted the model."
 ```
 
+### 📸 Snapshot Checkpoints (Performance Optimization)
+
+**Problem**: Replaying 100 million events to find one poisoned commit is computationally expensive.
+
+**Solution**: Every 24 hours, flatten the ledger into a **Golden Snapshot**.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              SNAPSHOT CHECKPOINT ARCHITECTURE                   │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   DAY 1        DAY 2        DAY 3        DAY 4        NOW      │
+│     │            │            │            │            │       │
+│   ┌─▼─┐        ┌─▼─┐        ┌─▼─┐        ┌─▼─┐        ┌─▼─┐    │
+│   │ 📸 │        │ 📸 │        │ 📸 │        │ 📸 │        │ 🔴 │    │
+│   │SNAP│        │SNAP│        │SNAP│        │SNAP│        │LIVE│    │
+│   └───┘        └───┘        └───┘        └───┘        └───┘    │
+│     ↓                                       ↓            ↓      │
+│   [Archive]                              [Active]    [Events]   │
+│                                                                 │
+│   Replay starts from nearest snapshot, not Day 1               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Checkpoint Type | Frequency | Contents | Retention |
+|-----------------|-----------|----------|-----------|
+| **Hourly Mini** | Every 1h | Event count + hash | 7 days |
+| **Daily Golden** | Every 24h | Full state + weights + policies | 90 days |
+| **Monthly Archive** | Every 30d | Compressed golden + all deltas | 7 years |
+
+**Replay Performance:**
+
+| Without Checkpoints | With Checkpoints |
+|---------------------|------------------|
+| Replay 100M events | Replay from nearest snapshot |
+| **~45 minutes** | **~30 seconds** |
+| High CPU/memory | Minimal resources |
+
+```bash
+# Create manual checkpoint
+oracle snapshot create --name "pre-incident-443"
+
+# List available checkpoints
+oracle snapshot list
+
+# Replay from specific checkpoint
+oracle replay --from snapshot_2026_01_12 --to now
+
+# Promote checkpoint to "trusted baseline"
+oracle snapshot promote snapshot_2026_01_12 --golden
+```
+
+> *"Checkpoints = git tags for your AI's cognitive state."*
+
 ### Safe Autonomy Mode (Production)
 
 | Component | Mode |
