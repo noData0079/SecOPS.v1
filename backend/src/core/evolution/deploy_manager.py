@@ -2,17 +2,22 @@
 Deploy Manager - Manages the transition from training to production.
 """
 import logging
-from typing import Optional
+import asyncio
+from typing import Any, Dict, Optional
 
 # Imports
 from backend.src.core.simulation.ghost_sim import ghost_simulation
-from backend.src.core.evolution.shadow_mirror import shadow_mirror
-from backend.src.core.llm.local_provider import local_llm
+from backend.src.core.evolution.shadow_mirror import shadow_mirror, ShadowMirror
 from backend.src.core.evolution.model_registry import model_registry
+from backend.src.core.outcomes.comparator import Comparator
 
 logger = logging.getLogger(__name__)
 
 class EvolvedDeployer:
+    """
+    Handles the high-level deployment process: Ghost Validation -> Shadow Mirroring -> Hot Swap.
+    Uses the global/singleton instances.
+    """
     def __init__(self, ghost_sim=ghost_simulation, shadow_mirror_inst=shadow_mirror):
         self.ghost = ghost_sim
         self.shadow = shadow_mirror_inst
@@ -35,10 +40,6 @@ class EvolvedDeployer:
         print("[DEPLOY] Shadow Mirroring Active. Evaluating real-world ROI...")
         self.shadow.start_mirror(new_weight_path)
 
-        # Simulate wait time or check loop.
-        # In a real async system, this might be a separate job.
-        # Here we just check the score immediately (ShadowMirror simulates traffic on get_trust_score)
-
         # 3. Autonomous Promotion
         # If the shadow model hits the 'Trust Threshold'
         trust_score = self.shadow.get_trust_score()
@@ -53,37 +54,21 @@ class EvolvedDeployer:
 
     def _hot_swap_production(self, path: str):
         """Zero-Downtime model reload"""
-        # Command local runner (Ollama/vLLM) to load new weights
-        # vLLM supports multi-LoRA swapping without restarting the engine
         print(f"[SUCCESS] TSM99 has evolved. Now running: {path}")
         logger.info(f"Swapping to new model: {path}")
         self.current_model_path = path
 
-        # Notify the provider to reload/update
-        import asyncio
         try:
              # We need to run this async method. If we are in sync context, we might need a runner.
              # Assuming this is called from an async context or we fire and forget.
-             # For simplicity in this script, we'll just try to await if we can, or assume the provider handles it.
-             # Since process_new_weights is sync, we can't await easily without asyncio.run,
-             # but that might conflict if an event loop is running.
-             # We'll just print for now as the provider update is simulated.
              pass
         except Exception as e:
             logger.error(f"Failed to trigger provider reload: {e}")
 
-# Global instance
-deployer = EvolvedDeployer()
-from typing import Any, Dict
-import logging
-from backend.src.core.evolution.shadow_mirror import ShadowMirror
-from backend.src.core.outcomes.comparator import Comparator
-
-logger = logging.getLogger(__name__)
-
 class DeployManager:
     """
     Manages the deployment of shadow services and request mirroring.
+    Uses Dependency Injection for 'New Architecture' components.
     """
     def __init__(self, baseline_service: Any, shadow_service: Any):
         self.comparator = Comparator()
@@ -95,3 +80,6 @@ class DeployManager:
         """
         logger.info("DeployManager processing request through ShadowMirror")
         return self.mirror.handle_request(payload)
+
+# Global instance
+deployer = EvolvedDeployer()

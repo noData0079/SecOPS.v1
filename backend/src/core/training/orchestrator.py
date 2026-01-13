@@ -6,7 +6,11 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 
 # Kaggle API might need env vars: KAGGLE_USERNAME, KAGGLE_KEY
-from kaggle.api.kaggle_api_extended import KaggleApi
+try:
+    from kaggle.api.kaggle_api_extended import KaggleApi
+except (ImportError, OSError, Exception) as e:
+    # Handle cases where Kaggle is not installed or configured, preventing import crash
+    KaggleApi = None
 
 from src.core.training.synthesizer import DeepSeekSynthesizer
 from src.core.training.gatekeeper import DataCleaner
@@ -23,19 +27,22 @@ class TrainingOrchestrator:
     """
 
     def __init__(self):
-        self.api = KaggleApi()
-        # Authenticate using env vars or default config
-        try:
-            # Check if Kaggle config exists or env vars are set before authenticating to avoid SystemExit
-            if os.getenv("KAGGLE_USERNAME") or os.path.exists(os.path.expanduser("~/.kaggle/kaggle.json")):
-                 self.api.authenticate()
-                 self._authenticated = True
-            else:
-                 logger.warning("Kaggle credentials not found. Remote training will be disabled.")
-                 self._authenticated = False
-        except Exception as e:
-            logger.error(f"Kaggle authentication failed: {e}")
-            self._authenticated = False
+        self.api = None
+        self._authenticated = False
+
+        if KaggleApi:
+            try:
+                # Check if Kaggle config exists or env vars are set before authenticating to avoid SystemExit
+                if os.getenv("KAGGLE_USERNAME") or os.path.exists(os.path.expanduser("~/.kaggle/kaggle.json")):
+                    self.api = KaggleApi()
+                    self.api.authenticate()
+                    self._authenticated = True
+                else:
+                    logger.warning("Kaggle credentials not found. Remote training will be disabled.")
+            except Exception as e:
+                logger.error(f"Kaggle authentication failed: {e}")
+        else:
+            logger.warning("Kaggle API module not loaded. Remote training will be disabled.")
 
         self.synthesizer = DeepSeekSynthesizer()
         self.cleaner = DataCleaner()
@@ -51,7 +58,7 @@ class TrainingOrchestrator:
             logger.warning("Training already in progress.")
             return
 
-        if not self._authenticated:
+        if not self._authenticated or not self.api:
              logger.error("Cannot start training: Kaggle not authenticated.")
              self.current_status = "ERROR: Kaggle Auth Failed"
              return
@@ -145,6 +152,10 @@ class TrainingOrchestrator:
 
     def trigger_kaggle_gpu(self):
         """Triggers the remote Kaggle Kernel for Llama 3.3 Fine-tuning."""
+        if not self.api:
+            logger.error("Kaggle API not initialized.")
+            return
+
         # Pushes local kernel metadata to Kaggle to start execution
         kernel_dir = 'backend/src/core/training/kaggle_scripts'
         try:

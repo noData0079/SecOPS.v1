@@ -1,12 +1,11 @@
 import logging
-from typing import Dict, Any, TYPE_CHECKING
+from typing import Dict, Any, TYPE_CHECKING, List, Optional
+import random
+import uuid
+from datetime import datetime
 
 if TYPE_CHECKING:
     from backend.src.core.simulation.digital_twin import DigitalTwinManager, TestResults
-import random
-import uuid
-from typing import List, Dict, Any, Optional
-from datetime import datetime
 
 # Import EpisodicStore
 try:
@@ -26,15 +25,26 @@ SCENARIOS = [
 ]
 
 class GhostSimulation:
-    def __init__(self, digital_twin_manager: 'DigitalTwinManager'):
+    """
+    Runs massive parallel simulations to predict future states.
+    Creates virtual clones and tests disaster recovery plans.
+    """
+    def __init__(self, digital_twin_manager: Optional['DigitalTwinManager'] = None):
         self.twin = digital_twin_manager
         self.pass_threshold = 0.95 # Require 95% safety score
+        self.scenarios_run = 0
+        self.episodic_store = EpisodicStore()
 
     def validate_evolution(self, proposed_code_hash: str, impact_area: str) -> Dict[str, Any]:
         """
         Runs a 'Ghost' version of the system with the new self-written code.
         """
         logger.info(f"Validating evolution {proposed_code_hash} on {impact_area}")
+
+        if not self.twin:
+            logger.warning("DigitalTwinManager not available, skipping detailed evolution validation.")
+            return {"status": "SKIPPED", "reason": "No DigitalTwinManager"}
+
         # 1. Instantiate a specialized Digital Twin
         ghost_env = self.twin.clone_subsystem(impact_area)
 
@@ -49,13 +59,11 @@ class GhostSimulation:
         safety_score = self._calculate_safety(results)
 
         logger.info(f"Evolution validation complete. Score: {safety_score}")
-    """
-    Runs massive parallel simulations to predict future states.
-    Creates virtual clones and tests disaster recovery plans.
-    """
-    def __init__(self):
-        self.scenarios_run = 0
-        self.episodic_store = EpisodicStore()
+
+        if safety_score >= self.pass_threshold:
+            return {"status": "GREEN", "score": safety_score, "trace": getattr(results, 'logs', [])}
+        else:
+            return {"status": "RED", "score": safety_score, "failure": getattr(results, 'critical_error', "Unknown error")}
 
     def run_simulation_cycle(self, iterations: int = 1000) -> Dict[str, Any]:
         """
@@ -188,19 +196,7 @@ class GhostSimulation:
         """
         Legacy MCTS wrapper for compatibility.
         """
-        # We can map this to run_simulation_cycle or keep it separate.
-        # For now, let's keep the original logic or adapt it.
-        # The prompt specifically asked for "Function: Every hour... simulates 1,000 Disaster Scenarios"
-        # So run_simulation_cycle is the primary implementation of that requirement.
-
-        # Keeping original stub logic but updated to use new structure if needed
-        # Or just return a mocked probability.
         return {"success_probability": 0.85}
-
-        if safety_score >= self.pass_threshold:
-            return {"status": "GREEN", "score": safety_score, "trace": results.logs}
-        else:
-            return {"status": "RED", "score": safety_score, "failure": results.critical_error}
 
     def validate(self, model_path: str) -> Dict[str, Any]:
         """
@@ -226,7 +222,9 @@ class GhostSimulation:
         else:
              return {"status": "RED", "details": results}
 
-ghost_simulation = GhostSimulation()
     def _calculate_safety(self, results: 'TestResults') -> float:
         # Weighting performance vs. functional correctness
         return (results.success_rate * 0.7) + (results.perf_baseline_delta * 0.3)
+
+# Global instance
+ghost_simulation = GhostSimulation()
