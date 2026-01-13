@@ -74,7 +74,7 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 
 ### 1️⃣ AUTOPILOT — Self-Healing Infrastructure
 
-> *"Fix it before I even know it's broken."*
+> *"Fix it before I even know it's broken—but test it first."*
 
 | What It Does | How It Works |
 |--------------|--------------|
@@ -83,7 +83,51 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 | Rollback bad deployments | Detects regressions, reverts to last-known-good |
 | Patch vulnerabilities | Applies security patches with rollback capability |
 
-**Single Toggle**: Enable "Autopilot Mode" and walk away.
+#### 🧪 Liability Sandbox (Ghost Environment)
+
+**Problem**: What if Autopilot "fixes" something and brings down a hospital network or a bank's trading floor?
+
+**Solution**: Every fix runs in a **Ghost Environment** before touching production.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    LIABILITY SANDBOX FLOW                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   FIX PROPOSED ──→ 🧪 GHOST ENVIRONMENT                        │
+│                         │                                       │
+│                    [Simulate Fix]                               │
+│                         │                                       │
+│              ┌──────────┼──────────┐                           │
+│              ▼          ▼          ▼                           │
+│          [PASS]     [PARTIAL]   [FAIL]                         │
+│              │          │          │                           │
+│              ▼          ▼          ▼                           │
+│         DEPLOY     HUMAN       BLOCK                           │
+│        TO PROD    REVIEW     + ALERT                           │
+│                                                                 │
+│   Ghost = Cloned config + synthetic traffic + isolated network │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Risk Level | Ghost Simulation | Human Approval |
+|------------|------------------|----------------|
+| **LOW** (restart pod) | 5s quick check | ❌ Auto-deploy |
+| **MEDIUM** (config change) | 30s full sim | ⚠️ Review if anomaly |
+| **HIGH** (DB migration) | 5min deep test | ✅ **Always required** |
+| **CRITICAL** (network/firewall) | Full replay | ✅ **Break-glass only** |
+
+**What the Ghost Tests:**
+- ✅ Service starts successfully
+- ✅ Health checks pass
+- ✅ No cascading failures
+- ✅ Rollback works
+- ✅ No data corruption
+
+> *"If the fix breaks the Ghost, it never touches Production."*
+
+**Single Toggle**: Enable "Autopilot Mode" and walk away—the Ghost handles liability.
 
 ---
 
