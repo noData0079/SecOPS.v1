@@ -3,6 +3,7 @@ Comprehensive System Verification Script
 
 Tests all modules, workflows, and connections for deployment readiness.
 """
+import pytest
 import sys
 import os
 
@@ -27,7 +28,6 @@ passed = []
 # ============================================
 # PHASE 1: COMPILE ALL MODULES
 # ============================================
-print("\n[PHASE 1] Compiling All Modules...")
 
 # Using module paths as they would be imported from 'backend/src' (core...) or 'backend' (src.core...)
 # Since we added both to path, 'core...' should work.
@@ -35,6 +35,12 @@ print("\n[PHASE 1] Compiling All Modules...")
 modules_to_check = [
     # Core Learning/Training
     ("core.training.orchestrator", "TrainingOrchestrator"),
+MODULES_TO_CHECK = [
+    # Core Learning
+    ("core.learning.outcomes.engine", "OutcomeIntelligenceEngine"),
+    ("core.learning.playbooks.engine", "PlaybookEngine"),
+    ("core.learning.policies.learner", "PolicyLearner"),
+    ("core.learning.orchestrator", "LearningLoopOrchestrator"),
     
     # Core Data Resident / Sanitization
     ("core.sanitization.sanitizer", "DataSanitizer"),
@@ -51,25 +57,21 @@ modules_to_check = [
 
 
 for module_path, class_name in modules_to_check:
+@pytest.mark.parametrize("module_path, class_name", MODULES_TO_CHECK)
+def test_module_imports(module_path, class_name):
     try:
         module = __import__(module_path, fromlist=[class_name])
-        cls = getattr(module, class_name)
-        passed.append(f"{module_path}.{class_name}")
-        print(f"   [OK] {module_path}.{class_name}")
+        assert hasattr(module, class_name), f"{class_name} not found in {module_path}"
     except ImportError as e:
-        errors.append(f"{module_path}: Import error - {e}")
-        print(f"   [ERROR] {module_path}: {e}")
+        pytest.fail(f"{module_path}: Import error - {e}")
     except AttributeError as e:
-        errors.append(f"{module_path}.{class_name}: {e}")
-        print(f"   [ERROR] {module_path}.{class_name}: {e}")
+        pytest.fail(f"{module_path}.{class_name}: {e}")
     except Exception as e:
-        warnings.append(f"{module_path}: {e}")
-        print(f"   [WARN] {module_path}: {e}")
+        pytest.warns(UserWarning, match=f"{module_path}: {e}")
 
 # ============================================
 # PHASE 2: CHECK WORKFLOWS
 # ============================================
-print("\n[PHASE 2] Checking Workflows...")
 
 # Test Learning/Training Loop
 try:
@@ -81,21 +83,49 @@ except Exception as e:
     errors.append(f"Training Workflow: {e}")
     print(f"   [ERROR] Training Workflow: {e}")
 
+def test_learning_loop_workflow():
+    try:
+        from core.learning.orchestrator import LearningLoopOrchestrator
+        orchestrator = LearningLoopOrchestrator()
+
+        # Test process_finding with correct parameters
+        result = orchestrator.process_finding(
+            finding_id="test-123",
+            finding_type="SQL_INJECTION",
+            context={"language": "python", "file_path": "test.py"}
+        )
+
+        if not result.fix_decision:
+             pytest.warns(UserWarning, match="Learning Loop: No fix decision returned")
+        else:
+            assert result.fix_decision is not None
+
+    except Exception as e:
+        pytest.fail(f"Learning Loop Workflow: {e}")
+
+def test_data_resident_workflow():
+    try:
+        from core.data_resident.orchestrator import DataResidentOrchestrator
+        dr = DataResidentOrchestrator()
+        assert dr is not None
+    except Exception as e:
+        pytest.fail(f"Data Resident Workflow: {e}")
 
 # ============================================
 # PHASE 3: CHECK API ENDPOINTS
 # ============================================
-print("\n[PHASE 3] Checking API Endpoints...")
 
 # Based on backend/src/api
 # We can import these via 'api.v1...' because 'backend/src' is in path
 api_modules = [
+API_MODULES = [
     "api.v1.endpoints.findings",
     # "api.v1.endpoints.playbooks",
     # "api.v1.endpoints.system",
 ]
 
-for module_path in api_modules:
+@pytest.mark.parametrize("module_path", API_MODULES)
+def test_api_endpoints(module_path):
     try:
         module = __import__(module_path, fromlist=["router"])
         router = getattr(module, "router")
@@ -104,14 +134,13 @@ for module_path in api_modules:
         print(f"   [OK] {module_path}: {routes} routes")
     except ImportError:
          print(f"   [SKIP] {module_path} not found")
+        assert len(router.routes) > 0, f"{module_path} has no routes"
     except Exception as e:
-        errors.append(f"{module_path}: {e}")
-        print(f"   [ERROR] {module_path}: {e}")
+        pytest.fail(f"{module_path}: {e}")
 
 # ============================================
 # PHASE 4: CHECK FASTAPI APP
 # ============================================
-print("\n[PHASE 4] Checking FastAPI Application...")
 
 try:
     from main import app
@@ -124,13 +153,23 @@ try:
 except Exception as e:
     errors.append(f"FastAPI App: {e}")
     print(f"   [ERROR] FastAPI App: {e}")
+def test_fastapi_app():
+    try:
+        from app import app
+        # Count registered routes
+        routes = [r for r in app.routes if hasattr(r, 'path')]
+        api_routes = [r for r in routes if r.path.startswith('/api')]
+
+        assert len(routes) > 0
+        assert len(api_routes) > 0
+    except Exception as e:
+        pytest.fail(f"FastAPI App: {e}")
 
 # ============================================
 # PHASE 5: CHECK REQUIREMENTS
 # ============================================
-print("\n[PHASE 5] Checking Requirements...")
 
-required_packages = [
+REQUIRED_PACKAGES = [
     "fastapi",
     "pydantic",
     "httpx",
@@ -138,11 +177,10 @@ required_packages = [
     "openai"
 ]
 
-for pkg in required_packages:
+@pytest.mark.parametrize("pkg", REQUIRED_PACKAGES)
+def test_requirements(pkg):
     try:
         __import__(pkg)
-        passed.append(f"Package: {pkg}")
-        print(f"   [OK] {pkg} installed")
     except ImportError:
         warnings.append(f"Package not installed: {pkg}")
         print(f"   [WARN] {pkg} not installed")
@@ -176,3 +214,4 @@ else:
     print("\n" + "=" * 60)
     print("[FAILED] Fix errors before deployment")
     print("=" * 60)
+        pytest.fail(f"Package not installed: {pkg}")

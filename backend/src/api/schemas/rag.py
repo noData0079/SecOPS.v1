@@ -16,6 +16,8 @@ class RAGQueryRequest(BaseModel):
     temperature: Optional[float] = None
     top_k: Optional[int] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
+    # Allow extra fields like 'client' which we use in relay
+    client: Optional[str] = None
 
     @property
     def question(self) -> str:

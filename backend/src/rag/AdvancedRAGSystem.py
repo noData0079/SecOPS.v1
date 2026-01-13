@@ -166,6 +166,17 @@ class AdvancedRAGSystem:
         max_tokens = getattr(request, "max_tokens", 512)
         strict_sources = getattr(request, "strict_sources", False)
 
+        metadata = request.metadata.copy() if request.metadata else {}
+        # If client ID is passed via specific field or metadata, propagate it
+        if hasattr(request, "client"): # Check if pydantic model has it or if we access via attr
+             client_id = getattr(request, "client", None)
+             if client_id:
+                metadata["client"] = client_id
+
+        # Fallback to metadata check
+        if "client" not in metadata and metadata.get("client_id"):
+             metadata["client"] = metadata["client_id"]
+
         return RAGQueryContext(
             org_id=org_id,
             user_id=user_id,
@@ -174,9 +185,7 @@ class AdvancedRAGSystem:
             max_tokens=max_tokens,
             strict_sources=strict_sources,
             debug=getattr(request, "debug", False),
-            metadata={
-                "client": getattr(request, "client", None),
-            },
+            metadata=metadata,
         )
 
     async def _retrieve_context(
