@@ -102,9 +102,11 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 
 ---
 
-### 3️⃣ SENTINEL — Governance & Compliance
+### 3️⃣ SENTINEL — Governance, Compliance & Integration Hub
 
-> *"Every action approved, logged, and provable."*
+> *"Every action approved, logged, provable—and connected to your stack."*
+
+#### 🔒 Governance Features
 
 | What It Does | How It Works |
 |--------------|--------------|
@@ -112,6 +114,41 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 | Immutable audit trail | Cryptographic proof of every action |
 | Kill switch | One-click emergency stop for all autonomy |
 | Compliance mapping | SOC 2, ISO 27001, GDPR control evidence |
+
+#### 🔌 Universal Adapter (Integration Hub)
+
+**TSM99 is NOT a walled garden.** The Sentinel agent bridges your existing tools:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    INTEGRATION HUB                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   YOUR EXISTING TOOLS              TSM99 SENTINEL               │
+│   ┌─────────────────┐             ┌─────────────────┐          │
+│   │ CrowdStrike     │────────────▶│                 │          │
+│   │ Splunk/SIEM     │────────────▶│   UNIVERSAL     │          │
+│   │ Wiz/CSPM        │────────────▶│    ADAPTER      │──▶ BRAIN │
+│   │ Okta/IAM        │────────────▶│     (Go)        │          │
+│   │ PagerDuty       │────────────▶│                 │          │
+│   │ Jira/ServiceNow │────────────▶│                 │          │
+│   └─────────────────┘             └─────────────────┘          │
+│                                                                 │
+│   ✅ MCP Protocol Support (Model Context Protocol)              │
+│   ✅ Bi-directional: Read alerts, Push actions                 │
+│   ✅ mTLS Secured: Cryptographically signed commands           │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Integration | Direction | What It Does |
+|-------------|-----------|--------------|
+| **CrowdStrike** | ← IN | Ingest EDR alerts, enrich with context |
+| **Splunk** | ↔ BOTH | Pull logs, push incident data |
+| **Wiz** | ← IN | Cloud misconfigs → auto-remediate |
+| **Okta** | → OUT | Suspend compromised accounts |
+| **PagerDuty** | → OUT | Escalate to humans when needed |
+| **ServiceNow** | → OUT | Auto-create tickets with AI context |
 
 **Single Dashboard**: See every decision, why it was made, and its outcome.
 
