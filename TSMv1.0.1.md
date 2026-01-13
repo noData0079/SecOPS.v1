@@ -106,10 +106,44 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 │         DEPLOY     HUMAN       BLOCK                           │
 │        TO PROD    REVIEW     + ALERT                           │
 │                                                                 │
-│   Ghost = Cloned config + synthetic traffic + isolated network │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### 🎯 Critical Path Isolation (Practical Ghost)
+
+**Problem**: Cloning a perfect Ghost of multi-cloud is impossible. If Ghost doesn't mirror production DB state, simulation is a lie.
+
+**Solution**: Don't clone the whole network. Clone the **target service + immediate dependencies only**.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              CRITICAL PATH ISOLATION                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   PRODUCTION                         GHOST (Isolated)           │
+│   ────────────────────               ─────────────────          │
+│   ┌─────┐ ┌─────┐ ┌─────┐           ┌─────────────────┐        │
+│   │ API │ │ DB  │ │Cache│           │  TARGET SERVICE │        │
+│   └──┬──┘ └──┬──┘ └──┬──┘           │     (cloned)    │        │
+│      │       │       │              └────────┬────────┘        │
+│   ┌──┴───────┴───────┴──┐                    │                 │
+│   │    Auth Service     │  ←── Clone ───→   ┌┴─────────────┐   │
+│   │    (being fixed)    │                   │ Auth + Deps  │   │
+│   └─────────────────────┘                   │ • DB (stub)  │   │
+│                                             │ • Cache (mock)│   │
+│   ❌ Don't clone: 50 other services         │ • API (mock)  │   │
+│   ✅ Clone: Auth + its 3 dependencies       └──────────────┘   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+| Component | Ghost Strategy |
+|-----------|----------------|
+| **Target Service** | Full clone (code + config) |
+| **Database** | Schema clone + synthetic data |
+| **Upstream APIs** | Mock with recorded responses |
+| **Message Queues** | Local stub with replay |
+| **Other Services** | NOT cloned (isolation boundary) |
 
 | Risk Level | Ghost Simulation | Human Approval |
 |------------|------------------|----------------|
@@ -125,7 +159,7 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 - ✅ Rollback works
 - ✅ No data corruption
 
-> *"If the fix breaks the Ghost, it never touches Production."*
+> *"Clone the patient, not the hospital."*
 
 **Single Toggle**: Enable "Autopilot Mode" and walk away—the Ghost handles liability.
 
