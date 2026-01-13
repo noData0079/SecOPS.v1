@@ -163,14 +163,58 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-#### 🛡️ Sovereignty Features
+#### 🛡️ The Locked Vault Model
 
-| Feature | How It Works |
-|---------|--------------|
-| **Local-first** | Edge model runs on YOUR hardware, data stays local |
-| **Offline capable** | Block all outbound traffic, still fully functional |
-| **Cost control** | Budget limits, ROI tracking, emergency cutoff |
-| **Optional cloud** | Secure Private Cloud API for Tier 2 (your choice) |
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    DATA SOVEREIGNTY MODEL                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   YOUR INFRASTRUCTURE                                           │
+│   ┌─────────────────────────────────────────────────────────┐  │
+│   │  🔒 LOCKED VAULT                                         │  │
+│   │  ├── Your logs, metrics, incidents                      │  │
+│   │  ├── Your response patterns                             │  │
+│   │  ├── Your infrastructure fingerprint                    │  │
+│   │  └── ENCRYPTED: Only TSM99 AI can read/use              │  │
+│   └─────────────────────────────────────────────────────────┘  │
+│                          │                                      │
+│                          ▼                                      │
+│   ┌─────────────────────────────────────────────────────────┐  │
+│   │  ⚡ LOCAL AI (99% of work)                               │  │
+│   │  ├── Trained on YOUR patterns                           │  │
+│   │  ├── Responds in milliseconds                           │  │
+│   │  ├── ZERO API COSTS                                     │  │
+│   │  └── Works fully offline                                │  │
+│   └─────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│   ═══════════════════════════════════════════════════════════   │
+│   GLOBAL AI (1% of work - Updates Only)                        │
+│   ├── Syncs new threat intelligence                            │
+│   ├── Pushes model improvements                                │
+│   ├── Never sees your raw data                                 │
+│   └── YOU control when it connects                             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### 💰 Zero API Cost Architecture
+
+| What Others Do | What TSM99 Does |
+|----------------|-----------------|
+| Every alert → API call → $$$$ | Every alert → Local AI → **$0** |
+| 10,000 alerts = $500/day | 10,000 alerts = **$0/day** |
+| Data leaves your network | Data **never leaves** |
+| Vendor trains on your data | Your data trains **your** AI |
+
+**When Does Global AI Connect?**
+
+| Trigger | Purpose | Frequency |
+|---------|---------|-----------|
+| Scheduled sync | Update threat signatures | Weekly (you choose) |
+| New vulnerability | Push critical patches | On-demand |
+| Model improvement | Deploy refined capabilities | Monthly |
+
+**YOUR DATA NEVER LEAVES. GLOBAL LEARNS FROM PATTERNS, NOT RAW DATA.**
 
 **One Script**: `./tools/ice-age/setup.sh` for complete sovereignty.
 
