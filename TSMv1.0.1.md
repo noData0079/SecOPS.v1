@@ -1,6 +1,6 @@
 # TSM99 SecOps AI Platform - v1.0.1
 
-> **The Sovereign Mechanica** — Enterprise AI That Heals, Defends & Evolves
+> **The Sovereign Mechanica** — Enterprise AI That Heals, Defends & Refines
 > 
 > *Policy-Governed Autonomy for Security Operations*
 
@@ -117,18 +117,18 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 
 ---
 
-### 4️⃣ ORACLE — Learning & Intelligence
+### 4️⃣ ORACLE — Policy Refinement & Intelligence
 
-> *"Gets smarter every incident without retraining."*
+> *"Proposes improvements. You approve. It learns."*
 
 | What It Does | How It Works |
 |--------------|--------------|
 | Outcome scoring | Every action rated 0-100 for effectiveness |
-| Memory layers | Remembers what worked, forgets what didn't |
+| Policy proposals | AI suggests refinements, **human clicks Commit** |
 | Confidence tracking | Knows when to act vs. when to ask |
 | Predictive readiness | Simulates future incidents to prepare |
 
-**Zero Setup**: Learning happens automatically from day one.
+**Human-in-the-Loop**: All policy changes require explicit approval.
 
 ---
 
@@ -156,7 +156,7 @@ For those who want the details, here's what powers each feature:
 | **AUTOPILOT** | Healing, Execution, Outcomes, Sandbox |
 | **DEFENDER** | Detection, Simulation, Security, Telemetry |
 | **SENTINEL** | Autonomy, Trust Ledger, Vault, Compliance |
-| **ORACLE** | Memory, Learning, Evolution, Training |
+| **ORACLE** | Memory, Learning, Policy Refinement, Training |
 | **FORTRESS** | LLM, Economics, Data Resident, Network |
 
 Total: **35 production-hardened modules** packaged into **5 simple toggles**.
