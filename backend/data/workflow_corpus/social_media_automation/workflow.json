@@ -1,0 +1,168 @@
+{
+    "class_name": "WorkFlowGraph",
+    "goal": "Monitor social media mentions, analyze sentiment, and draft responses for customer service automation.\n\n    The workflow should:\n    1. Fetch social media mentions from a data file.\n    2. Analyze the sentiment (Positive, Neutral, Negative) of each mention.\n    3. Draft appropriate responses for each mention based on its sentiment and content.\n    \n    ### Output\n    response_drafts\n    ",
+    "nodes": [
+        {
+            "class_name": "WorkFlowNode",
+            "name": "fetch_mentions",
+            "description": "Fetch social media mentions from the provided source file.",
+            "inputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "goal",
+                    "type": "string",
+                    "description": "The user's goal, which may contain the path to the mentions file.",
+                    "required": true
+                }
+            ],
+            "outputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "mentions_list",
+                    "type": "list",
+                    "description": "A list of social media mentions extracted from the file.",
+                    "required": true
+                }
+            ],
+            "reason": "We need to retrieve the raw data before we can analyze it.",
+            "agents": [
+                {
+                    "name": "social_monitor_agent",
+                    "description": "This agent reads the social media mentions from a file specified in the goal or looks for 'social_mentions.json'.",
+                    "inputs": [
+                        {
+                            "name": "goal",
+                            "type": "string",
+                            "description": "The user's goal containing file path information.",
+                            "required": true
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "name": "mentions_list",
+                            "type": "list",
+                            "description": "A list of mentions.",
+                            "required": true
+                        }
+                    ],
+                    "prompt": "### Objective\nRetrieve social media mentions from a data file to prepare for analysis.\n\n### Instructions\n1. Analyze the user's goal <input>{goal}</input> to identify the file path for social mentions. If not specified, look for a file named 'social_mentions.json' or 'mentions.txt' in the current directory using the FileToolkit.\n2. **MANDATORY**: Use the FileToolkit to READ the content of the identified file.\n3. Parse the content into a structured list of mentions. Each mention should have an 'id', 'user', 'content', and 'timestamp'.\n4. If the file does not exist, you may generate 3 realistic MOCK mentions for testing purposes (e.g., one complaint, one praise, one question).\n5. Return the list of mentions.\n\n### Output Format\n## Thought\nReasoning about file reading.\n\n## mentions_list\n[ \n  { \"id\": \"1\", \"user\": \"@alice\", \"content\": \"Love the new feature!\", \"timestamp\": \"2023-10-27T10:00:00Z\" },\n  ... \n]",
+                    "tool_names": [
+                        "FileToolkit"
+                    ]
+                }
+            ],
+            "status": "pending"
+        },
+        {
+            "class_name": "WorkFlowNode",
+            "name": "analyze_sentiment",
+            "description": "Analyze the sentiment of each retrieved mention.",
+            "inputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "mentions_list",
+                    "type": "list",
+                    "description": "The list of mentions to analyze.",
+                    "required": true
+                }
+            ],
+            "outputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "analyzed_mentions",
+                    "type": "list",
+                    "description": "The list of mentions with an added 'sentiment' field.",
+                    "required": true
+                }
+            ],
+            "reason": "Sentiment analysis determines the tone of the response required.",
+            "agents": [
+                {
+                    "name": "sentiment_analyzer_agent",
+                    "description": "This agent analyzes the sentiment of text content.",
+                    "inputs": [
+                        {
+                            "name": "mentions_list",
+                            "type": "list",
+                            "description": "The list of raw mentions.",
+                            "required": true
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "name": "analyzed_mentions",
+                            "type": "list",
+                            "description": "Mentions with sentiment analysis appended.",
+                            "required": true
+                        }
+                    ],
+                    "prompt": "### Objective\nAnalyze the sentiment of the provided social media mentions.\n\n### Instructions\n1. Receive the list of mentions: <input>{mentions_list}</input>.\n2. For each mention, analyze the 'content' field.\n3. Determine the sentiment: 'Positive', 'Neutral', or 'Negative'.\n4. Add a 'sentiment' field and a brief 'analysis' field to each mention object explaining why.\n5. Return the enhanced list.\n\n### Output Format\n## Thought\nReasoning about the sentiment of the batch.\n\n## analyzed_mentions\nThe list of mentions with added 'sentiment' and 'analysis' fields."
+                }
+            ],
+            "status": "pending"
+        },
+        {
+            "class_name": "WorkFlowNode",
+            "name": "draft_responses",
+            "description": "Draft appropriate responses based on sentiment.",
+            "inputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "analyzed_mentions",
+                    "type": "list",
+                    "description": "The analyzed mentions.",
+                    "required": true
+                }
+            ],
+            "outputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "response_drafts",
+                    "type": "list",
+                    "description": "A list of drafted responses linked to the mentions.",
+                    "required": true
+                }
+            ],
+            "reason": "Automating draft creation saves time for support teams.",
+            "agents": [
+                {
+                    "name": "response_drafter_agent",
+                    "description": "This agent drafts responses to social media mentions based on their sentiment.",
+                    "inputs": [
+                        {
+                            "name": "analyzed_mentions",
+                            "type": "list",
+                            "description": "The analyzed mentions.",
+                            "required": true
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "name": "response_drafts",
+                            "type": "list",
+                            "description": "The final drafts.",
+                            "required": true
+                        }
+                    ],
+                    "prompt": "### Objective\nDraft professional and empathetic responses for social media mentions.\n\n### Instructions\n1. Review the analyzed mentions: <input>{analyzed_mentions}</input>.\n2. For each mention, draft a response:\n   - If **Positive**: Thank the user and express appreciation.\n   - If **Negative**: Apologize for the issue, express empathy, and offer to help via DM or support ticket.\n   - If **Neutral**: Acknowledge the comment politely or answer the question if apparent.\n3. The response should be short (under 280 chars if possible) and professional.\n4. Create a final list containing the original mention ID, user, and the 'draft_response'.\n\n### Output Format\n## Thought\nReasoning about the tone of responses.\n\n## response_drafts\n[ \n  { \"id\": \"1\", \"user\": \"@alice\", \"draft_response\": \"Thanks @alice! We're glad you like it!\" },\n  ... \n]"
+                }
+            ],
+            "status": "pending"
+        }
+    ],
+    "edges": [
+        {
+            "class_name": "WorkFlowEdge",
+            "source": "fetch_mentions",
+            "target": "analyze_sentiment",
+            "priority": 0
+        },
+        {
+            "class_name": "WorkFlowEdge",
+            "source": "analyze_sentiment",
+            "target": "draft_responses",
+            "priority": 0
+        }
+    ],
+    "graph": null
+}
