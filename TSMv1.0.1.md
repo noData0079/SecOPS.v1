@@ -449,6 +449,122 @@ Total: **35 production-hardened modules** packaged into **5 simple toggles**.
 
 ---
 
+## 🕐 CAUSAL TIME-TRAVEL (Forensic Replay)
+
+> *This is NOT training rollback. This is NOT simple logs. This is **Causal Time-Travel for Autonomous Systems.***
+
+### The Core Principle (Non-Negotiable)
+
+**Deterministic Execution** = Same inputs + same policy + same model = **Same output every time**
+
+| Rule | Implementation |
+|------|----------------|
+| No uncontrolled randomness | `torch.use_deterministic_algorithms(True)` |
+| No async side effects | All actions have UUIDs |
+| No hidden state mutation | Event-sourced everything |
+
+### Event-Sourced Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              EVENT-SOURCED ARCHITECTURE                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Sensor/Input ──→ EVENT LEDGER (append-only, immutable)       │
+│                         │                                       │
+│                         ▼                                       │
+│                    DECISION VM ──→ Pure function               │
+│                    (Oracle)        Same input = Same output    │
+│                         │                                       │
+│                         ▼                                       │
+│                    ACTION EXEC ──→ Logged with UUID            │
+│                         │                                       │
+│                         ▼                                       │
+│                    OUTCOME EVAL                                 │
+│                         │                                       │
+│                         ▼                                       │
+│                    LEARNING LOG ──→ Deltas ONLY                │
+│                                     (not weights)              │
+│                                                                 │
+│   🔒 State is DERIVED, not persisted. Events are truth.        │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Data Model (The Ledger)
+
+| Table | Purpose | Key |
+|-------|---------|-----|
+| `event_log` | Append-only events | `hash + prev_hash` (blockchain-style) |
+| `decision_trace` | Model + policy version + input → output | `model_version, policy_version` |
+| `action_exec` | Side effects logged | `execution_context` |
+| `learning_delta` | Diffs, not weights | `before_hash, after_hash, delta_blob` |
+
+> **Learning = git commit for AI, not code**
+
+### Git-Like Operations
+
+```bash
+# Checkout state at specific time
+oracle checkout --time "2026-01-12T12:41:02"
+
+# Diff learning between deltas
+oracle diff --from delta_331 --to delta_339
+
+# Revert specific learning
+oracle revert delta_334
+
+# Branch reality for investigation
+oracle branch incident_2026_01_12
+
+# Cherry-pick policy fix (not weights)
+oracle cherry-pick policy_fix_007
+```
+
+### Rewind Mechanism (Second-by-Second)
+
+```
+[ ⏪ ] 12:41:03
+Event: inbound firewall log
+Decision: classify as benign
+Confidence: 0.92
+Learning: reward +0.4
+
+[ ⏪ ] 12:41:04
+Event: privilege escalation
+Decision: allow (❌)
+Learning: pattern reinforced
+         ↑
+    "THIS decision polluted the model."
+```
+
+### Safe Autonomy Mode (Production)
+
+| Component | Mode |
+|-----------|------|
+| Model weights | **Frozen** (read-only) |
+| Learning | **Shadow only** (proposals, not updates) |
+| Logs | **Immutable** (no UPDATE, no DELETE) |
+| Decisions | **Deterministic** (seeded randomness) |
+| Rollback | **Instant** (adapter swap) |
+| Promotion | **Gated** (human approval) |
+
+### Learning Gate Policy
+
+```yaml
+learning_rules:
+  - condition: confidence < 0.8
+    action: forbid
+  - condition: incident_severity >= HIGH
+    action: require_human_approval
+  - condition: domain == "auth"
+    action: shadow_learn_only
+```
+
+> *"The model SUGGESTS learning. Humans APPROVE. This is how AWS, Google, banks, and defense do it."*
+
+---
+
 ## 🚀 QUICK START
 
 ### Option A: Full Sovereign (Recommended)
