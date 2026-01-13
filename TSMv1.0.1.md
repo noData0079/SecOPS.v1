@@ -177,28 +177,62 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 
 | Tier | Models | Latency | Use Case |
 |------|--------|---------|----------|
-| **TIER 1: EDGE** | Phi-3 (2B), Qwen-2B | **10-50ms** | Initial triage, classification, routing |
+| **TIER 1: EDGE** | Phi-3 (2B), Qwen-2B | **10-50ms** | Triage, classification, **HARD-STOP** |
 | **TIER 2: DEEP** | DeepSeek-6.7B, Llama-70B | 1-5s | Complex reasoning, multi-signal correlation |
 
-**Why Two Tiers?**
-- **Attack at 100Gbps?** → Tier 1 classifies in milliseconds, escalates to Tier 2 only when needed
-- **90% of alerts** handled by fast edge model → instant response
-- **10% complex cases** get deep reasoning → no compromise on quality
+#### ⚡ Fast-Path Veto (The Moat)
+
+**Problem**: What if Tier 1 makes a mistake and Tier 2 spends 2s reasoning about a false positive while the real attack slips through?
+
+**Solution**: Tier 1 has **HARD-STOP** authority for known signatures—no waiting for Tier 2.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    TIERED INFERENCE FLOW                        │
+│                    FAST-PATH VETO ARCHITECTURE                  │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│   ALERT ──→ TIER 1 (10ms) ──→ Simple? ──→ AUTO-RESOLVE         │
-│                  │                                              │
-│                  └──→ Complex? ──→ TIER 2 (2s) ──→ DEEP FIX    │
-│                                                                 │
-│   TIER 1: Trained on YOUR patterns, YOUR infrastructure        │
-│   TIER 2: Full context, cross-signal correlation               │
+│   ALERT ──→ TIER 1 (10ms)                                      │
+│                │                                                │
+│       ┌────────┼────────┬──────────────┐                       │
+│       ▼        ▼        ▼              ▼                       │
+│   [KNOWN]  [SIMPLE]  [COMPLEX]    [UNCERTAIN]                  │
+│   ATTACK    EVENT      ↓               ↓                       │
+│      │        │    TIER 2 (2s)    🔒 BLOCK PATH                │
+│      ▼        ▼        │          UNTIL DEEP                   │
+│  ⛔ HARD    AUTO-      ↓          RESPONDS                     │
+│    STOP    RESOLVE   DEEP FIX         │                        │
+│   (0ms)     (10ms)    (2s)            ▼                        │
+│      │                            TIER 2 DECIDES               │
+│      ▼                                                         │
+│   🚨 BLOCK + ALERT + LOG                                       │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+#### 🛑 Hard-Stop Policy (No Waiting)
+
+| Signature Type | Tier 1 Action | Wait for Tier 2? |
+|----------------|---------------|------------------|
+| **Known ransomware hash** | Block immediately | ❌ NO |
+| **SQL injection pattern** | Block + quarantine | ❌ NO |
+| **Known C2 domain** | DNS sinkhole | ❌ NO |
+| **Brute force (5+ fails)** | Lock account | ❌ NO |
+| **Crypto-mining process** | Kill + alert | ❌ NO |
+
+#### 🔒 Path Blocking (Defense in Depth)
+
+**When Tier 1 is uncertain but suspicious:**
+1. **BLOCK** the suspicious path immediately (10ms)
+2. **QUEUE** to Tier 2 for deep analysis (2s)
+3. **HOLD** until Tier 2 responds
+4. **UNBLOCK** only if Tier 2 says safe
+
+> *"Better to block for 2 seconds than let an attack through."*
+
+**Why Two Tiers?**
+- **Attack at 100Gbps?** → Tier 1 HARD-STOPS known patterns in **10ms**
+- **Unknown threat?** → Block path, wait 2s for Tier 2 analysis
+- **False positive cost** → 2s delay vs breach = acceptable trade-off
 
 #### 🛡️ The Locked Vault Model
 
