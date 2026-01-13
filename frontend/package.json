@@ -1,6 +1,6 @@
 {
-  "name": "t79-frontend",
-  "version": "0.1.0",
+  "name": "tsm99-frontend",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "dev": "next dev",

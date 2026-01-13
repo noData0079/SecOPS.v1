@@ -1,257 +1,488 @@
 #!/bin/bash
 # ===============================================
-# Full Ice Age Autonomous Server & Build Agent
-# Fully plug-and-play: auto-detects app port, Nginx, SSL, PM2, Docker, PostgreSQL, DDNS
-# Never stops, auto-downloads dependencies, rebuilds containers
+# TSM99 - The Sovereign Mechanica
+# Production Setup Script v1.0.1
+# ===============================================
+#
+# This script sets up TSM99 in production mode.
+# Supports: Full Sovereign (Offline-First) and Connected modes.
+#
+# Usage:
+#   ./setup.sh                    # Interactive mode
+#   ./setup.sh --offline          # Ice Age (air-gapped) mode
+#   ./setup.sh --quick            # Skip confirmations
 # ===============================================
 
 set -e
 set -o pipefail
 
-# Safety Warnings
-echo "================================================================"
-echo "WARNING: This script performs extensive system modifications."
-echo "It installs packages, changes firewall rules, and manages services."
-echo "Ensure you have inspected the code before running."
-echo "================================================================"
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# Check for Offline Mode
-if [ -z "$OFFLINE_MODE" ]; then
-    OFFLINE_MODE="false"
-fi
+# Configuration
+TSM99_VERSION="1.0.1"
+TSM99_HOME="${TSM99_HOME:-/opt/tsm99}"
+TSM99_DATA="${TSM99_DATA:-/var/lib/tsm99}"
+TSM99_LOGS="${TSM99_LOGS:-/var/log/tsm99}"
+TSM99_CERTS="${TSM99_CERTS:-/etc/tsm99/certs}"
 
-if [ "$OFFLINE_MODE" == "true" ]; then
-    echo "[SETUP] OFFLINE MODE ACTIVE. Skipping network operations."
-fi
+# Parse arguments
+OFFLINE_MODE=false
+QUICK_MODE=false
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --offline|--ice-age)
+            OFFLINE_MODE=true
+            shift
+            ;;
+        --quick|-y)
+            QUICK_MODE=true
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
 
-# ---------------------------
-# Retry helper
-# ---------------------------
-retry() {
-    if [ "$OFFLINE_MODE" == "true" ]; then
-        # In offline mode, if it's a network command, we might want to skip or fail?
-        # But this helper is generic. We will wrap network calls instead.
-        "$@"
-        return $?
+# ===============================================
+# Helper Functions
+# ===============================================
+
+log() { echo -e "${BLUE}[TSM99]${NC} $1"; }
+success() { echo -e "${GREEN}[✓]${NC} $1"; }
+warn() { echo -e "${YELLOW}[!]${NC} $1"; }
+error() { echo -e "${RED}[✗]${NC} $1"; exit 1; }
+
+confirm() {
+    if [ "$QUICK_MODE" = true ]; then
+        return 0
     fi
-    local n=0
-    local max=5
-    local delay=3
-    until "$@"; do
-        exit=$?
-        n=$((n+1))
-        if [ $n -lt $max ]; then
-            echo "Command failed. Attempt $n/$max. Retrying in $delay seconds..."
-            sleep $delay
-        else
-            echo "Command failed after $n attempts. Continuing anyway..."
-            return $exit
-        fi
-    done
-    return 0
+    read -p "$1 [y/N] " -n 1 -r
+    echo
+    [[ $REPLY =~ ^[Yy]$ ]]
 }
 
-log() { echo -e "\n========== $1 =========="; }
+# ===============================================
+# Banner
+# ===============================================
 
-# ---------------------------
-# 1. System Update & Essentials
-# ---------------------------
-log "Updating system & installing essentials"
-if [ "$OFFLINE_MODE" != "true" ]; then
-    retry sudo apt update
-    retry sudo apt -y upgrade
-    retry sudo apt install -y build-essential curl git ufw fail2ban software-properties-common docker.io docker-compose python3-pip lsof
-else
-    log "Offline mode: Skipping apt update/install. Assuming packages are present."
+echo ""
+echo "╔════════════════════════════════════════════════════════════════════╗"
+echo "║                                                                     ║"
+echo "║   ████████╗███████╗███╗   ███╗ █████╗  █████╗                       ║"
+echo "║      ██╔══╝██╔════╝████╗ ████║██╔══██╗██╔══██╗                      ║"
+echo "║      ██║   ███████╗██╔████╔██║╚██████║╚██████║                      ║"
+echo "║      ██║   ╚════██║██║╚██╔╝██║ ╚═══██║ ╚═══██║                      ║"
+echo "║      ██║   ███████║██║ ╚═╝ ██║ █████╔╝ █████╔╝                      ║"
+echo "║      ╚═╝   ╚══════╝╚═╝     ╚═╝ ╚════╝  ╚════╝                       ║"
+echo "║                                                                     ║"
+echo "║   The Sovereign Mechanica - v${TSM99_VERSION}                               ║"
+echo "║   Enterprise AI That Heals, Defends & Refines                       ║"
+echo "║                                                                     ║"
+echo "╚════════════════════════════════════════════════════════════════════╝"
+echo ""
+
+if [ "$OFFLINE_MODE" = true ]; then
+    warn "ICE-AGE MODE ENABLED - No outbound network connections"
 fi
 
-retry sudo systemctl enable --now docker
+# ===============================================
+# Pre-flight Checks
+# ===============================================
 
-# ---------------------------
-# 2. Node.js & PM2
-# ---------------------------
-log "Installing Node.js & PM2"
-if [ "$OFFLINE_MODE" != "true" ]; then
-    echo "WARNING: Downloading and executing remote script from nodesource.com"
-    retry curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-    retry sudo apt install -y nodejs
-    retry sudo npm install -g pm2
-else
-    log "Offline mode: Skipping Node.js download/install."
+log "Running pre-flight checks..."
+
+# Check if running as root
+if [ "$EUID" -ne 0 ]; then
+    error "Please run as root (sudo ./setup.sh)"
 fi
 
-# ---------------------------
-# 3. Nginx
-# ---------------------------
-log "Installing Nginx"
-if [ "$OFFLINE_MODE" != "true" ]; then
-    retry sudo apt install -y nginx
-fi
-retry sudo systemctl enable --now nginx
-
-# ---------------------------
-# 4. Firewall & Security
-# ---------------------------
-log "Configuring UFW & Fail2Ban"
-retry sudo ufw allow ssh
-retry sudo ufw allow 'Nginx Full'
-retry sudo ufw default deny incoming
-retry sudo ufw default allow outgoing
-retry sudo ufw --force enable
-retry sudo systemctl enable --now fail2ban
-
-# ---------------------------
-# 5. App Repo & Dependencies
-# ---------------------------
-APP_DIR="$HOME/full-ice-age-app"
-REPO_URL="https://github.com/username/your-app.git"  # Replace with your repo
-APP_START_CMD="index.js" # Replace with your entry file
-
-log "Cloning/updating app repository"
-if [ ! -d "$APP_DIR" ]; then
-    if [ "$OFFLINE_MODE" != "true" ]; then
-        retry git clone "$REPO_URL" "$APP_DIR"
-    else
-        echo "ERROR: App directory $APP_DIR does not exist and OFFLINE_MODE is on."
-        exit 1
-    fi
-else
-    cd "$APP_DIR"
-    if [ "$OFFLINE_MODE" != "true" ]; then
-        retry git pull
-    fi
-fi
-cd "$APP_DIR"
-
-if [ -f "package.json" ]; then
-    log "Installing Node.js dependencies"
-    # Deterministic build
-    if [ -f "package-lock.json" ]; then
-        retry npm ci
-    else
-        retry npm install
-    fi
-fi
-if [ -f "requirements.txt" ]; then
-    log "Installing Python dependencies"
-    retry pip3 install -r requirements.txt
+# Check OS
+if [ ! -f /etc/os-release ]; then
+    error "Cannot detect OS. This script requires Ubuntu/Debian."
 fi
 
-# ---------------------------
-# 6. Docker Auto-Build & Run
-# ---------------------------
-if [ -f "Dockerfile" ]; then
-    log "Building Docker container"
-    retry sudo docker build -t full-ice-age-app .
-fi
-if [ -f "docker-compose.yml" ]; then
-    log "Running Docker Compose"
-    retry sudo docker-compose up -d --build
+source /etc/os-release
+log "Detected OS: $PRETTY_NAME"
+
+# Check memory
+TOTAL_MEM=$(free -g | awk '/^Mem:/{print $2}')
+if [ "$TOTAL_MEM" -lt 8 ]; then
+    warn "System has ${TOTAL_MEM}GB RAM. Recommended: 16GB+"
 fi
 
-# ---------------------------
-# 7. Auto-Detect App Port
-# ---------------------------
-log "Detecting running app port..."
-APP_PORT=3000 # Default fallback
-# Node/PM2 process detection
-if pm2 list | grep -q "$APP_START_CMD"; then
-    APP_PORT=$(pm2 info "$APP_START_CMD" | grep "port" | grep -oE '[0-9]{2,5}' || echo 3000)
-fi
-# Docker detection
-if docker ps | grep -q "full-ice-age-app"; then
-    APP_PORT=$(docker ps --format '{{.Ports}}' | grep -oE '[0-9]{2,5}->' | head -1 | grep -oE '[0-9]{2,5}' || echo 3000)
-fi
-log "Using app port: $APP_PORT"
-
-# ---------------------------
-# 8. Nginx Reverse Proxy
-# ---------------------------
-DOMAIN="yourdomain.com" # Replace with your domain
-NGINX_CONF="/etc/nginx/sites-available/full-ice-age"
-TEMPLATE_NGINX="./templates/nginx_app.conf"
-
-log "Configuring Nginx reverse proxy for port $APP_PORT"
-
-if [ -f "$TEMPLATE_NGINX" ]; then
-    sudo cp "$TEMPLATE_NGINX" "$NGINX_CONF"
-    # Replace variables in the config file
-    sudo sed -i "s/\${DOMAIN}/$DOMAIN/g" "$NGINX_CONF"
-    sudo sed -i "s/\${APP_PORT}/$APP_PORT/g" "$NGINX_CONF"
-else
-    log "Error: Nginx template not found at $TEMPLATE_NGINX"
-    exit 1
+# Check disk space
+DISK_FREE=$(df -BG / | awk 'NR==2 {print $4}' | tr -d 'G')
+if [ "$DISK_FREE" -lt 50 ]; then
+    warn "Low disk space: ${DISK_FREE}GB free. Recommended: 100GB+"
 fi
 
-retry sudo ln -sf /etc/nginx/sites-available/full-ice-age /etc/nginx/sites-enabled/
-retry sudo nginx -t
-retry sudo systemctl restart nginx
+success "Pre-flight checks complete"
 
-# ---------------------------
-# 9. Certbot SSL
-# ---------------------------
-log "Installing Certbot & obtaining SSL"
-if [ "$OFFLINE_MODE" != "true" ]; then
-    retry sudo apt install -y certbot python3-certbot-nginx
-    retry sudo certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos -m admin@$DOMAIN
-    retry sudo certbot renew --dry-run
-else
-    log "Offline mode: Skipping Certbot."
-fi
+# ===============================================
+# Step 1: Create Directory Structure
+# ===============================================
 
-# ---------------------------
-# 10. PM2 Auto-Start
-# ---------------------------
-log "Starting app with PM2"
-retry pm2 start "$APP_START_CMD" --name "full-ice-age-app"
-retry pm2 startup systemd -u $(whoami) --hp $(eval echo ~$USER)
-retry pm2 save
+log "Creating directory structure..."
 
-# ---------------------------
-# 11. PostgreSQL
-# ---------------------------
-log "Installing PostgreSQL"
-retry sudo apt install -y postgresql postgresql-contrib
-retry sudo systemctl enable --now postgresql
+mkdir -p "$TSM99_HOME"
+mkdir -p "$TSM99_DATA"/{vault,ledger,models,snapshots,imports}
+mkdir -p "$TSM99_LOGS"
+mkdir -p "$TSM99_CERTS"
+mkdir -p "$TSM99_DATA/memory"/{episodic,semantic,policy,economic}
 
-# ---------------------------
-# 12. Automated DDNS / Dynamic IP Updater
-# ---------------------------
-DDNS_PROVIDER="duckdns"  # or "noip"
-DDNS_TOKEN="YOUR_DDNS_TOKEN"
-DDNS_DOMAIN="your-subdomain"
-UPDATE_INTERVAL=300
+success "Directories created"
 
-log "Setting up automated DDNS updater"
+# ===============================================
+# Step 2: Install Dependencies
+# ===============================================
 
-DDNS_SCRIPT="$HOME/ddns_update.sh"
-TEMPLATE_DDNS="./templates/ddns_update.sh"
-
-if [ -f "$TEMPLATE_DDNS" ]; then
-    cp "$TEMPLATE_DDNS" "$DDNS_SCRIPT"
+if [ "$OFFLINE_MODE" != true ]; then
+    log "Installing system dependencies..."
     
-    # Inject variables
-    sed -i "s/\${DDNS_PROVIDER}/$DDNS_PROVIDER/g" "$DDNS_SCRIPT"
-    sed -i "s/\${DDNS_TOKEN}/$DDNS_TOKEN/g" "$DDNS_SCRIPT"
-    sed -i "s/\${DDNS_DOMAIN}/$DDNS_DOMAIN/g" "$DDNS_SCRIPT"
+    apt-get update -qq
+    apt-get install -y -qq \
+        build-essential \
+        curl \
+        git \
+        python3 \
+        python3-pip \
+        python3-venv \
+        nginx \
+        postgresql \
+        redis-server \
+        docker.io \
+        docker-compose \
+        ufw \
+        fail2ban \
+        jq \
+        openssl
     
-    chmod +x "$DDNS_SCRIPT"
-    
-    # Cron job
-    (crontab -l 2>/dev/null; echo "*/5 * * * * $DDNS_SCRIPT") | crontab -
-    log "DDNS updater installed. Updates every 5 minutes."
+    success "System dependencies installed"
 else
-    log "Error: DDNS template not found at $TEMPLATE_DDNS"
+    log "Offline mode: Skipping package installation"
 fi
 
-# ---------------------------
-# 13. Final Status
-# ---------------------------
-log "Final verification:"
-sudo ufw status verbose
-sudo systemctl status nginx | head -10
-pm2 list
-sudo certbot certificates
-docker ps -a
+# ===============================================
+# Step 3: Generate Cryptographic Keys
+# ===============================================
 
-echo "✅ Full Ice Age Autonomous Server setup complete! Your server is now plug-and-play with auto port detection, Nginx, SSL, PM2, Docker, PostgreSQL, and DDNS updates."
+log "Generating cryptographic keys..."
+
+if [ ! -f "$TSM99_CERTS/brain_private.pem" ]; then
+    openssl genpkey -algorithm ED25519 -out "$TSM99_CERTS/brain_private.pem"
+    openssl pkey -in "$TSM99_CERTS/brain_private.pem" -pubout -out "$TSM99_CERTS/brain_public.pem"
+    success "Brain keypair generated"
+else
+    log "Brain keypair already exists"
+fi
+
+if [ ! -f "$TSM99_CERTS/vault.key" ]; then
+    openssl genrsa -out "$TSM99_CERTS/vault.key" 4096
+    openssl req -new -x509 -days 3650 -key "$TSM99_CERTS/vault.key" \
+        -out "$TSM99_CERTS/vault.crt" \
+        -subj "/C=US/ST=Sovereign/L=Mechanica/O=TSM99/CN=vault.local"
+    success "Vault certificate generated"
+else
+    log "Vault certificate already exists"
+fi
+
+# Set permissions
+chmod 600 "$TSM99_CERTS"/*.pem "$TSM99_CERTS"/*.key 2>/dev/null || true
+chmod 644 "$TSM99_CERTS"/*.crt 2>/dev/null || true
+
+success "Cryptographic keys ready"
+
+# ===============================================
+# Step 4: Setup Python Environment
+# ===============================================
+
+log "Setting up Python environment..."
+
+VENV_PATH="$TSM99_HOME/venv"
+python3 -m venv "$VENV_PATH"
+source "$VENV_PATH/bin/activate"
+
+if [ "$OFFLINE_MODE" != true ]; then
+    pip install --upgrade pip -q
+    pip install -r backend/requirements.txt -q
+    success "Python dependencies installed"
+else
+    log "Offline mode: Ensure wheels are pre-cached in venv"
+fi
+
+# ===============================================
+# Step 5: Setup Database
+# ===============================================
+
+log "Configuring PostgreSQL..."
+
+sudo -u postgres psql -c "CREATE USER tsm99 WITH PASSWORD 'tsm99_production';" 2>/dev/null || true
+sudo -u postgres psql -c "CREATE DATABASE tsm99_production OWNER tsm99;" 2>/dev/null || true
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE tsm99_production TO tsm99;" 2>/dev/null || true
+
+success "Database configured"
+
+# ===============================================
+# Step 6: Setup Redis
+# ===============================================
+
+log "Configuring Redis..."
+
+systemctl enable redis-server
+systemctl start redis-server
+
+success "Redis configured"
+
+# ===============================================
+# Step 7: Install Local LLM (Ollama)
+# ===============================================
+
+if [ "$OFFLINE_MODE" != true ]; then
+    log "Installing Ollama for local LLM..."
+    
+    if ! command -v ollama &> /dev/null; then
+        curl -fsSL https://ollama.com/install.sh | sh
+    fi
+    
+    # Pull Tier 1 and Tier 2 models
+    log "Pulling Tier 1 model (phi3:mini)..."
+    ollama pull phi3:mini
+    
+    log "Pulling Tier 2 model (deepseek-coder:6.7b)..."
+    ollama pull deepseek-coder:6.7b
+    
+    success "Local LLM models installed"
+else
+    log "Offline mode: Ensure models are pre-loaded in /var/lib/tsm99/models"
+fi
+
+# ===============================================
+# Step 8: Configure Firewall
+# ===============================================
+
+log "Configuring firewall..."
+
+ufw default deny incoming
+ufw default allow outgoing
+ufw allow ssh
+ufw allow 80/tcp    # HTTP
+ufw allow 443/tcp   # HTTPS
+ufw allow 8000/tcp  # API (internal only in production)
+ufw allow 3000/tcp  # Frontend (internal only in production)
+
+if [ "$OFFLINE_MODE" = true ]; then
+    log "Ice Age: Blocking ALL outbound traffic..."
+    ufw default deny outgoing
+    ufw allow out on lo  # Allow loopback
+fi
+
+ufw --force enable
+
+success "Firewall configured"
+
+# ===============================================
+# Step 9: Create Environment File
+# ===============================================
+
+log "Creating environment configuration..."
+
+if [ ! -f "$TSM99_HOME/.env" ]; then
+    cat > "$TSM99_HOME/.env" << EOF
+# TSM99 Production Environment
+# Generated: $(date -Iseconds)
+
+ENV=production
+API_PORT=8000
+API_HOST=0.0.0.0
+
+DATABASE_URL=postgresql://tsm99:tsm99_production@localhost:5432/tsm99_production
+REDIS_URL=redis://localhost:6379/0
+
+JWT_SECRET_KEY=$(openssl rand -hex 32)
+ENCRYPTION_KEY=$(openssl rand -hex 32)
+
+OLLAMA_HOST=http://localhost:11434
+BRAIN_PUBLIC_KEY_PATH=$TSM99_CERTS/brain_public.pem
+BRAIN_PRIVATE_KEY_PATH=$TSM99_CERTS/brain_private.pem
+
+ICE_AGE_ENABLED=$OFFLINE_MODE
+OFFLINE_MODE=$OFFLINE_MODE
+
+DAILY_BUDGET_USD=100.00
+EMERGENCY_CUTOFF_ENABLED=true
+EOF
+    success "Environment file created"
+else
+    log "Environment file already exists"
+fi
+
+# ===============================================
+# Step 10: Create Systemd Services
+# ===============================================
+
+log "Creating systemd services..."
+
+# Backend service
+cat > /etc/systemd/system/tsm99-backend.service << EOF
+[Unit]
+Description=TSM99 Backend API
+After=network.target postgresql.service redis.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=$TSM99_HOME/backend
+Environment="PATH=$VENV_PATH/bin"
+EnvironmentFile=$TSM99_HOME/.env
+ExecStart=$VENV_PATH/bin/uvicorn src.main:app --host 0.0.0.0 --port 8000 --workers 4
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# Frontend service
+cat > /etc/systemd/system/tsm99-frontend.service << EOF
+[Unit]
+Description=TSM99 Frontend
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=$TSM99_HOME/frontend
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable tsm99-backend tsm99-frontend
+
+success "Systemd services created"
+
+# ===============================================
+# Step 11: Initialize Trust Ledger
+# ===============================================
+
+log "Initializing Trust Ledger..."
+
+LEDGER_PATH="$TSM99_DATA/vault/ledger.db"
+if [ ! -f "$LEDGER_PATH" ]; then
+    sqlite3 "$LEDGER_PATH" << EOF
+CREATE TABLE IF NOT EXISTS event_log (
+    event_id TEXT PRIMARY KEY,
+    timestamp TEXT NOT NULL,
+    source TEXT NOT NULL,
+    payload TEXT NOT NULL,
+    hash TEXT NOT NULL,
+    prev_hash TEXT
+);
+
+CREATE TABLE IF NOT EXISTS decision_trace (
+    decision_id TEXT PRIMARY KEY,
+    event_id TEXT,
+    model_version TEXT,
+    policy_version TEXT,
+    prompt_hash TEXT,
+    input_features TEXT,
+    output_action TEXT,
+    confidence REAL,
+    timestamp TEXT
+);
+
+CREATE TABLE IF NOT EXISTS learning_delta (
+    delta_id TEXT PRIMARY KEY,
+    decision_id TEXT,
+    affected_component TEXT,
+    before_hash TEXT,
+    after_hash TEXT,
+    delta_blob BLOB,
+    reason TEXT,
+    timestamp TEXT
+);
+
+CREATE TABLE IF NOT EXISTS snapshots (
+    snapshot_id TEXT PRIMARY KEY,
+    snapshot_type TEXT,
+    created_at TEXT,
+    state_hash TEXT,
+    metadata TEXT
+);
+EOF
+    success "Trust Ledger initialized"
+else
+    log "Trust Ledger already exists"
+fi
+
+# ===============================================
+# Step 12: Create Golden Baseline
+# ===============================================
+
+log "Creating Golden Baseline snapshot..."
+
+BASELINE_PATH="$TSM99_DATA/memory/golden_baseline.json"
+cat > "$BASELINE_PATH" << EOF
+{
+    "version": "$TSM99_VERSION",
+    "created_at": "$(date -Iseconds)",
+    "confidence_baseline": 0.60,
+    "policy_version": "1.0.0",
+    "axioms": {
+        "never_allow_production_delete_without_approval": true,
+        "require_mfa_for_admin_actions": true,
+        "block_known_malware_hashes": true,
+        "rate_limit_api_calls": true
+    },
+    "learning_enabled": true,
+    "shadow_mode": true
+}
+EOF
+
+success "Golden Baseline created"
+
+# ===============================================
+# Final Status
+# ===============================================
+
+echo ""
+echo "╔════════════════════════════════════════════════════════════════════╗"
+echo "║                 TSM99 INSTALLATION COMPLETE                         ║"
+echo "╠════════════════════════════════════════════════════════════════════╣"
+echo "║                                                                     ║"
+echo "║  Version:        $TSM99_VERSION                                           ║"
+echo "║  Mode:           $([ "$OFFLINE_MODE" = true ] && echo "ICE-AGE (Air-Gapped)" || echo "CONNECTED")                       ║"
+echo "║                                                                     ║"
+echo "║  Directories:                                                       ║"
+echo "║    Home:         $TSM99_HOME                                        ║"
+echo "║    Data:         $TSM99_DATA                                        ║"
+echo "║    Logs:         $TSM99_LOGS                                        ║"
+echo "║                                                                     ║"
+echo "║  Services:                                                          ║"
+echo "║    Backend:      sudo systemctl start tsm99-backend                 ║"
+echo "║    Frontend:     sudo systemctl start tsm99-frontend                ║"
+echo "║                                                                     ║"
+echo "║  Access:                                                            ║"
+echo "║    Dashboard:    http://localhost:3000                              ║"
+echo "║    API Docs:     http://localhost:8000/docs                         ║"
+echo "║                                                                     ║"
+echo "╚════════════════════════════════════════════════════════════════════╝"
+echo ""
+
+success "TSM99 - The Sovereign Mechanica is ready!"
+echo ""
+log "Next steps:"
+echo "  1. Review configuration: $TSM99_HOME/.env"
+echo "  2. Start services: sudo systemctl start tsm99-backend tsm99-frontend"
+echo "  3. Access dashboard: http://localhost:3000"
+echo ""

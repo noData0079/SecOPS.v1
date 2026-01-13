@@ -1,0 +1,148 @@
+# TSM99 Production Configuration
+# Version: 1.0.1-production
+# ================================
+
+app:
+  name: "TSM99"
+  version: "1.0.1"
+  environment: "production"
+  debug: false
+  log_level: "INFO"
+
+# ================================
+# API Server
+# ================================
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  reload: false
+
+# ================================
+# Security
+# ================================
+security:
+  jwt_secret_key: "${JWT_SECRET_KEY}"
+  jwt_algorithm: "HS256"
+  access_token_expire_minutes: 30
+  refresh_token_expire_days: 7
+  cors_origins:
+    - "https://app.thesovereignmechanica.ai"
+    - "https://dashboard.thesovereignmechanica.ai"
+
+# ================================
+# Database
+# ================================
+database:
+  url: "${DATABASE_URL}"
+  pool_size: 20
+  max_overflow: 10
+  pool_recycle: 3600
+
+# ================================
+# Redis
+# ================================
+redis:
+  url: "${REDIS_URL}"
+  max_connections: 50
+
+# ================================
+# LLM Providers
+# ================================
+llm:
+  # Tier 1: Edge (Local)
+  tier1:
+    provider: "ollama"
+    model: "phi3:mini"
+    endpoint: "http://localhost:11434"
+    timeout_ms: 100
+
+  # Tier 2: Deep (Local or TEE)
+  tier2:
+    provider: "ollama"
+    model: "deepseek-coder:6.7b"
+    endpoint: "http://localhost:11434"
+    timeout_ms: 5000
+    
+  # Fallback: Cloud (if configured)
+  cloud:
+    openai_enabled: false
+    anthropic_enabled: false
+    google_enabled: false
+
+# ================================
+# Compute Orchestrator
+# ================================
+compute:
+  default_mode: "HYBRID_CASCADE"  # LOCAL_GPU, SECURE_TEE, CPU_QUANTIZED, HYBRID_CASCADE
+  escalation_threshold: 0.75
+  tee_provider: "azure"  # azure, gcp, aws
+  attestation_required: true
+
+# ================================
+# Autonomy Settings
+# ================================
+autonomy:
+  enabled: true
+  kill_switch_enabled: true
+  
+  # Progressive autonomy thresholds
+  confidence_thresholds:
+    shadow_only: 0.60
+    low_auto: 0.75
+    medium_auto: 0.85
+    high_auto: 0.95
+  
+  # Learning gates
+  learning:
+    enabled: true
+    shadow_mode: true
+    require_human_approval_above_severity: "HIGH"
+    forbidden_below_confidence: 0.80
+
+# ================================
+# Economics
+# ================================
+economics:
+  daily_budget_usd: 100.00
+  emergency_cutoff_enabled: true
+  roi_tracking_enabled: true
+
+# ================================
+# Trust Ledger
+# ================================
+trust_ledger:
+  enabled: true
+  hash_algorithm: "sha256"
+  chain_enabled: true
+  retention_days: 2555  # 7 years
+
+# ================================
+# Snapshot Checkpoints
+# ================================
+snapshots:
+  hourly_enabled: true
+  daily_golden_enabled: true
+  monthly_archive_enabled: true
+  retention:
+    hourly_days: 7
+    daily_days: 90
+    monthly_years: 7
+
+# ================================
+# Integration Health
+# ================================
+integrations:
+  health_check_interval_seconds: 30
+  timeout_threshold_seconds: 60
+  degraded_confidence: 0.50
+  down_confidence: 0.00
+
+# ================================
+# Ice Age Mode (Air-Gap)
+# ================================
+ice_age:
+  enabled: false
+  block_outbound: false
+  data_diode_import_path: "/var/lib/tsm99/imports"
+  offline_model_path: "/var/lib/tsm99/models"
