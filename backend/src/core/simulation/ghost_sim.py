@@ -25,6 +25,11 @@ SCENARIOS = [
 ]
 
 class GhostSimulation:
+    """
+    Runs massive parallel simulations to predict future states.
+    Creates virtual clones and tests disaster recovery plans.
+    """
+    def __init__(self, digital_twin_manager: Optional['DigitalTwinManager'] = None):
     def __init__(self, digital_twin_manager: 'DigitalTwinManager' = None):
         self.twin = digital_twin_manager
         self.pass_threshold = 0.95 # Require 95% safety score
@@ -37,6 +42,13 @@ class GhostSimulation:
         """
         logger.info(f"Validating evolution {proposed_code_hash} on {impact_area}")
 
+        if not self.twin:
+            logger.warning("DigitalTwinManager not available, skipping detailed evolution validation.")
+            return {"status": "SKIPPED", "reason": "No DigitalTwinManager"}
+
+        # 1. Instantiate a specialized Digital Twin
+        ghost_env = self.twin.clone_subsystem(impact_area)
+
         if self.twin:
             # 1. Instantiate a specialized Digital Twin
             ghost_env = self.twin.clone_subsystem(impact_area)
@@ -48,6 +60,12 @@ class GhostSimulation:
             # Simulates traffic spikes, DB locks, and API failures
             results = ghost_env.run_stress_test(duration_minutes=5)
 
+        logger.info(f"Evolution validation complete. Score: {safety_score}")
+
+        if safety_score >= self.pass_threshold:
+            return {"status": "GREEN", "score": safety_score, "trace": getattr(results, 'logs', [])}
+        else:
+            return {"status": "RED", "score": safety_score, "failure": getattr(results, 'critical_error', "Unknown error")}
             # 4. Final Scoring
             safety_score = self._calculate_safety(results)
 
@@ -225,4 +243,9 @@ class GhostSimulation:
         else:
              return {"status": "RED", "details": results}
 
+    def _calculate_safety(self, results: 'TestResults') -> float:
+        # Weighting performance vs. functional correctness
+        return (results.success_rate * 0.7) + (results.perf_baseline_delta * 0.3)
+
+# Global instance
 ghost_simulation = GhostSimulation()

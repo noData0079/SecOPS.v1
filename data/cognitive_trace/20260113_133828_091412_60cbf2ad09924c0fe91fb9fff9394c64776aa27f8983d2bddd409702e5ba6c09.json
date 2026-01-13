@@ -1,0 +1,13 @@
+{
+  "reasoning_hash": "60cbf2ad09924c0fe91fb9fff9394c64776aa27f8983d2bddd409702e5ba6c09",
+  "reasoning": "No reasoning provided",
+  "confidence": 0.9,
+  "action": {
+    "tool": "test_tool",
+    "confidence": 0.9,
+    "args": {
+      "arg1": "val"
+    }
+  },
+  "timestamp": "2026-01-13T13:38:28.092770"
+}

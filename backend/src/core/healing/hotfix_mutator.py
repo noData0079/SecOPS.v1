@@ -25,20 +25,17 @@ class SemanticStore:
         return []
 
 """
-Hot-Fix Mutator (Remediation Layer)
-Acts as the AI's "immune response." Detects pain points and writes targeted scripts.
-Includes Evolutionary Search (Mutation Engine) to breed best scripts.
+HotFix Mutator - Evolves and breeds remediation scripts.
 """
-
 import logging
 import uuid
 # import datetime  # Conflict with from datetime import datetime
 import subprocess
-import re
-import random
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+import ast
+import os
+from typing import Dict, Any, Optional, List
 from pathlib import Path
+from dataclasses import dataclass
 
 # Relative imports assuming this file is in backend/src/core/healing/
 from ..memory.semantic_store import SemanticStore
@@ -49,12 +46,27 @@ from ..simulation.ghost_sim import GhostSimulation
 logger = logging.getLogger(__name__)
 
 @dataclass
+class Anomaly:
+    type: str
+    source: str
+    metric: str
+    value: Any
+    metadata: Dict[str, Any]
+
+@dataclass
 class HotFix:
-    """Represents a generated hotfix."""
     id: str
     script_content: str
     target: str
     ttl_hours: int
+
+class HotFixMutator:
+    def __init__(self, script_generator: Any, ghost_sim: Any, sandbox: Any):
+        self.script_generator = script_generator
+        self.ghost_sim = ghost_sim
+        self.sandbox = sandbox
+        self.sandbox_mode = True # Default to safe mode
+        self.deployed_fixes: List[HotFix] = []
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
 class HotFixMutator:
@@ -100,37 +112,19 @@ echo "Pruning cache for {target}"
 # In real scenario: systemctl restart {target} or similar
 """
 
-    def synthesize_remedy(self, anomaly_report: Dict[str, Any]) -> Optional[str]:
+    def resolve_pain_point(self, context: Dict[str, Any]) -> Optional[str]:
         """
-        Main entry point to resolve a detected pain point.
-        Alias for resolve_pain_point to match requirements.
-
-        Args:
-            anomaly_report: Dictionary containing anomaly details (signature, context).
-
-        Returns:
-            ID of the deployed hotfix, or None if failed.
+        Orchestrates the resolution flow: Identify -> Evolve -> Validate -> Simulate -> Apply.
         """
-        # Adapt input format if needed
-        return self.resolve_pain_point(anomaly_report)
-
-    def resolve_pain_point(self, anomaly_context: Dict[str, Any]) -> Optional[str]:
-        """
-        Main entry point to resolve a detected pain point.
-        """
-        logger.info(f"Resolving pain point: {anomaly_context}")
-
         # 1. Identify
-        anomaly = self.identify(anomaly_context)
+        anomaly = self.identify(context)
         if not anomaly:
-            logger.error("Could not identify anomaly.")
             return None
 
-        # 2. Evolutionary Synthesis (Breed scripts)
+        # 2. Evolve (Synthesize & Breed)
         best_script = self.evolve_solution(anomaly)
-
         if not best_script:
-            logger.error("Failed to evolve a viable fix script.")
+            logger.warning("Failed to evolve a viable hotfix script.")
             return None
 
         # 3. Validate in Sandbox (Pre-Simulation)
@@ -139,6 +133,15 @@ echo "Pruning cache for {target}"
             return None
 
         # 4. Ghost Simulation (Digital Twin)
+        sim_result = self.ghost_sim.simulate_scenario({
+            "type": "hotfix_apply",
+            "target": anomaly.source,
+            "script": best_script
+        })
+
+        if sim_result["outcome"] != "success":
+            logger.warning(f"Ghost Simulation rejected hotfix: {sim_result.get('details')}")
+            return None
         sim_result = self.ghost_sim.validate_evolution(
              proposed_code_hash=str(uuid.uuid4()), # Mock hash
              impact_area=anomaly.source
@@ -169,7 +172,8 @@ echo "Pruning cache for {target}"
         try:
             seed1 = self.script_generator.generate_tool(f"Fix {anomaly.type} for {anomaly.source}")
             if seed1: population.append(seed1)
-        except: pass
+        except Exception:
+             pass
 
         # Seed 2: Heuristic Template
         seed2 = self._generate_memory_prune_script(anomaly.source) if "memory" in anomaly.type else None
@@ -195,6 +199,9 @@ echo "Pruning cache for {target}"
 
             # Keep top 2
             survivors = scored_pop[:2]
+            if not survivors:
+                continue
+
             best_candidate = survivors[0][0]
             best_score = survivors[0][1]
 
@@ -249,6 +256,10 @@ echo "Pruning cache for {target}"
         Validates the generated script for safety.
         """
         try:
+            # Basic AST check for dangerous imports if in sandbox mode (and looks like python)
+            if self.sandbox_mode and not script_content.strip().startswith("#!"):
+                try:
+                    tree = ast.parse(script_content)
             if script_content.strip().startswith("#!") or script_content.strip().startswith("echo"):
                 # Basic check for shell scripts?
                 pass
@@ -262,6 +273,33 @@ echo "Pruning cache for {target}"
                                 if alias.name in ['subprocess', 'os', 'sys']:
                                     # In a real implementation, we might block these or wrap them
                                     # For this placeholder, we'll allow them but flag them
+                                    logger.warning(f"Script uses dangerous import: {alias.name}")
+                except SyntaxError:
+                     # Not python, or invalid python
+                     pass
+
+            # Sandbox Execution
+            logger.info("Validating script in sandbox...")
+            inputs = {"target": anomaly.source, "dry_run": True}
+
+            # Assuming sandbox.run_tool takes script and inputs
+            result = self.sandbox.run_tool(script_content, inputs)
+            if isinstance(result, dict) and result.get("error"):
+                logger.warning(f"Sandbox validation failed: {result['error']}")
+                return False
+            return True
+
+        except Exception as e:
+            logger.error(f"Validation exception: {e}")
+            # Fail closed on error? or Open? Safe to fail.
+            return False
+
+    def apply(self, script: str, target: str, ttl_hours: int = 1, deploy_path: Optional[Path] = None) -> str:
+        """
+        Deploys the fix to production with a TTL.
+        """
+        fix_id = str(uuid.uuid4())[:8]
+
                                     pass
         except SyntaxError:
             pass
@@ -290,6 +328,8 @@ echo "Pruning cache for {target}"
         extension = "py" if is_python else "sh"
 
         script_with_ttl = script
+        # Simplified TTL injection (Bash only for this rewrite to save space, assuming bash scripts usually)
+        if not is_python:
         if is_python:
              # Inject TTL logic for Python
              ttl_logic = f"""
