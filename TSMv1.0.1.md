@@ -150,6 +150,46 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 | **PagerDuty** | → OUT | Escalate to humans when needed |
 | **ServiceNow** | → OUT | Auto-create tickets with AI context |
 
+#### 🩺 Integration Health-Check (Fail-Safe)
+
+**Problem**: If Splunk updates its API and the adapter breaks, your autonomy loop dies.
+
+**Solution**: Continuous health monitoring with automatic confidence adjustment.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                INTEGRATION HEALTH DASHBOARD                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   TOOL           STATUS      LAST PING    CONFIDENCE            │
+│   ─────────────────────────────────────────────────────────     │
+│   CrowdStrike    🟢 LIVE     2s ago       100%                  │
+│   Splunk         🟢 LIVE     5s ago       100%                  │
+│   Wiz            🟡 SLOW     45s ago      85%  ⚠️               │
+│   Okta           🟢 LIVE     1s ago       100%                  │
+│   PagerDuty      🔴 DOWN     5min ago     0%   🚨               │
+│                                                                 │
+│   [When tool goes dark → Oracle reduces domain confidence]      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Health State | Confidence Impact | Oracle Action |
+|--------------|-------------------|---------------|
+| 🟢 **LIVE** | 100% trust | Normal autonomous operation |
+| 🟡 **SLOW** | 85% trust | Flag decisions, prefer alternatives |
+| 🟠 **DEGRADED** | 50% trust | Require human confirmation |
+| 🔴 **DOWN** | 0% trust | **Block autonomous actions** for that domain |
+
+**When PagerDuty Goes Dark:**
+1. Sentinel detects no heartbeat (>60s)
+2. Sentinel alerts Oracle: "PagerDuty DOWN"
+3. Oracle sets `escalation_confidence = 0%`
+4. AUTOPILOT falls back to: Email → Slack → SMS
+5. Dashboard shows 🔴 with recommended fix
+
+> *"Integration breaks don't kill the system—they trigger fallback strategies."*
+
 **Single Dashboard**: See every decision, why it was made, and its outcome.
 
 ---
