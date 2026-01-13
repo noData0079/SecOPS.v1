@@ -1,0 +1,168 @@
+{
+    "class_name": "WorkFlowGraph",
+    "goal": "Detect incidents from system logs, perform Root Cause Analysis (RCA), and generate a remediation plan.\n\n    The workflow should:\n    1. Ingest system logs from a file.\n    2. Identify the root cause of any detected errors.\n    3. Propose a technical remediation plan to fix the issue.\n\n    ### Output\n    remediation_plan\n    ",
+    "nodes": [
+        {
+            "class_name": "WorkFlowNode",
+            "name": "ingest_logs",
+            "description": "Read system logs from a specified file.",
+            "inputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "goal",
+                    "type": "string",
+                    "description": "The user's goal, containing the log file path.",
+                    "required": true
+                }
+            ],
+            "outputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "log_data",
+                    "type": "string",
+                    "description": "The raw content of the system logs.",
+                    "required": true
+                }
+            ],
+            "reason": "We need access to the logs to detect errors.",
+            "agents": [
+                {
+                    "name": "log_ingestor_agent",
+                    "description": "This agent reads the system logs from a file specified in the goal.",
+                    "inputs": [
+                        {
+                            "name": "goal",
+                            "type": "string",
+                            "description": "The user's goal containing the file path.",
+                            "required": true
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "name": "log_data",
+                            "type": "string",
+                            "description": "The raw log content.",
+                            "required": true
+                        }
+                    ],
+                    "prompt": "### Objective\nRead system logs from a file for analysis.\n\n### Instructions\n1. Analyze the user's goal <input>{goal}</input> to find the log file path. If not specified, default to 'system.log' or 'error.log' in the current directory.\n2. **MANDATORY**: Use the FileToolkit to READ the content of the identified log file.\n3. If the file contains thousands of lines, read the last 50 lines (tail) to focus on recent events.\n4. If the file does not exist, you may generate a MOCK log snippet containing a critical error (e.g., 'ConnectionRefusedError: database at 5432' or 'OutOfMemoryError').\n5. Return the log content as a string.\n\n### Output Format\n## Thought\nReasoning about log ingestion.\n\n## log_data\n[The content of the log file]",
+                    "tool_names": [
+                        "FileToolkit"
+                    ]
+                }
+            ],
+            "status": "pending"
+        },
+        {
+            "class_name": "WorkFlowNode",
+            "name": "analyze_root_cause",
+            "description": "Analyze the logs to identify the root cause of the incident.",
+            "inputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "log_data",
+                    "type": "string",
+                    "description": "The system logs to analyze.",
+                    "required": true
+                }
+            ],
+            "outputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "rca_report",
+                    "type": "string",
+                    "description": "A report detailing the root cause.",
+                    "required": true
+                }
+            ],
+            "reason": "Identifying the root cause is essential before fixing the issue.",
+            "agents": [
+                {
+                    "name": "rca_agent",
+                    "description": "This agent performs Root Cause Analysis on system logs.",
+                    "inputs": [
+                        {
+                            "name": "log_data",
+                            "type": "string",
+                            "description": "The system logs.",
+                            "required": true
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "name": "rca_report",
+                            "type": "string",
+                            "description": "The RCA report.",
+                            "required": true
+                        }
+                    ],
+                    "prompt": "### Objective\nIdentify the root cause of the failure based on the provided logs.\n\n### Instructions\n1. Review the log data: <input>{log_data}</input>.\n2. Look for keywords like 'Error', 'Exception', 'Failed', 'Timeout'.\n3. Trace the error stack trace or timestamp sequence to identify the origin.\n4. Formulate a Root Cause Analysis (RCA) report that includes:\n   - **Incident Timestamp**: When did it start?\n   - **Error Type**: What is the specific error class?\n   - **Likely Cause**: e.g., Database down, Network partition, Bug in code deployment, Disk full.\n   - **Evidence**: Quote the specific log line that proves this.\n5. Return the RCA report.\n\n### Output Format\n## Thought\nReasoning about the error pattern.\n\n## rca_report\n**Root Cause Analysis**\n...\n[Detailed report]"
+                }
+            ],
+            "status": "pending"
+        },
+        {
+            "class_name": "WorkFlowNode",
+            "name": "generate_remediation_plan",
+            "description": "Generate a step-by-step remediation plan to fix the root cause.",
+            "inputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "rca_report",
+                    "type": "string",
+                    "description": "The Root Cause Analysis report.",
+                    "required": true
+                }
+            ],
+            "outputs": [
+                {
+                    "class_name": "Parameter",
+                    "name": "remediation_plan",
+                    "type": "string",
+                    "description": "The step-by-step plan to fix the issue.",
+                    "required": true
+                }
+            ],
+            "reason": "To restore service availability, a clear action plan is needed.",
+            "agents": [
+                {
+                    "name": "remediation_expert_agent",
+                    "description": "This agent proposes a remediation plan based on the RCA.",
+                    "inputs": [
+                        {
+                            "name": "rca_report",
+                            "type": "string",
+                            "description": "The RCA report.",
+                            "required": true
+                        }
+                    ],
+                    "outputs": [
+                        {
+                            "name": "remediation_plan",
+                            "type": "string",
+                            "description": "The remediation plan.",
+                            "required": true
+                        }
+                    ],
+                    "prompt": "### Objective\nPropose a technical remediation plan to resolve the incident identified in the RCA.\n\n### Instructions\n1. Review the RCA report: <input>{rca_report}</input>.\n2. Based on the 'Likely Cause', generate a step-by-step plan to fix it.\n   - If Database Down: Check service status, restart service, check disk space.\n   - If Code Bug: Revert last deployment, hotfix patch.\n   - If Disk Full: Clear logs, expand volume.\n3. Include a 'Validation' step to verify the fix.\n4. Include a 'Prevention' step to avoid recurrence.\n5. Return the plan in Markdown format.\n\n### Output Format\n## Thought\nReasoning about the best fix.\n\n## remediation_plan\n### Remediation Plan\n1. ...\n2. ...\n\n### Validation\n...\n\n### Prevention\n..."
+                }
+            ],
+            "status": "pending"
+        }
+    ],
+    "edges": [
+        {
+            "class_name": "WorkFlowEdge",
+            "source": "ingest_logs",
+            "target": "analyze_root_cause",
+            "priority": 0
+        },
+        {
+            "class_name": "WorkFlowEdge",
+            "source": "analyze_root_cause",
+            "target": "generate_remediation_plan",
+            "priority": 0
+        }
+    ],
+    "graph": null
+}
