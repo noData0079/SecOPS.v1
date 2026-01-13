@@ -1,249 +1,256 @@
-# TSM99 SecOps AI Platform - Release v1.0.1 (FULL AUTONOMY)
+# TSM99 SecOps AI Platform - v1.0.1
 
-> **The Sovereign Mechanica** - Policy-Governed Autonomy for Enterprise Security
+> **The Sovereign Mechanica** — Enterprise AI That Heals, Defends & Evolves
 > 
-> Release Date: 2026-01-11
+> *Policy-Governed Autonomy for Security Operations*
 
 ---
 
-## 📋 Executive Summary
+## 🎯 WHAT IS TSM99?
 
-TSM99 is a **FULLY AUTONOMOUS**, production-ready, agentic AI platform for security operations. It provides closed-loop security automation with:
+**TSM99 is an autonomous AI platform that runs your security operations center while you sleep.**
 
-- **Outcome-driven learning** (not just logs)
-- **4-layer memory hierarchy** (episodic, semantic, policy, economic)
-- **Economic governance** (cost control & ROI)
-- **Tool competency learning** (context-aware recommendations)
-- **Offline-first operation** (local models, no API dependency)
-- **Enterprise visibility** (full reasoning transparency)
+It's not a chatbot. It's not a dashboard. It's a **closed-loop system** that:
 
-**SCORECARD: 10/10 across all dimensions**
+1. **DETECTS** threats across your infrastructure in real-time
+2. **DECIDES** the best response using policy-governed reasoning
+3. **EXECUTES** automated remediation (with safety rails)
+4. **LEARNS** from every outcome to get smarter over time
+5. **PROVES** every action in an immutable audit trail
+
+### Core Capabilities
+
+| Capability | Description |
+|------------|-------------|
+| **Autonomous Healing** | Auto-restart services, scale pods, rollback deployments |
+| **Threat Detection** | AI-powered anomaly detection across logs, metrics, network |
+| **Policy Governance** | Every action requires policy approval before execution |
+| **Explainable AI** | See exactly WHY the AI made each decision |
+| **Zero-Trust Safety** | Kill switch, blast radius limits, human escalation |
+| **Offline-First** | Works without cloud APIs using local models |
 
 ---
 
-## ✅ ARCHITECTURE COMPLETENESS
+## ❓ WHY TSM99?
 
-### Core Autonomy Loop ✅
+### The Problem
+
+- **Alert fatigue**: SOC teams drown in 10,000+ alerts/day
+- **Slow response**: Average incident takes 287 days to detect
+- **Skill shortage**: 3.5M unfilled cybersecurity jobs globally
+- **Manual toil**: 80% of response is copy-paste from runbooks
+- **No learning**: Same incidents repeat because nothing learns
+
+### The Solution
+
+TSM99 replaces the **firefighting loop** with an **autonomous healing loop**:
+
 ```
-OBSERVATION → MODEL → POLICY → TOOLS → OUTCOME → REPLAY
+Traditional SOC:          TSM99:
+Alert → Human → Action    Alert → AI → Policy → Action → Learn
+(hours to days)           (seconds to minutes)
 ```
 
-### Outcome Intelligence Layer ✅
-| Component | File | Purpose |
-|-----------|------|---------|
-| OutcomeScorer | `core/outcomes/scorer.py` | Score actions 0-100 |
-| CausalGraph | `core/outcomes/causal_graph.py` | Attribute success to actions |
-| FailureClassifier | `core/outcomes/failure_classifier.py` | Categorize failures |
-| ConfidenceUpdater | `core/outcomes/confidence_updater.py` | Update tool/policy confidence |
+### Key Differentiators
 
-### Memory System (4 Layers) ✅
-| Layer | File | Purpose |
-|-------|------|---------|
-| Episodic | `core/memory/episodic_store.py` | Full incident snapshots |
-| Semantic | `core/memory/semantic_store.py` | "What usually works" |
-| Policy | `core/memory/policy_memory.py` | Track brittle rules |
-| Economic | `core/memory/economic_memory.py` | Cost vs benefit |
-
-### Tool Intelligence ✅
-| Component | File | Purpose |
-|-----------|------|---------|
-| ToolMetrics | `core/tools/tool_metrics.py` | Usage, blacklisting, cooldowns |
-| ToolRiskModel | `core/tools/tool_risk_model.py` | Dynamic risk scoring |
-| ToolSuccessMap | `core/tools/tool_success_map.py` | Context → tool effectiveness |
-
-### Economic Governor ✅
-| Component | File | Purpose |
-|-----------|------|---------|
-| EconomicGovernor | `core/economics/governor.py` | Budget enforcement, ROI |
-
-### Local-First LLM ✅
-| Component | File | Purpose |
-|-----------|------|---------|
-| LocalLLMProvider | `core/llm/local_provider.py` | Ollama/vLLM/llama.cpp |
+| Others | TSM99 |
+|--------|-------|
+| Assistants that suggest | Agents that execute |
+| Cloud-dependent | Runs completely offline |
+| Black-box decisions | Explainable reasoning |
+| Static playbooks | Self-evolving intelligence |
+| Pay per API call | Self-hosted, zero API costs |
 
 ---
 
-## 🎯 AUTONOMY DEFINITION (INVESTOR & REGULATOR SAFE)
+## 🔧 HOW IT WORKS
 
-> **TSM99 is a policy-governed autonomous system where intelligence emerges from outcome-driven replay, memory, and tool competence — not from self-training models.**
+### The Autonomy Loop
 
----
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    TSM99 AUTONOMY LOOP                      │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│   ┌──────────┐    ┌──────────┐    ┌──────────┐             │
+│   │ OBSERVE  │───▶│  MODEL   │───▶│  POLICY  │             │
+│   │ Telemetry│    │ Reasoning│    │  Engine  │             │
+│   └──────────┘    └──────────┘    └────┬─────┘             │
+│                                        │                    │
+│                   ┌────────────────────┴───────────────┐   │
+│                   ▼                    ▼               ▼   │
+│              ┌─────────┐         ┌─────────┐     ┌──────┐ │
+│              │  ALLOW  │         │  BLOCK  │     │ESCALATE│ │
+│              └────┬────┘         └─────────┘     └──────┘ │
+│                   ▼                                        │
+│   ┌──────────┐    │    ┌──────────┐    ┌──────────┐       │
+│   │  LEARN   │◀───┴───▶│ EXECUTE  │───▶│ OUTCOME  │       │
+│   │  Replay  │         │  Tools   │    │  Scorer  │       │
+│   └──────────┘         └──────────┘    └──────────┘       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
 
-## 🔒 SAFETY GUARANTEES
+### The Architecture (35 Core Modules)
 
-### ❌ What We DO NOT Do:
-- ❌ Online RLHF
-- ❌ Self-modifying policies
-- ❌ Model self-updates
-- ❌ Autonomous permission escalation
-- ❌ Hidden tool execution
-
-### ✅ What We DO:
-- ✅ Deterministic policy engine (NO ML in safety layer)
-- ✅ Human-approval for high-risk actions
-- ✅ Confidence decay for unused rules
-- ✅ Tool blacklisting after failures
-- ✅ Complete audit trail
-
----
-
-## 🆓 FREE LEARNING STRATEGY
-
-### No Paid APIs Required:
-
-1. **Local Models Only:**
-   - DeepSeek-Coder 6.7B
-   - Qwen 2.5
-   - Phi-3
-   - LLaMA derivatives
-
-2. **Run via:**
-   - Ollama (easiest)
-   - vLLM (production)
-   - llama.cpp (CPU fallback)
-
-3. **Learning = Statistics, Not Training:**
-   - Replay-driven learning (update confidence, not weights)
-   - Synthetic incident generation (zero production risk)
-   - Policy threshold updates (no GPU required)
-
----
-
-## 🖥️ FRONTEND VIEWS (Enterprise Visibility)
-
-| View | Component | Purpose |
-|------|-----------|---------|
-| Autonomy Reasoning | `ReasoningViewer.tsx` | Trust & debugging |
-| Replay Timeline | `ReplayTimeline.tsx` | Show learning |
-| Policy Confidence | `PolicyConfidenceDashboard.tsx` | Governance |
-| Tool Risk Heatmap | `ToolRiskHeatmap.tsx` | Safety |
-| Cost Dashboard | `CostDashboard.tsx` | CFO visibility |
-
----
-
-## 🧊 ICE-AGE SOVEREIGN DEPLOYMENT
-
-### Hardening Scripts:
-
-| Script | Purpose |
-|--------|---------|
-| `offline-mode.sh` | Block ALL outbound traffic |
-| `forensic-replay.sh` | Post-incident analysis CLI |
-| `cold-boot-recovery.sh` | Immutable snapshot restore |
-| `cpu-only-mode.sh` | GPU = optional, CPU default |
-
-### Features:
-- ✅ Offline-only mode (no outbound traffic)
-- ✅ Deterministic builds (hash locked)
-- ✅ Immutable Trust Ledger snapshots
-- ✅ Forensic replay CLI
-- ✅ Cold-boot recovery scripts
-- ✅ CPU-only as default mode
-
----
-
-## 📊 FINAL SCORECARD
-
-| Area | Before | After | Status |
-|------|--------|-------|--------|
-| Architecture | 7.5/10 | 10/10 | ✅ |
-| Safety | 7/10 | 10/10 | ✅ |
-| Autonomy Reality | 6.5/10 | 10/10 | ✅ |
-| Learning Depth | 5/10 | 10/10 | ✅ |
-| Enterprise Readiness | 6/10 | 10/10 | ✅ |
-| Sovereignty | 6/10 | 10/10 | ✅ |
-
----
-
-## � NEW FILES ADDED
-
-### Backend Core (16 new files):
 ```
 backend/src/core/
-├── outcomes/
-│   ├── __init__.py
-│   ├── scorer.py
-│   ├── causal_graph.py
-│   ├── failure_classifier.py
-│   └── confidence_updater.py
-├── memory/
-│   ├── __init__.py
-│   ├── episodic_store.py
-│   ├── semantic_store.py
-│   ├── policy_memory.py
-│   └── economic_memory.py
-├── tools/
-│   ├── __init__.py
-│   ├── tool_metrics.py
-│   ├── tool_risk_model.py
-│   └── tool_success_map.py
-├── economics/
-│   ├── __init__.py
-│   └── governor.py
-└── llm/
-    └── local_provider.py
+├── autonomy/      → Decision loop, policy engine, replay
+├── memory/        → Episodic, semantic, policy, economic memory
+├── outcomes/      → Scoring, causal attribution, failure classification
+├── tools/         → Risk scoring, success mapping, metrics
+├── economics/     → Cost budgets, ROI tracking, spend governance
+├── evolution/     → Shadow mirror, self-improvement, axiom synthesis
+├── simulation/    → Chaos agents, ghost simulation, red team
+├── healing/       → Hotfix mutation, auto-remediation
+├── sandbox/       → Shadow runner, isolated execution
+├── vault/         → Sovereign gate, kill switch, emergency access
+├── trust_ledger/  → Immutable audit trail, cryptographic proofs
+├── llm/           → Poly-LLM routing, local model support
+├── detection/     → Anomaly engine, threat correlation
+├── training/      → Dataset synthesis, replay-based learning
+└── ... (20+ more modules)
 ```
 
-### Frontend Components (6 new files):
-```
-frontend/components/autonomy/
-├── index.ts
-├── ReasoningViewer.tsx
-├── ReplayTimeline.tsx
-├── CostDashboard.tsx
-├── ToolRiskHeatmap.tsx
-└── PolicyConfidenceDashboard.tsx
-```
+### Safety Architecture
 
-### ICE-AGE Deployment (4 new files):
 ```
-tools/ice-age/
-├── offline-mode.sh
-├── forensic-replay.sh
-├── cold-boot-recovery.sh
-└── cpu-only-mode.sh
+┌────────────────────────────────────────────────┐
+│              SAFETY GUARANTEES                  │
+├────────────────────────────────────────────────┤
+│ ✅ Policy Engine is DETERMINISTIC (no ML)      │
+│ ✅ Every action logged to immutable ledger     │
+│ ✅ Kill switch accessible at /admin            │
+│ ✅ High-risk actions require human approval    │
+│ ✅ Blast radius limits per environment         │
+│ ✅ Confidence decay for unused policies        │
+│ ✅ Tool blacklisting after repeated failures   │
+│ ✅ Emergency cost cutoff                       │
+└────────────────────────────────────────────────┘
 ```
 
 ---
 
-## � QUICK START
+## 📦 WHAT'S IN v1.0.1
 
-### 1. Install Local Model:
+### Backend (Python/FastAPI)
+
+| Module | Files | Purpose |
+|--------|-------|---------|
+| **Autonomy** | 7 | Core decision loop, policy engine, replay |
+| **Memory** | 7 | 4-layer memory (episodic/semantic/policy/economic) |
+| **Outcomes** | 8 | Scoring, causal graphs, failure classification |
+| **Tools** | 5 | Risk modeling, success mapping, metrics |
+| **Economics** | 6 | Budgets, cost tracking, ROI, cloud optimizer |
+| **Evolution** | 21 | Shadow mirror, self-improvement, mutation |
+| **Simulation** | 7 | Chaos agents, ghost sim, red team |
+| **Healing** | 4 | Hotfix mutator, auto-remediation |
+| **LLM** | 13 | Poly-LLM router, local providers |
+| **Training** | 8 | Dataset builders, replay learning |
+
+### Frontend (Next.js)
+
+| Category | Components |
+|----------|------------|
+| **Autonomy Views** | ReasoningViewer, ReplayTimeline, CostDashboard, ToolRiskHeatmap, PolicyConfidenceDashboard |
+| **Executive Views** | ExplainableAIPanel, StrategicRoadmap, TrainingControl |
+| **Vault Views** | VaultStatus, SovereignReport, ShutterTransition |
+| **Admin** | Kill Switch, Emergency Access, Policy Editor |
+
+### Tests (65+ test files)
+
+```
+backend/tests/
+├── core/autonomy/     → test_autonomy_loop, policy_engine, replay
+├── core/economics/    → test_cloud_optimizer, economic_negotiator
+├── core/evolution/    → test_shadow_mirror
+├── core/healing/      → test_hotfix_mutator
+├── core/simulation/   → test_chaos_agent, ghost_sim
+├── core/vault/        → test_sovereign_gate
+└── ... (comprehensive coverage)
+```
+
+### Compliance Documentation
+
+```
+docs/compliance/
+├── ACCESS_CONTROL.md       → Identity & access policies
+├── AUDIT_LOGGING.md        → What gets logged, retention
+├── AUTONOMY_SAFETY.md      → AI decision governance
+├── CHANGE_MANAGEMENT.md    → Deployment controls
+├── CONTROL_MAPPING.md      → SOC 2 / ISO 27001 mapping
+├── INCIDENT_RESPONSE.md    → Playbooks & escalation
+└── MODEL_GOVERNANCE.md     → LLM safety & selection
+```
+
+### Deployment Tools
+
+```
+tools/
+├── ice-age/               → Offline sovereign deployment
+│   ├── setup.sh           → Full installation script
+│   ├── offline-mode.sh    → Block all outbound traffic
+│   ├── forensic-replay.sh → Post-incident analysis CLI
+│   ├── cold-boot-recovery.sh → Immutable snapshots
+│   ├── cpu-only-mode.sh   → GPU optional, CPU default
+│   └── local_trainer.py   → On-premise model training
+└── sentinel/              → Go-based monitoring agent
+    ├── main.go
+    └── go.mod
+```
+
+---
+
+## 🚀 QUICK START
+
+### 1. Install Ollama (Local LLM)
 ```bash
-# Install Ollama
 curl -fsSL https://ollama.com/install.sh | sh
-
-# Pull model
 ollama pull deepseek-coder:6.7b-instruct-q4_K_M
 ```
 
-### 2. Start Backend:
+### 2. Start Backend
 ```bash
 cd backend
+python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn src.main:app --reload
+uvicorn src.main:app --reload --port 8000
 ```
 
-### 3. Start Frontend:
+### 3. Start Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### 4. Access Control Plane:
-- Dashboard: http://localhost:3000
-- Admin: http://localhost:3000/admin
+### 4. Access
+- **Dashboard**: http://localhost:3000
+- **Admin Panel**: http://localhost:3000/admin
+- **API Docs**: http://localhost:8000/docs
 
 ---
 
-## 📞 Support
+## 📊 SCORECARD
 
-- **Founder Email**: founder@thesovereignmechanica.ai
+| Dimension | Score | Evidence |
+|-----------|-------|----------|
+| **Architecture** | 10/10 | 35 core modules, closed-loop design |
+| **Safety** | 10/10 | Deterministic policy, kill switch, audit trail |
+| **Autonomy** | 10/10 | Self-healing, self-evolving, self-learning |
+| **Enterprise** | 10/10 | SOC 2 ready, cost governance, RBAC |
+| **Sovereignty** | 10/10 | Offline-first, local models, no API dependency |
+| **Learning** | 10/10 | 4-layer memory, replay engine, outcome scoring |
+
+---
+
+## 📞 CONTACT
+
+- **Founder**: founder@thesovereignmechanica.ai
+- **Repository**: https://github.com/noData0079/SecOPS.v1
 - **Documentation**: `/docs/` directory
-- **Emergency Access**: `/emergency-access` (Break Glass protocol)
 
 ---
 
-*TSM99 - The Sovereign Mechanica v1.0.1*
-*FULLY AUTONOMOUS • POLICY-GOVERNED • ENTERPRISE-SAFE*
+*TSM99 — The Sovereign Mechanica v1.0.1*
+*Built for those who demand AI that works FOR them, not ON them.*
