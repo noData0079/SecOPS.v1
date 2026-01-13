@@ -132,16 +132,45 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 
 ---
 
-### 5️⃣ FORTRESS — Sovereignty & Offline Mode
+### 5️⃣ FORTRESS — Sovereignty & Tiered Intelligence
 
-> *"Your AI, your data, your control. Forever."*
+> *"Your AI, your data, your control. Fast AND deep."*
 
-| What It Does | How It Works |
-|--------------|--------------|
-| Local LLM support | Ollama, vLLM, llama.cpp—no cloud APIs |
-| Offline operation | Block all outbound traffic, still fully functional |
-| Cost control | Budget limits, ROI tracking, emergency cutoff |
-| Data residency | All processing stays on your infrastructure |
+#### 🔥 Two-Tier Inference (Speed + Depth)
+
+| Tier | Models | Latency | Use Case |
+|------|--------|---------|----------|
+| **TIER 1: EDGE** | Phi-3 (2B), Qwen-2B | **10-50ms** | Initial triage, classification, routing |
+| **TIER 2: DEEP** | DeepSeek-6.7B, Llama-70B | 1-5s | Complex reasoning, multi-signal correlation |
+
+**Why Two Tiers?**
+- **Attack at 100Gbps?** → Tier 1 classifies in milliseconds, escalates to Tier 2 only when needed
+- **90% of alerts** handled by fast edge model → instant response
+- **10% complex cases** get deep reasoning → no compromise on quality
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    TIERED INFERENCE FLOW                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   ALERT ──→ TIER 1 (10ms) ──→ Simple? ──→ AUTO-RESOLVE         │
+│                  │                                              │
+│                  └──→ Complex? ──→ TIER 2 (2s) ──→ DEEP FIX    │
+│                                                                 │
+│   TIER 1: Trained on YOUR patterns, YOUR infrastructure        │
+│   TIER 2: Full context, cross-signal correlation               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### 🛡️ Sovereignty Features
+
+| Feature | How It Works |
+|---------|--------------|
+| **Local-first** | Edge model runs on YOUR hardware, data stays local |
+| **Offline capable** | Block all outbound traffic, still fully functional |
+| **Cost control** | Budget limits, ROI tracking, emergency cutoff |
+| **Optional cloud** | Secure Private Cloud API for Tier 2 (your choice) |
 
 **One Script**: `./tools/ice-age/setup.sh` for complete sovereignty.
 
