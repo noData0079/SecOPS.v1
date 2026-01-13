@@ -371,6 +371,64 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 
 **YOUR DATA NEVER LEAVES. GLOBAL LEARNS FROM PATTERNS, NOT RAW DATA.**
 
+#### 🛡️ Adversarial Defense (3-Layer Protection)
+
+**Problem**: What if an attacker tries to poison our AI's learning?
+
+**Solution**: FORTRESS uses 3-layer defense against adversarial training.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              3-LAYER ADVERSARIAL DEFENSE                        │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   LAYER 1: STATISTICAL DRIFT DETECTION                         │
+│   ├── Golden Baseline (Day 1 snapshot)                         │
+│   ├── Centroid Shift alerts if "normal" moves too fast        │
+│   └── Median Absolute Deviation prunes "weird" data            │
+│                                                                 │
+│   ─────────────────────────────────────────────────────────────│
+│                                                                 │
+│   LAYER 2: AXIOM ENGINE (Deterministic Veto)                   │
+│   ├── Axioms = Hard-coded rules (NOT AI)                       │
+│   ├── Example: "No service talks to Russian IP on weekends"    │
+│   └── If AI learns conflicting pattern → VETO + ALERT          │
+│                                                                 │
+│   ─────────────────────────────────────────────────────────────│
+│                                                                 │
+│   LAYER 3: SHADOW MIRRORING                                    │
+│   ├── Primary Brain: Learns in real-time                       │
+│   ├── Mirror Brain: Only learns from human-verified data       │
+│   └── If Primary ignores attack that Mirror catches → POISONED │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Attack Type | Legacy AI Response | TSM99 FORTRESS Response |
+|-------------|-------------------|-------------------------|
+| **Label Flipping** | AI thinks malware is "Safe" | Axiom Veto: Policy says malware, AI overruled |
+| **Incremental Drift** | AI slowly becomes useless | Shadow Mirror: Drift detected vs Golden Baseline |
+| **Targeted Trigger** | "When I see X, do nothing" | Forensic Replay: See exactly when Oracle learned "X" |
+
+#### 🛠️ Sovereign Recovery (If Poisoned)
+
+**Step 1: Forensic Rewind**
+```bash
+# Find when the AI's confidence in a malicious pattern began rising
+./tools/ice-age/forensic-replay.sh --module oracle --topic ssh --since 48h
+```
+
+**Step 2: Differential Privacy**
+Enable in `economics/config.yaml` to add mathematical noise—forces AI to only learn from strong, repeated patterns.
+
+**Step 3: Snapshot Rollback**
+1. Navigate to Vault Dashboard
+2. Select "Pre-Incident" snapshot
+3. Click "Restore Sovereign State"
+4. System reverts to clean, non-poisoned intelligence
+
+> *"TSM99 Sovereignty isn't just data residency—it's Cognitive Sovereignty."*
+
 **One Script**: `./tools/ice-age/setup.sh` for complete sovereignty.
 
 ---
