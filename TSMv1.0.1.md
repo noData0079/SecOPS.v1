@@ -736,6 +736,146 @@ learning_rules:
 
 ---
 
+## 🔧 SOLVING THE REMAINING CRACKS
+
+### 1️⃣ Approval Fatigue (The "OK Syndrome")
+
+**Problem**: Humans must "Commit" every policy change → they stop reading → just hit "OK" → poisoning sneaks in.
+
+**Solution**: **Batched Consent + Anomaly Highlighting**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              ANTI-FATIGUE APPROVAL SYSTEM                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   INSTEAD OF: 47 individual approvals per day                  │
+│   ────────────────────────────────────────────────────────────  │
+│                                                                 │
+│   BATCHED CONSENT (Daily Digest)                                │
+│   ┌─────────────────────────────────────────────────────────┐  │
+│   │  📋 POLICY CHANGES - January 13, 2026                    │  │
+│   │  ────────────────────────────────────────────────────    │  │
+│   │  ✅ 41 LOW-RISK changes (auto-approved by policy)        │  │
+│   │  ⚠️  5 MEDIUM changes - summarized below                 │  │
+│   │  🚨 1 ANOMALY - REQUIRES ATTENTION                       │  │
+│   │     └→ "SSH allow from new IP range 203.0.113.0/24"      │  │
+│   │        [APPROVE] [REJECT] [INVESTIGATE]                   │  │
+│   └─────────────────────────────────────────────────────────┘  │
+│                                                                 │
+│   Human reviews 1-5 items, not 47                               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Change Type | Human Action | Automation |
+|-------------|--------------|------------|
+| **LOW** (cosmetic) | None | Auto-approved after 24h |
+| **MEDIUM** (operational) | Digest review | Highlighted summary |
+| **HIGH** (security) | Explicit click | **Cannot auto-approve** |
+| **ANOMALY** (deviation) | **Forced attention** | Blocks until reviewed |
+
+> *"Reduce clicks, increase attention on what matters."*
+
+---
+
+### 2️⃣ Cold Start Knowledge (Day 1 Problem)
+
+**Problem**: On Day 1, TSM99 knows nothing. If it takes 3 months to reach 90% confidence → customer churns.
+
+**Solution**: **Pre-Trained + Synthetic Warm-Up + Progressive Autonomy**
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              COLD START ACCELERATION                            │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   DAY 0: INSTALLATION                                           │
+│   ├── Load pre-trained "Industry Baseline" (SOC patterns)      │
+│   ├── Ingest infrastructure topology (K8s, network, IAM)       │
+│   └── Oracle starts at 60% confidence (not 0%)                 │
+│                                                                 │
+│   DAY 1-7: SYNTHETIC WARM-UP                                    │
+│   ├── Red Team simulator generates 1000 synthetic incidents    │
+│   ├── Oracle learns YOUR specific response patterns            │
+│   └── Confidence rises to 75%                                  │
+│                                                                 │
+│   DAY 7-30: SHADOW MODE                                         │
+│   ├── Oracle proposes actions, human validates                 │
+│   ├── Every "correct" prediction boosts confidence             │
+│   └── Target: 85% confidence                                   │
+│                                                                 │
+│   DAY 30+: PROGRESSIVE AUTONOMY                                 │
+│   ├── LOW-risk actions: full auto                              │
+│   ├── MEDIUM-risk: auto with notification                      │
+│   └── HIGH-risk: still requires approval                       │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Timeline | Confidence | Autonomy Level |
+|----------|------------|----------------|
+| Day 0 | 60% | Shadow only |
+| Day 7 | 75% | LOW auto-approved |
+| Day 30 | 85% | MEDIUM auto-approved |
+| Day 90 | 95% | Full autonomy (HIGH still gated) |
+
+> *"Not 3 months. 7 days to useful. 30 days to trusted."*
+
+---
+
+### 3️⃣ Air-Gap Update Loop (Ice Age Mode)
+
+**Problem**: In offline "Ice Age" mode, how do threat signatures get in without breaking the air-gap?
+
+**Solution**: **Data Diode Protocol** — Secure, one-way physical bridge.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              DATA DIODE PROTOCOL (ICE-AGE UPDATES)              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   GLOBAL AI                    AIR GAP                VAULT     │
+│   (Internet)                     ║                  (Offline)   │
+│   ┌─────────┐                    ║                ┌─────────┐  │
+│   │ Threat  │                    ║                │  LOCAL  │  │
+│   │ Intel   │──→ [USB/OPTICAL] ══╬══════════════▶│   AI    │  │
+│   │ Updates │    (one-way)       ║  Verified     └─────────┘  │
+│   └─────────┘                    ║  on arrival                 │
+│                                  ║                             │
+│   ❌ Network connection          ║                             │
+│   ✅ Physical media only         ║                             │
+│   ✅ Cryptographically signed    ║                             │
+│   ✅ Human carries across        ║                             │
+│                                  ║                             │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Update Package Contents:**
+```bash
+threat_update_2026_01_13.tsm
+├── manifest.json          # Signed by TSM Global
+├── signatures.db          # New threat hashes
+├── model_delta.bin        # Adapter weights (not full model)
+├── policy_patches/        # Rule updates
+└── attestation.sig        # Cryptographic proof
+```
+
+**Verification on Import:**
+1. Insert USB/optical in air-gapped machine
+2. TSM verifies signature against hardcoded public key
+3. Checks manifest hash chain
+4. Applies delta to local model
+5. Logs import event to Trust Ledger
+
+| Update Method | Latency | Security |
+|---------------|---------|----------|
+| Online sync | Real-time | Standard TLS |
+| Scheduled sync | Weekly | mTLS + attestation |
+| **Data Diode** | Manual | **Physical air-gap** |
+
+> *"If it can't cross the air-gap without a human carrying it, it's truly sovereign."*
+
 ## 🚀 QUICK START
 
 ### Option A: Full Sovereign (Recommended)
