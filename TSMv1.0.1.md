@@ -352,7 +352,89 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 - **Unknown threat?** → Block path, wait 2s for Tier 2 analysis
 - **False positive cost** → 2s delay vs breach = acceptable trade-off
 
-#### 🛡️ The Locked Vault Model
+#### 🎛️ Compute Orchestrator (Sovereignty Without Capex)
+
+**The Reframe:**
+- ❌ Wrong promise: "Run Tier-2 models locally"
+- ✅ Correct promise: "Control where computation runs, how it's verified, what data leaves"
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              COMPUTE ORCHESTRATOR DECISION                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   INPUT:                                                        │
+│   ├── model_tier: T2                                           │
+│   ├── data_sensitivity: HIGH                                   │
+│   ├── client_hardware: { gpu: false, ram: 64GB }               │
+│   ├── latency_budget: 800ms                                    │
+│   └── regulatory: [SOC2, ISO27001]                             │
+│                                                                 │
+│   OUTPUT:                                                       │
+│   ├── execution_mode: SECURE_TEE                               │
+│   ├── model_variant: llama-70b-q4                              │
+│   ├── attestation_required: true                               │
+│   └── data_egress: DENIED                                      │
+│                                                                 │
+│   [Decision logged, auditable, replayable]                     │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+#### 🔄 Four Execution Modes
+
+| Mode | When Used | Hardware | Sovereignty |
+|------|-----------|----------|-------------|
+| **A: Local GPU** | Defense, banks | H100/A100 | ✅ Full offline |
+| **B: Secure TEE** | Most customers | Cloud + TEE | ✅ Encrypted runtime |
+| **C: CPU Quantized** | No GPU | Local CPU | ✅ Offline, slower |
+| **D: Hybrid Cascade** | Smart default | Local → TEE | ✅ Best of both |
+
+**MODE B — Secure Cloud TEE (Default for Tier-2)**
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              CONFIDENTIAL COMPUTING                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   H100/A100 in Cloud                                           │
+│   ├── AMD SEV-SNP / Intel TDX                                  │
+│   ├── NVIDIA Confidential Computing                            │
+│   ├── Memory encrypted at runtime                              │
+│   ├── Remote attestation proof                                 │
+│   └── No provider visibility into data                         │
+│                                                                 │
+│   Your Guarantee:                                               │
+│   ✅ Model encrypted at rest & runtime                         │
+│   ✅ Customer data never visible to host OS                    │
+│   ✅ Attestation proof stored in audit log                     │
+│                                                                 │
+│   → Sovereignty without capex                                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**MODE D — Hybrid Cascade (Smartest Option)**
+```
+LOCAL CPU (Tier 1) → Uncertainty > threshold? → ESCALATE TO TEE (Tier 2)
+
+Benefits:
+├── 80-90% of calls handled locally
+├── Tier-2 invoked only when needed
+├── Costs controlled
+├── Latency acceptable
+└── No full dependency on cloud
+```
+
+#### 📊 Model Tiering (Decision Complexity, Not Hardware)
+
+| Tier | Model | Where | Use Case |
+|------|-------|-------|----------|
+| **T0** | Rules | Local | Deterministic policy |
+| **T1** | 2B-13B | Local CPU | Fast triage, classification |
+| **T2** | 34B-70B | TEE / GPU | Deep reasoning, correlation |
+| **T3** | Ensemble | Cloud only | Multi-model consensus |
+
+> *"Tiers are decision complexity levels, not hardware requirements."*
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
