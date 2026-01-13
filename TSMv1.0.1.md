@@ -159,7 +159,43 @@ TSM99 delivers **5 outcomes**. Not 35 modules to manage—just 5 things that wor
 - ✅ Rollback works
 - ✅ No data corruption
 
-> *"Clone the patient, not the hospital."*
+#### 🔄 Traffic Shadowing (Production-Accurate Ghost)
+
+**Problem**: Mocks/stubs behave differently than real Postgres/Oracle. Subtle race conditions pass Ghost but nuke Production.
+
+**Solution**: Pipe a fraction of real, read-only production traffic into Ghost.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              TRAFFIC SHADOWING ARCHITECTURE                     │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   PRODUCTION TRAFFIC                                            │
+│        │                                                        │
+│        ├──────────────────────────────→ [LIVE SERVICE]          │
+│        │                                      │                 │
+│        │ (1% shadow copy, read-only)          │                 │
+│        ▼                                      ▼                 │
+│   ┌─────────────┐                      [Production DB]          │
+│   │ GHOST ENV   │                                               │
+│   │ + Fixed Svc │──→ [Stateful Stub] ← Recorded Prod Snapshot   │
+│   └─────────────┘                                               │
+│        │                                                        │
+│   Compare: Ghost Response vs Expected                           │
+│        │                                                        │
+│   ✅ Match → Safe to Deploy                                     │
+│   ❌ Mismatch → BLOCK + Alert                                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Stub Type | Before (Risky) | After (SOTA) |
+|-----------|----------------|--------------|
+| **Database** | Schema + synthetic | **Recorded production snapshot** |
+| **APIs** | Hardcoded responses | **Replayed real responses** |
+| **Queues** | Empty stub | **Recent message replay** |
+
+> *"Don't just mock it. Shadow it."*
 
 **Single Toggle**: Enable "Autopilot Mode" and walk away—the Ghost handles liability.
 
@@ -436,6 +472,79 @@ Benefits:
 
 > *"Tiers are decision complexity levels, not hardware requirements."*
 
+#### ⏱️ Latency-Aware Router (TEE Performance Tax)
+
+**Problem**: TEEs have 10-30% latency overhead. Fast-Path threats can't wait.
+
+**Solution**: Route by urgency + display latency warning for TEE calls.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              LATENCY-AWARE ROUTING                              │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   THREAT ARRIVES                                                │
+│        │                                                        │
+│        ▼                                                        │
+│   [URGENCY CHECK]                                               │
+│        │                                                        │
+│   ┌────┴────┐                                                   │
+│   ▼         ▼                                                   │
+│ FAST     COMPLEX                                                │
+│ (T0/T1)   (T2/T3)                                               │
+│   │         │                                                   │
+│   ▼         ▼                                                   │
+│ LOCAL    MODE B (TEE)?                                          │
+│ (10ms)      │                                                   │
+│             ▼                                                   │
+│   ┌─────────────────────────────────────────────┐               │
+│   │ ⏳ "Deep reasoning in progress..."          │               │
+│   │    TEE Latency: +450ms                     │               │
+│   │    Attestation: Verified ✅                │               │
+│   └─────────────────────────────────────────────┘               │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Route | Expected Latency | When Used |
+|-------|------------------|-----------|
+| **Local T0/T1** | 10-50ms | Fast-Path, known patterns |
+| **Local GPU T2** | 500ms-2s | Deep reasoning (if GPU) |
+| **TEE T2** | 800ms-3s | Deep reasoning (no local GPU) |
+| **Cloud T3** | 2-5s | Multi-model consensus |
+
+> *"The AI tells you when it's thinking hard and why."*
+
+#### 🛡️ Series B Challenges (Enterprise Hardening)
+
+| Challenge | The Risk | TSM99 Solution |
+|-----------|----------|----------------|
+| **TEE Jailbreak** | Intel/AMD bugs (CacheWarp) | **Multi-Attestation**: Verify TEE from 2+ hardware providers |
+| **Ghost Divergence** | Ghost ≠ Production | **Stateful Stubs**: Recorded production snapshots |
+| **Oracle Reward Gap** | AI rewards fixing its own bugs | **External Oracle**: Reward from deterministic Outcome Scorer |
+
+#### 🧮 Autonomy Trust Score (Cognitive Formula)
+
+The Oracle calculates Trust Score using weighted temporal decay:
+
+```
+         Σ(Sᵢ × e^(-λtᵢ))
+Tₐ = ────────────────────── × (1 - D)
+          Σ(e^(-λtᵢ))
+```
+
+| Variable | Meaning |
+|----------|---------|
+| **Sᵢ** | Success score of action i |
+| **e^(-λtᵢ)** | Temporal decay (recent matters more) |
+| **D** | Drift Factor from Shadow Mirror |
+| **Tₐ** | Autonomy Trust Score |
+
+**Threshold Behavior:**
+- `Tₐ > 0.85` → Full Autonomy
+- `Tₐ 0.70-0.85` → Human notifications
+- `Tₐ < 0.70` → **Auto-revert to Shadow Mode**
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                    DATA SOVEREIGNTY MODEL                       │
@@ -525,6 +634,46 @@ Benefits:
 | **Label Flipping** | AI thinks malware is "Safe" | Axiom Veto: Policy says malware, AI overruled |
 | **Incremental Drift** | AI slowly becomes useless | Shadow Mirror: Drift detected vs Golden Baseline |
 | **Targeted Trigger** | "When I see X, do nothing" | Forensic Replay: See exactly when Oracle learned "X" |
+
+#### 🔬 Logic Cluster Analysis (Strategic Poisoning Detection)
+
+**Problem**: If an attacker poisons 100 small deltas over 30 days, replaying them individually is useless.
+
+**Solution**: Analyze trends across delta clusters, not just individual commits.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              LOGIC CLUSTER ANALYSIS                             │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│   Instead of: delta_331 vs delta_332                           │
+│   ─────────────────────────────────────────────────────────     │
+│                                                                 │
+│   CLUSTER ANALYSIS (30-day window):                            │
+│                                                                 │
+│   Δ_001: SSH allow from 10.0.0.0/8  → +0.01 toward "allow"     │
+│   Δ_017: SSH allow from 10.1.0.0/16 → +0.02 toward "allow"     │
+│   Δ_033: SSH allow from Russia ASN  → +0.01 toward "allow"     │
+│   Δ_049: SSH allow from 203.0.113.0 → +0.01 toward "allow"     │
+│        ...                                                      │
+│   Δ_098: SSH allow from any         → +0.01 toward "allow"     │
+│                                                                 │
+│   ┌─────────────────────────────────────────────────────────┐  │
+│   │ 🚨 STRATEGIC POISONING DETECTED                         │  │
+│   │    100 deltas moving logic toward "Allow SSH from any"  │  │
+│   │    Individual: insignificant | Cluster: ATTACK          │  │
+│   └─────────────────────────────────────────────────────────┘  │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+| Detection Method | Catches | Misses |
+|------------------|---------|--------|
+| Per-delta review | Single outliers | Multi-step attacks |
+| **Cluster analysis** | **Trend attacks** | **Fast single-shot** |
+| Combined (TSM99) | **Both** | Minimal |
+
+> *"A drop of poison goes unnoticed. A river of poison gets caught."*
 
 #### 🛠️ Sovereign Recovery (If Poisoned)
 
