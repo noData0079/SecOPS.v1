@@ -23,7 +23,16 @@ class SearchOrchestrator:
         - metadata routing
         """
 
-        vector_results = await vector_store.search(query.query, top_k=query.top_k)
+        # Extract client_id from context if available for filtering
+        filters = {}
+        if context and context.metadata and "client" in context.metadata:
+            client_id = context.metadata["client"]
+            if client_id:
+                filters["client_id"] = client_id
+
+        # Pass filters to vector_store search
+        # Note: vector_store.search signature now supports filters
+        vector_results = await vector_store.search(query.query, top_k=query.top_k, filters=filters)
 
         if not vector_results:
             # Assuming keyword_search exists on vector_store, otherwise this might fail.

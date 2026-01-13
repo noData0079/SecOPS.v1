@@ -43,6 +43,11 @@ tqdm
 regex
 packaging
 
+# ===============================
+# RAG / Vector Store
+# ===============================
+qdrant-client==1.16.2
+fastembed==0.7.4
 
 # ===============================
 # Async / runtime
